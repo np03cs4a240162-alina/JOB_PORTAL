@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Reviews | JSTACK</title>
+    <style>
+        /* Professional UI Styling */
+        :root { --primary: #0a66c2; --bg: #f3f2ef; --white: #ffffff; --text: #333; --gold: #f1c40f; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; color: var(--text); }
+        
+        /* Navbar Styling */
+        #nav-actions { background: #000; padding: 12px 50px; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
+        #nav-actions a { color: white; text-decoration: none; font-weight: 600; font-size: 14px; }
+
+        .container { max-width: 850px; margin: 30px auto; padding: 0 20px; }
+        
+        /* Card Styling */
+        .card { background: var(--white); border-radius: 8px; border: 1px solid #e0e0e0; padding: 25px; margin-bottom: 20px; }
+        
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { font-size: 24px; margin: 0; color: var(--text); }
+        
+        /* Search Bar */
+        .search-container { position: relative; margin-bottom: 25px; }
+        #search-company { width: 100%; padding: 15px 15px 15px 45px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        .search-icon { position: absolute; left: 15px; top: 15px; color: #888; }
+
+        /* Review Item Styling */
+        .review-item { background: white; border-bottom: 1px solid #eee; padding: 20px 0; position: relative; }
+        .review-item:last-child { border-bottom: none; }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .company-name { font-size: 18px; font-weight: bold; color: var(--primary); }
+        .stars { color: var(--gold); font-size: 18px; letter-spacing: 2px; }
+        .author-info { font-size: 13px; color: #666; margin-top: 5px; }
+        .review-text { font-size: 15px; line-height: 1.6; color: #444; margin: 10px 0; }
+
+        /* Form Styling */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        textarea { height: 100px; resize: none; }
+        .btn-post { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-post:hover { background: #004182; }
+        
+        .avg-box { background: #e7f3ff; padding: 15px; border-radius: 8px; color: #004182; font-weight: bold; margin-bottom: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <nav id="nav-actions"></nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="header-flex">
+                <h1>Company Reviews</h1>
+                <div id="avg-rating"></div>
+            </div>
+            
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-company" placeholder="Search by company name (e.g. Tech Corp)..." onkeyup="loadReviews()">
+            </div>
+        </div>
+
+        <div class="card" id="review-form-container">
+            <h3 style="margin-top:0;">Share your experience</h3>
+            <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" id="company" placeholder="Enter company name">
+            </div>
+            <div class="form-group">
+                <label>Rating</label>
+                <select id="rating">
+                    <option value="5">5 Stars - Excellent</option>
+                    <option value="4">4 Stars - Good</option>
+                    <option value="3">3 Stars - Average</option>
+                    <option value="2">2 Stars - Poor</option>
+                    <option value="1">1 Star - Terrible</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Your Review</label>
+                <textarea id="review" placeholder="What was it like working there?"></textarea>
+            </div>
+            <button class="btn-post" id="submit-btn" onclick="submitReview()">Post Review</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Recent Reviews</h3>
+            <div id="reviews-list">
+                <p style="text-align:center; color:#888; padding:20px;">Loading reviews...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        let currentUser = null;
+        const API_URL = 'http://localhost/smartjobportal/api/reviews.php'; 
+
+        async function init() {
+            currentUser = await getCurrentUser();
+            const form = document.getElementById('review-form-container');
+            if (!currentUser && form) {
+                form.innerHTML = `<div style="text-align:center; padding:20px;">
+                    <p>Want to share your experience?</p>
+                    <a href="../auth/login.html" class="btn-post" style="text-decoration:none; display:inline-block;">Login to Review</a>
+                </div>`;
+            }
+            loadReviews();
+        }
+
+        async function loadReviews() {
+            const list = document.getElementById('reviews-list');
+            const avgDisp = document.getElementById('avg-rating');
+            const search = document.getElementById('search-company').value.trim();
+            const url = search ? `${API_URL}?company=${encodeURIComponent(search)}` : API_URL;
+
+            try {
+                const data = await apiGet(url);
+
+                // 1. Organize Average
+                if (data && data.total_count > 0) {
+                    // Calculating average manually if PHP returns null
+                    const totalScore = data.reviews.reduce((acc, r) => acc + parseInt(r.rating), 0);
+                    const calcAvg = (totalScore / data.total_count).toFixed(1);
+                    avgDisp.innerHTML = `<div class="avg-box">⭐ ${calcAvg} Average Rating (${data.total_count} Reviews)</div>`;
+                }
+
+                // 2. Organize Review List
+                if (!data.reviews || data.reviews.length === 0) {
+                    list.innerHTML = `<p style="text-align:center; color:#999; padding:40px;">No reviews yet. Be the first to write one!</p>`;
+                    return;
+                }
+
+                list.innerHTML = data.reviews.map(r => `
+                    <div class="review-item" id="rev-${r.id}">
+                        <div class="review-header">
+                            <div>
+                                <div class="company-name">${escHtml(r.company)}</div>
+                                <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+                            </div>
+                            ${currentUser && (currentUser.id == r.user_id || currentUser.role === 'admin') ? 
+                                `<button onclick="deleteReview(${r.id})" style="color:red; background:none; border:none; cursor:pointer; font-size:12px;">Delete</button>` : ''}
+                        </div>
+                        <div class="review-text">${escHtml(r.review)}</div>
+                        <div class="author-info">
+                            By <strong>${escHtml(r.author)}</strong> • ${new Date(r.created_at).toLocaleDateString()}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                list.innerHTML = `<p style="color:red; text-align:center;">Could not load data. Ensure XAMPP is running.</p>`;
+            }
+        }
+
+        async function submitReview() {
+            const company = document.getElementById('company').value.trim();
+            const rating = document.getElementById('rating').value;
+            const review = document.getElementById('review').value.trim();
+            if(!company || !review) return alert("Please fill all fields");
+
+            const res = await apiPost(API_URL, { company, rating, review });
+            if(res.success) {
+                document.getElementById('company').value = '';
+                document.getElementById('review').value = '';
+                loadReviews();
+            } else {
+                alert(res.error);
+            }
+        }
+
+        async function deleteReview(id) {
+            if(confirm("Delete this review?")) {
+                const res = await apiDelete(`${API_URL}?id=${id}`);
+                if(res.success) loadReviews();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
