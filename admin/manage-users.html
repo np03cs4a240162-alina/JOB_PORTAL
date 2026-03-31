@@ -71,7 +71,7 @@
   const roleClass = { admin:'badge-error', employer:'badge-success', seeker:'badge-info' };
 
   async function init() {
-    await requireRole('admin');
+    await checkAuth('admin');
     loadUsers();
   }
 

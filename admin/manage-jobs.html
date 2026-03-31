@@ -40,7 +40,7 @@
   let allJobs = [];
 
   async function init() {
-    await requireRole('admin');
+    await checkAuth('admin');
     loadJobs();
     document.getElementById('search-text').addEventListener('input', e => {
       if (!e.target.value) renderTable(allJobs);

@@ -2,7 +2,7 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'jstack_db');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', 'root');
 
 /**
  * Get Database Connection (Singleton Pattern)
@@ -23,7 +23,7 @@ function getDB(): PDO {
         } catch (PDOException $e) {
             http_response_code(500);
             header('Content-Type: application/json');
-            echo json_encode(['error' => 'Database connection failed. Check XAMPP MySQL.']);
+            echo json_encode(['error' => 'Database connection failed. Check XAMPP MySQL.' + $e]);
             exit;
         }
     }

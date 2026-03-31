@@ -73,7 +73,7 @@
 <script src="../assets/js/main.js"></script>
 <script>
   async function init() {
-    const user = await requireRole('admin');
+    const user = await checkAuth('admin');
     if (!user) return;
     document.getElementById('admin-name').textContent = '👤 ' + escHtml(user.name);
 

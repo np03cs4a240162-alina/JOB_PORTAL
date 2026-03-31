@@ -32,7 +32,7 @@
   const jobId = new URLSearchParams(location.search).get('id');
 
   async function init() {
-    await requireRole('seeker');
+    await checkAuth('seeker');
     if (!jobId) { showAlert('alert-box', 'No job selected.', 'error'); return; }
     const job = await apiGet(`/jobs.php?id=${jobId}`);
     if (job && !job.error) document.getElementById('job-title').textContent = 'Apply: ' + escHtml(job.title);

@@ -68,7 +68,7 @@ if ($method === 'GET') {
 
     // 4. Employer's Dashboard View
     if (isset($_GET['mine'])) {
-        $user = requireRole('employer');
+        $user = checkAuth('employer');
         $stmt = $db->prepare("SELECT j.*, COUNT(a.id) AS application_count 
                               FROM jobs j 
                               LEFT JOIN applications a ON j.id = a.job_id 
@@ -81,7 +81,7 @@ if ($method === 'GET') {
 
     // 5. Admin Panel View
     if (isset($_GET['admin_view'])) {
-        requireRole('admin');
+        checkAuth('admin');
         $stmt = $db->query("SELECT j.*, u.name AS employer_name, COUNT(a.id) AS application_count 
                             FROM jobs j 
                             LEFT JOIN users u ON j.employer_id = u.id 
@@ -98,7 +98,7 @@ if ($method === 'GET') {
 
 // ── POST: Create Job ──
 if ($method === 'POST') {
-    $user = requireRole('employer');
+    $user = checkAuth('employer');
     $data = getBody();
     
     $fields = ['title', 'company', 'salary', 'category', 'location', 'description'];

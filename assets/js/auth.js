@@ -4,7 +4,7 @@
  */
 async function handleLogin(e) {
     e.preventDefault();
-    clearAlert('alert-box');
+    // clearAlert('alert-box');
     
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -45,7 +45,7 @@ async function handleLogin(e) {
  */
 async function handleSendOtp(e) {
     e.preventDefault();
-    clearAlert('alert-box');
+    // FclearAlert('alert-box');
 
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
@@ -98,7 +98,7 @@ async function handleSendOtp(e) {
  */
 async function handleVerifyOtp(e) {
     e.preventDefault();
-    clearAlert('alert-box');
+    // clearAlert('alert-box');
 
     const email = document.getElementById('email').value.trim();
     const otp = document.getElementById('otp').value.replace(/\s/g, ''); // Remove any accidental spaces

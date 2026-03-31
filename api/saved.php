@@ -5,7 +5,7 @@ require_once '../config/session.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
-$user   = requireRole('seeker');
+$user   = checkAuth('seeker');
 
 if ($method === 'GET') {
     $stmt = $db->prepare("SELECT j.*,s.saved_at FROM saved_jobs s JOIN jobs j ON s.job_id=j.id WHERE s.user_id=? ORDER BY s.saved_at DESC");

@@ -62,6 +62,7 @@
   async function init() {
     // 1. Ensure user is a seeker
     const user = await checkAuth('seeker');
+    console.log(user);
     if (!user) return;
 
     if (!jobId) {

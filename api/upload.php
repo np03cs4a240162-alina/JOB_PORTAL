@@ -9,7 +9,7 @@ require_once '../config/upload.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
-$user   = requireRole('seeker');
+$user   = checkAuth('seeker');
 
 /**
  * ── GET: Fetch Resumes ──

@@ -50,7 +50,7 @@
 <script src="../assets/js/main.js"></script>
 <script>
   async function init() {
-    await requireRole('admin');
+    await checkAuth('admin');
     document.getElementById('report-date').textContent = 'Generated: ' + new Date().toLocaleString();
     
     const res = await apiGet('/dashboard-stats.php');

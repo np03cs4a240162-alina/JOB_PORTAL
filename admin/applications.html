@@ -51,7 +51,7 @@
   let allApps = [];
 
   async function init() {
-    await requireRole('admin');
+    await checkAuth('admin');
     // Calling the API endpoint you already have
     const data = await apiGet('/applications.php?admin_view=1');
     allApps = Array.isArray(data) ? data : [];

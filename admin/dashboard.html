@@ -70,7 +70,7 @@
 <script src="../assets/js/main.js"></script>
 <script>
   async function initDashboard() {
-    await requireRole('admin');
+    await checkAuth('admin');
     
     const res = await apiGet('/dashboard-stats.php');
     if (!res.success) return;

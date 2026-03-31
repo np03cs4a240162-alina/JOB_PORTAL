@@ -18,7 +18,7 @@ if ($method === 'POST') {
 
     // ACTION: Apply for a job (Job Seeker)
     if ($action === 'apply' || empty($action)) {
-        $user  = requireRole('seeker');
+        $user  = checkAuth('seeker');
         $jobId = (int)($data['job_id'] ?? 0);
         $note  = isset($data['resume_note']) ? sanitize($data['resume_note']) : '';
         // Added support for linking a specific resume ID if your seeker has multiple

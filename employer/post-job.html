@@ -61,7 +61,7 @@
   let currentUser = null;
 
   async function init() {
-    currentUser = await requireRole('employer');
+    currentUser = await checkAuth('employer');
   }
 
   async function handlePost() {

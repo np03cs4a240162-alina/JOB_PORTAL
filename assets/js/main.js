@@ -66,13 +66,13 @@ async function getCurrentUser() {
 /**
  * Call this at the top of dashboard pages to prevent unauthorized access
  */
-async function checkAuth(requiredRole = null) {
+async function checkAuth(checkAuth = null) {
     const user = await getCurrentUser();
     if (!user) {
         window.location.href = BASE + '/auth/login.html';
         return null;
     }
-    if (requiredRole && user.role !== requiredRole) {
+    if (checkAuth && user.role !== checkAuth) {
         window.location.href = BASE + '/index.html';
         return null;
     }

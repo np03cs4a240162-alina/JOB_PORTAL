@@ -28,7 +28,7 @@ function requireLogin(): array {
     return currentUser();
 }
 
-function requireRole(string $role): array {
+function checkAuth(string $role): array {
     $user = requireLogin();
     if (($user['role'] ?? '') !== $role) {
         jsonResponse(['error' => 'Forbidden. Insufficient permissions.'], 403);

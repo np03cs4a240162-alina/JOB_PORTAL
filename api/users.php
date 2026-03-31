@@ -17,12 +17,12 @@ if ($method === 'GET') {
         if (!$u) jsonResponse(['error' => 'Not found.'], 404);
         jsonResponse($u);
     }
-    requireRole('admin');
+    checkAuth('admin');
     jsonResponse($db->query('SELECT id,name,email,role,created_at FROM users ORDER BY created_at DESC')->fetchAll());
 }
 
 if ($method === 'POST') {
-    requireRole('admin');
+    checkAuth('admin');
     $data  = getBody();
     $name  = sanitize($data['name']  ?? '');
     $email = sanitize($data['email'] ?? '');

@@ -28,7 +28,7 @@
 <script src="../assets/js/main.js"></script>
 <script>
   async function init() {
-    await requireRole('employer');
+    await checkAuth('employer');
     const data = await apiGet('/profiles.php');
     if (data) {
       document.getElementById('company').value  = data.company  || '';

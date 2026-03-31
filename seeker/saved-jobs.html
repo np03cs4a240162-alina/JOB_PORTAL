@@ -25,7 +25,7 @@
 <script src="../assets/js/jobs.js"></script>
 <script>
   async function init() {
-    await requireRole('seeker');
+    await checkAuth('seeker');
     const data = await apiGet('/saved.php');
     const list = document.getElementById('saved-list');
     if (!Array.isArray(data) || !data.length) {

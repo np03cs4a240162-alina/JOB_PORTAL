@@ -42,7 +42,7 @@
 <script src="../assets/js/main.js"></script>
 <script>
   async function init() {
-    const user = await requireRole('employer');
+    const user = await checkAuth('employer');
     if (!user) return;
     document.getElementById('emp-name').textContent = '👤 ' + escHtml(user.name);
     const res = await apiGet('/dashboard-stats.php');
