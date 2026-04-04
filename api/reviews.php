@@ -1,24 +1,7 @@
 <?php
-require_once '../config/cors.php';
-require_once '../config/db.php';
-require_once '../config/session.php';
-
-// Ensure basic helper functions are available
-if (!function_exists('jsonResponse')) {
-    function jsonResponse($data, $code = 200) {
-        http_response_code($code);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-}
-
-// Global sanitization helper
-if (!function_exists('sanitize')) {
-    function sanitize($str) {
-        return htmlspecialchars(trim($str), ENT_QUOTES, 'UTF-8');
-    }
-}
+require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/session.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();

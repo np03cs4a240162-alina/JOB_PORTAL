@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reports - JSTACK Admin</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../assets/js/chart.js"></script>
 </head>
 <body>
 
@@ -13,7 +13,7 @@
   <h2>JSTACK <span>Reports</span></h2>
   <div>
     <button class="btn-outline btn-sm" onclick="window.print()">🖨️ Print</button>
-    <a href="dashboard.html" style="color:white;margin-left:12px;">← Dashboard</a>
+    <a href="dashboard.php" style="color:white;margin-left:12px;">← Dashboard</a>
   </div>
 </header>
 
@@ -47,14 +47,14 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.1"></script>
 <script>
   async function init() {
     await requireRole('admin');
     document.getElementById('report-date').textContent = 'Generated: ' + new Date().toLocaleString();
     
-    const res = await apiGet('/dashboard-stats.php');
-    if (!res.success) return;
+    const res = await apiGet(`${API}/dashboard-stats.php`);
+    if (!res || !res.success) return;
     
     const s = res.stats;
     document.getElementById('t-jobs').textContent      = s.total_jobs;

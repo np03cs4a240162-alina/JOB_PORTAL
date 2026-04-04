@@ -1,11 +1,11 @@
 <?php
 // Prevent PHP warnings from corrupting JSON output
-error_reporting(0);
-ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-require_once '../config/cors.php';
-require_once '../config/db.php';
-require_once '../config/session.php';
+require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/session.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();

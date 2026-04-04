@@ -6,11 +6,32 @@
   <title>Register - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <style>
-    /* Focus state for the OTP input to make it look professional */
     #otp:focus { border-color: #0a66c2; box-shadow: 0 0 8px rgba(10,102,194,0.2); outline: none; }
     .step-indicator { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
     .dot.active { background: #0a66c2; }
+
+    #otp {
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 15px;
+      text-indent: 15px;
+      font-size: 32px;
+      text-align: center;
+      font-weight: bold;
+      padding: 15px 0;
+    }
+
+    .resend-text { font-size: 13px; color: #666; margin-top: 15px; text-align: center; }
+    .resend-link { color: #0a66c2; cursor: pointer; font-weight: bold; text-decoration: none; }
+    .resend-link:hover { text-decoration: underline; }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+    }
   </style>
 </head>
 <body>
@@ -21,74 +42,135 @@
 </header>
 
 <div class="form-container">
-  <div class="form-box" style="max-width:460px;">
+  <div class="form-box" style="max-width:460px; margin: 30px auto;">
     <h2 style="margin-bottom: 5px;">Create Account</h2>
     <p style="color:#888; font-size:14px; margin-bottom:20px;">Join the JSTACK community today</p>
-    
+
     <div id="alert-box"></div>
 
+    <!-- STEP 1: Registration Details -->
     <div id="step-register">
-      <div class="step-indicator"><div class="dot active"></div><div class="dot"></div></div>
-      <form onsubmit="handleSendOtp(event)">
+      <div class="step-indicator">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+      </div>
+
+      <form onsubmit="event.preventDefault(); handleSendOtp();">
+
         <div class="input-group">
           <label for="name">Full Name</label>
-          <input type="text" id="name" placeholder="John Doe" required autocomplete="name">
+          <input type="text" id="name" name="name"
+                 placeholder="John Doe" required autocomplete="name">
         </div>
+
         <div class="input-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+          <input type="email" id="email" name="email"
+                 placeholder="you@example.com" required autocomplete="email">
         </div>
+
         <div class="input-group">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
+          <input type="password" id="password" name="password"
+                 placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
         </div>
+
         <div class="input-group">
           <label for="confirm-password">Confirm Password</label>
-          <input type="password" id="confirm-password" placeholder="Re-enter password" required autocomplete="new-password">
+          <input type="password" id="confirm-password" name="confirm_password"
+                 placeholder="Re-enter password" required autocomplete="new-password">
         </div>
-        <div class="input-group">
+
+        <div class="input-group" style="margin-bottom: 20px;">
           <label for="role">I am a...</label>
-          <select id="role">
+          <select id="role" name="role" required>
             <option value="seeker">Job Seeker</option>
             <option value="employer">Employer</option>
+            <option value="admin" disabled>Admin (Internal Use Only)</option>
           </select>
         </div>
-        <button type="submit" id="register-btn" class="btn-primary" style="width:100%; margin-top:10px; padding: 12px;">
+
+        <button type="submit" id="register-btn" class="btn-primary"
+                style="width:100%; margin-top:10px; padding: 12px;">
           Send Verification Code
         </button>
+
       </form>
     </div>
 
+    <!-- STEP 2: OTP Verification -->
     <div id="step-otp" style="display:none;">
-      <div class="step-indicator"><div class="dot"></div><div class="dot active"></div></div>
-      <p style="color:#555; font-size:14px; margin-bottom:20px; text-align: center;">
+      <div class="step-indicator">
+        <div class="dot"></div>
+        <div class="dot active"></div>
+      </div>
+
+      <p style="color:#555; font-size:14px; margin-bottom:20px; text-align:center;">
         A 6-digit code was sent to your email. Enter it below to verify your account.
       </p>
-      <form onsubmit="handleVerifyOtp(event)">
+
+      <form onsubmit="event.preventDefault(); handleVerifyOtp();">
+
         <div class="input-group">
-          <label for="otp" style="text-align: center; display: block;">Verification Code (OTP)</label>
-          <input type="text" id="otp" placeholder="000000" maxlength="6" 
-                 inputmode="numeric" pattern="[0-9]*"
-                 style="font-size:32px; letter-spacing:12px; text-align:center; font-weight: bold; padding: 15px 0;" required>
+          <label for="otp" style="text-align:center; display:block;">
+            Verification Code (OTP)
+          </label>
+          <input type="text" id="otp" name="otp"
+                 placeholder="000000" maxlength="6"
+                 inputmode="numeric" pattern="[0-9]*" required
+                 autocomplete="one-time-code">
         </div>
-        <button type="submit" id="verify-btn" class="btn-primary" style="width:100%; margin-top:10px; padding: 12px;">
-          Verify & Create Account
+
+        <button type="submit" id="verify-btn" class="btn-primary"
+                style="width:100%; margin-top:10px; padding: 12px;">
+          Verify &amp; Create Account
         </button>
+
       </form>
-      <button onclick="document.getElementById('step-otp').style.display='none'; 
-                       document.getElementById('step-register').style.display='block';" 
-              class="btn-outline" style="width:100%; margin-top:15px; border:none; background:transparent; color:#666;">
+
+      <div class="resend-text">
+        Didn't receive the code?
+        <span class="resend-link" onclick="handleSendOtp()">Resend Code</span>
+      </div>
+
+      <button type="button" onclick="toggleSteps('register')"
+              style="width:100%; margin-top:15px; border:none; background:transparent;
+                     color:#666; cursor:pointer; font-size:13px;">
         ← Incorrect email? Go back
       </button>
     </div>
 
-    <div style="margin-top:25px; font-size:14px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-      Already have an account? <a href="login.html" style="color:#0a66c2; font-weight: bold; text-decoration: none;">Login</a>
+    <div style="margin-top:25px; font-size:14px; text-align:center;
+                border-top: 1px solid #eee; padding-top: 20px;">
+      Already have an account?
+      <a href="login.html" style="color:#0a66c2; font-weight:bold; text-decoration:none;">Login</a>
     </div>
   </div>
 </div>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script src="../assets/js/auth.js"></script>
+<script>
+  /**
+   * Switches between Step 1 (register form) and Step 2 (OTP input).
+   * Called from auth.js after OTP is sent, and from the "Go back" button.
+   */
+  function toggleSteps(step) {
+    const regStep  = document.getElementById('step-register');
+    const otpStep  = document.getElementById('step-otp');
+    const alertBox = document.getElementById('alert-box');
+
+    if (alertBox) alertBox.innerHTML = '';
+
+    if (step === 'otp') {
+      regStep.style.display = 'none';
+      otpStep.style.display = 'block';
+      document.getElementById('otp').focus();
+    } else {
+      regStep.style.display = 'block';
+      otpStep.style.display = 'none';
+    }
+  }
+</script>
 </body>
 </html>

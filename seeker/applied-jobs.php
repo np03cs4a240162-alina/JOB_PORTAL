@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Applications - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
 </head>
 <body>
 
@@ -49,15 +49,15 @@
   <p>© 2026 JSTACK</p>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   async function init() {
     // 1. Verify seeker role using the helper in main.js
-    const user = await checkAuth('seeker');
+    const user = await requireAuth('seeker');
     if (!user) return;
 
     // 2. Fetch applications - The PHP now handles the 'seeker' role check internally
-    const res = await apiGet('/applications.php');
+    const res = await apiGet(`${API}/applications.php`);
     const tbody = document.getElementById('apps-table');
     
     // 3. Handle the new { success, data } response structure

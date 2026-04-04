@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK <span>Admin</span></h2>
-  <a href="dashboard.html" style="color:white; text-decoration:none;">← Back to Dashboard</a>
+  <a href="dashboard.php" style="color:white; text-decoration:none;">← Back to Dashboard</a>
 </header>
 
 <div class="container">
@@ -46,15 +46,15 @@
   </div>
 </div>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.1"></script>
 <script>
   let allApps = [];
 
   async function init() {
     await requireRole('admin');
     // Calling the API endpoint you already have
-    const data = await apiGet('/applications.php?admin_view=1');
-    allApps = Array.isArray(data) ? data : [];
+    const data = await apiGet(`${API}/applications.php?admin_view=1`);
+    allApps = (data && Array.isArray(data.data)) ? data.data : (Array.isArray(data) ? data : []);
     renderTable(allApps);
   }
 
@@ -92,7 +92,7 @@
   }
 
   async function updateStatus(id, status) {
-    const res = await apiPut(`/applications.php?id=${id}`, { status });
+    const res = await apiPut(`${API}/applications.php?id=${id}`, { status });
     if (res.success) {
       alert('Status updated to ' + status);
       init(); // Refresh data

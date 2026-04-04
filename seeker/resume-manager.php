@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume Manager - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
 </head>
 <body>
 
@@ -19,7 +19,7 @@
   <div class="form-box shadow-sm" style="background: white; padding: 30px; border-radius: 8px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
       <h2 style="margin:0; color: #333;"><i class="fas fa-file-pdf"></i> Resume Manager</h2>
-      <a href="dashboard.html" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Dashboard</a>
+      <a href="dashboard.php" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Dashboard</a>
     </div>
 
     <div id="alert-box"></div>
@@ -50,13 +50,13 @@
   <p>© 2026 JSTACK</p>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   /**
    * Initialize page
    */
   async function init() {
-    const user = await checkAuth('seeker');
+    const user = await requireAuth('seeker');
     if (!user) return;
     loadResumes();
   }
@@ -65,7 +65,7 @@
    * Fetch and display resume list
    */
   async function loadResumes() {
-    const res = await apiGet('/upload.php');
+    const res = await apiGet(`${API}/upload.php`);
     const list = document.getElementById('resume-list');
     
     if (!res.success || !res.data || res.data.length === 0) {
@@ -149,7 +149,7 @@
   async function deleteResume(id) {
     if (!confirm('Are you sure you want to delete this resume?')) return;
     
-    const res = await apiDelete(`/upload.php?id=${id}`);
+    const res = await apiDelete(`${API}/upload.php?id=${id}`);
     if (res.success) {
       showAlert('alert-box', 'Resume deleted.', 'success');
       loadResumes();

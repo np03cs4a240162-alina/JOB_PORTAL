@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+  <a href="dashboard.php" style="color:white;">← Dashboard</a>
 </header>
 
 <div class="form-container">
@@ -56,12 +56,12 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   let currentUser = null;
 
   async function init() {
-    currentUser = await requireRole('employer');
+    currentUser = await requireAuth('employer');
   }
 
   async function handlePost() {
@@ -73,7 +73,7 @@
       showAlert('alert-box', 'Please fill all required fields.', 'error'); return;
     }
     setLoading('submit-btn', true, 'Posting...');
-    const res = await apiPost('/jobs.php', {
+    const res = await apiPost(`${API}/jobs.php`, {
       title, company, location, description,
       salary:   document.getElementById('salary').value.trim(),
       category: document.getElementById('category').value,
@@ -82,7 +82,7 @@
     setLoading('submit-btn', false);
     if (res.success) {
       showAlert('alert-box', 'Job posted! Redirecting...', 'success');
-      setTimeout(() => location.href = 'dashboard.html', 1500);
+      setTimeout(() => location.href = 'dashboard.php', 1500);
     } else {
       showAlert('alert-box', res.error || 'Failed to post job.', 'error');
     }

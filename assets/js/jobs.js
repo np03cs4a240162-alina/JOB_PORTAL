@@ -1,6 +1,6 @@
 // ── Job Fetching ──────────────────────────────────────────────────────────────
 async function loadAllJobs(keyword='', category='', location='') {
-    let url = '/jobs.php?action=search';
+    let url = `${API}/jobs.php?action=search`;
     if (keyword)  url += `&keyword=${encodeURIComponent(keyword)}`;
     if (category && category !== 'All') url += `&category=${encodeURIComponent(category)}`;
     if (location) url += `&location=${encodeURIComponent(location)}`;
@@ -22,7 +22,7 @@ async function setupAutocomplete(inputId, listId) {
         if (q.length < 2) { list.style.display = 'none'; return; }
 
         // Updated: Backend now returns {success: true, data: [...]}
-        const res = await apiGet(`/jobs.php?action=autocomplete&q=${encodeURIComponent(q)}`);
+        const res = await apiGet(`${API}/jobs.php?action=autocomplete&q=${encodeURIComponent(q)}`);
         
         if (res.success && Array.isArray(res.data) && res.data.length) {
             list.style.display = 'block';
@@ -52,7 +52,7 @@ async function setupAutocomplete(inputId, listId) {
  */
 async function applyToJob(jobId, resumeId = 0, resumeNote = '') {
     // Matches the updated backend 'action=apply' logic
-    return apiPost('/applications.php?action=apply', { 
+    return apiPost(`${API}/applications.php?action=apply`, { 
         job_id: jobId, 
         resume_id: resumeId,
         resume_note: resumeNote 
@@ -60,12 +60,12 @@ async function applyToJob(jobId, resumeId = 0, resumeNote = '') {
 }
 
 async function getMyApplications() { 
-    return apiGet('/applications.php'); // Backend handles role-based filtering
+    return apiGet(`${API}/applications.php`); // Backend handles role-based filtering
 }
 
 async function updateApplicationStatus(appId, status) { 
     // Matches 'action=update-status' in the updated backend
-    return apiPost('/applications.php?action=update-status', { 
+    return apiPost(`${API}/applications.php?action=update-status`, { 
         id: appId, 
         status: status 
     });
@@ -73,13 +73,17 @@ async function updateApplicationStatus(appId, status) {
 
 // ── Saved Jobs ────────────────────────────────────────────────────────────────
 async function saveJobAction(jobId, btn) {
-    if (!state.user || state.user.role !== 'seeker') {
+    let isSeeker = false;
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'seeker') isSeeker = true;
+    if (typeof state !== 'undefined' && state && state.user && state.user.role === 'seeker') isSeeker = true;
+
+    if (!isSeeker) {
         showAlert('alert-box', 'Please login as a seeker to save jobs.', 'error');
         return;
     }
 
     btn.disabled = true;
-    const res = await apiPost('/saved_jobs.php', { job_id: jobId });
+    const res = await apiPost(`${API}/saved_jobs.php`, { job_id: jobId });
     
     if (res.success) {
         btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
@@ -96,7 +100,9 @@ async function saveJobAction(jobId, btn) {
 function renderJobCard(job) {
     const closed  = job.status === 'closed';
     const company = escHtml(job.employer_name || job.company || 'JSTACK');
-    const isSeeker = state.user && state.user.role === 'seeker';
+    let isSeeker = false;
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'seeker') isSeeker = true;
+    if (typeof state !== 'undefined' && state && state.user && state.user.role === 'seeker') isSeeker = true;
     
     const saveBtn = isSeeker ? 
         `<button class="btn-icon-only" title="Save Job" onclick="saveJobAction(${job.id}, this)">

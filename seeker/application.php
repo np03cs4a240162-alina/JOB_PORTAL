@@ -27,14 +27,14 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   const jobId = new URLSearchParams(location.search).get('id');
 
   async function init() {
     await requireRole('seeker');
     if (!jobId) { showAlert('alert-box', 'No job selected.', 'error'); return; }
-    const job = await apiGet(`/jobs.php?id=${jobId}`);
+    const job = await apiGet(`${API}/jobs.php?id=${jobId}`);
     if (job && !job.error) document.getElementById('job-title').textContent = 'Apply: ' + escHtml(job.title);
   }
 
@@ -42,7 +42,7 @@
     const note = document.getElementById('note').value.trim();
     if (!note) { showAlert('alert-box', 'Please write a cover note.', 'error'); return; }
     setLoading('apply-btn', true, 'Submitting...');
-    const res = await apiPost('/applications.php', { job_id: parseInt(jobId), resume_note: note });
+    const res = await apiPost(`${API}/applications.php`, { job_id: parseInt(jobId), resume_note: note });
     setLoading('apply-btn', false);
     if (res.success) {
       showAlert('alert-box', 'Application submitted successfully!', 'success');

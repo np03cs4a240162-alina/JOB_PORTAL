@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+  <a href="dashboard.php" style="color:white;">← Dashboard</a>
 </header>
 
 <div class="container">
@@ -54,15 +54,24 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
+  // ── XSS / Escaping Fallback ──
+  function escHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   async function init() {
-    await requireRole('employer');
+    await requireAuth('employer');
     loadJobs();
   }
 
   async function loadJobs() {
-    const data  = await apiGet('/jobs.php?mine=1');
+    const res = await apiGet(`${API}/jobs.php?mine=1`);
+    const data = res.data || [];
     const tbody = document.getElementById('jobs-table');
     if (!Array.isArray(data) || !data.length) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No jobs posted yet. <a href="post-job.html">Post one now</a></td></tr>'; return;
@@ -100,7 +109,7 @@
 
   async function submitEdit() {
     const id  = document.getElementById('edit-id').value;
-    const res = await apiPut(`/jobs.php?id=${id}`, {
+    const res = await apiPut(`${API}/jobs.php?id=${id}`, {
       title:       document.getElementById('edit-title').value,
       company:     document.getElementById('edit-company').value,
       salary:      document.getElementById('edit-salary').value,
@@ -115,7 +124,7 @@
 
   async function removeJob(id) {
     if (!confirm('Delete this job and all its applications?')) return;
-    const res = await apiDelete(`/jobs.php?id=${id}`);
+    const res = await apiDelete(`${API}/jobs.php?id=${id}`);
     if (res.success) { showAlert('alert-box', 'Job deleted.', 'success'); loadJobs(); }
     else showAlert('alert-box', res.error||'Delete failed.', 'error');
   }

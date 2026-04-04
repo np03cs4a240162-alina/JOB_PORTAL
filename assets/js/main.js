@@ -1,131 +1,152 @@
 /**
- * ── 1. CONFIGURATION & PATHING ──
+ * main.js — Global helpers for JSTACK Job Portal
+ * XAMPP folder: C:\xampp\htdocs\jobportalsystem\
  */
-const getBase = () => {
-    const { hostname, origin, pathname } = window.location;
-    // If on localhost, we likely have a subfolder (e.g., /my-project/)
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        const segments = pathname.split('/');
-        return `${origin}/${segments[1]}`;
-    }
-    return origin;
-};
 
-const BASE = getBase();
+const BASE = '/jobportalsystem';
+const API  = BASE + '/api';
 
-/**
- * ── 2. THE FETCH WRAPPER ──
- */
-async function _request(method, endpoint, data = null) {
-    // Ensure endpoint starts with a slash
-    const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = new URL(BASE + path);
-
-    // Extract 'action' from URL query if present and move to data body
-    // This is helpful if your PHP script expects 'action' in the JSON body
-    if (data && url.searchParams.has('action')) {
-        data.action = url.searchParams.get('action');
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
-
-    const opts = {
-        method,
-        credentials: 'include',
-        signal: controller.signal,
-        headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-    };
-
-    if (data && method !== 'GET') {
-        opts.body = JSON.stringify(data);
-    }
-
-    try {
-        const response = await fetch(url.toString(), opts);
-        clearTimeout(timeoutId);
-
-        // Handle Session Expiry (401 Unauthorized)
-        if (response.status === 401) {
-            window.location.href = `${BASE}/auth/login.html?expired=1`;
-            return;
-        }
-
-        const text = await response.text();
-        
-        try {
-            const json = JSON.parse(text);
-            return response.ok ? json : { success: false, ...json };
-        } catch (e) {
-            console.group('--- SERVER RESPONSE ERROR ---');
-            console.error('URL:', url.toString());
-            console.error('Status:', response.status);
-            console.error('Raw Output:', text);
-            console.groupEnd();
-            return { success: false, error: 'Server returned invalid JSON. Check PHP logs.' };
-        }
-
-    } catch (e) {
-        if (e.name === 'AbortError') {
-            return { success: false, error: 'Request timed out. Is the server slow?' };
-        }
-        console.error('Network/Connection Error:', e);
-        return { success: false, error: 'Cannot connect to server. Ensure XAMPP/Apache is running.' };
-    }
+// ── Alert helpers ──
+function showAlert(boxId, message, type = 'info') {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+    box.innerHTML = `<div class="alert alert-${type}" style="padding:10px 14px;border-radius:6px;margin-bottom:12px;">${message}</div>`;
+}
+function clearAlert(boxId) {
+    const box = document.getElementById(boxId);
+    if (box) box.innerHTML = '';
 }
 
-const apiGet  = ep => _request('GET', ep);
-const apiPost = (ep, d) => _request('POST', ep, d);
-
-/**
- * ── 3. UI HELPERS & GLOBAL ACTIONS ──
- */
-function showAlert(id, message, type = 'success') {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    const themes = {
-        success: { bg: '#d4edda', text: '#155724', border: '#c3e6cb', icon: '✓' },
-        error:   { bg: '#f8d7da', text: '#721c24', border: '#f5c6cb', icon: '✕' },
-        info:    { bg: '#e7f3ff', text: '#0a66c2', border: '#b3d7ff', icon: 'ℹ' }
-    };
-    
-    const cfg = themes[type] || themes.info;
-    
-    el.innerHTML = `
-        <div style="padding:12px; border-radius:6px; margin-bottom:15px; background:${cfg.bg}; color:${cfg.text}; border:1px solid ${cfg.border}; font-size:14px; display:flex; align-items:center; gap:10px; font-family: system-ui, -apple-system, sans-serif; animation: fadeIn 0.3s ease;">
-            <strong style="font-size:18px;">${cfg.icon}</strong>
-            <span style="flex:1;">${message}</span>
-        </div>
-    `;
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function setLoading(btnId, isLoading, label = 'Processing...') {
+// ── Button loading state ──
+function setLoading(btnId, loading, text = '') {
     const btn = document.getElementById(btnId);
     if (!btn) return;
-
-    if (isLoading) {
-        btn.dataset.orig = btn.innerHTML;
-        btn.disabled = true;
-        // Adding a small spinner placeholder if you use FontAwesome
-        btn.innerHTML = `<span class="spinner"></span> ${label}`;
-    } else {
-        btn.disabled = false;
-        btn.innerHTML = btn.dataset.orig || 'Submit';
-    }
+    if (!btn.dataset.original) btn.dataset.original = btn.textContent;
+    btn.disabled    = loading;
+    btn.textContent = loading ? (text || 'Loading...') : btn.dataset.original;
 }
 
-async function logout() {
+// ── POST ──
+async function apiPost(url, data) {
     try {
-        // We call the API, but redirect regardless of result to ensure the user "leaves" the app
-        await apiPost('/api/auth.php?action=logout', {});
-    } finally {
-        // Clear any local storage if you use it
-        localStorage.clear();
-        window.location.href = `${BASE}/auth/login.html`;
+        const res = await fetch(url, {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body:        JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+        }
+        return await res.json();
+    } catch (err) {
+        if (!err.message.includes('HTTP 401')) {
+            console.error('API POST error:', err);
+        }
+        return null;
     }
 }
+
+// ── GET ──
+async function apiGet(url) {
+    try {
+        const res = await fetch(url, {
+            method:      'GET',
+            credentials: 'include'
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+        }
+        return await res.json();
+    } catch (err) {
+        if (!err.message.includes('HTTP 401')) {
+            console.error('API GET error:', err);
+        }
+        return null;
+    }
+}
+
+// ── PUT (update) ──
+async function apiPut(url, data) {
+    try {
+        const res = await fetch(url, {
+            method:      'PUT',
+            headers:     { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body:        JSON.stringify(data)
+        });
+        return await res.json();
+    } catch (err) {
+        console.error('API PUT error:', err);
+        return null;
+    }
+}
+
+// ── DELETE ──
+async function apiDelete(url) {
+    try {
+        const res = await fetch(url, {
+            method:      'DELETE',
+            credentials: 'include'
+        });
+        return await res.json();
+    } catch (err) {
+        console.error('API DELETE error:', err);
+        return null;
+    }
+}
+
+// ── Check session (used by .html pages) ──
+async function requireAuth(expectedRole = null) {
+    const res = await apiGet(`${API}/auth.php?action=me`);
+    if (!res || !res.success) {
+        window.location.href = `${BASE}/auth/login.html`;
+        return null;
+    }
+    if (expectedRole && res.user.role !== expectedRole) {
+        window.location.href = `${BASE}/index.html`;
+        return null;
+    }
+    return res.user;
+}
+
+// ── Role protection function — used by both .html and .php views ──
+async function requireRole(expectedRole = null) {
+    return await requireAuth(expectedRole);
+}
+
+// ── Basic session check without specific role ──
+async function requireLogin() {
+    return await requireAuth();
+}
+
+window.requireRole = requireRole;
+window.requireLogin = requireLogin;
+
+// ── Check session WITHOUT redirect (silently) ──
+async function getCurrentUser() {
+    try {
+        const res = await apiGet(`${API}/auth.php?action=me`);
+        return (res && res.success) ? res.user : null;
+    } catch (err) {
+        return null;
+    }
+}
+
+// ── Logout (POST) ──
+async function handleLogout() {
+    await apiPost(`${API}/auth.php?action=logout`, {});
+    window.location.href = `${BASE}/auth/login.html`;
+}
+// ── XSS Protection ──
+function escHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Alias for buttons calling onclick="logout()"
+window.logout = handleLogout;

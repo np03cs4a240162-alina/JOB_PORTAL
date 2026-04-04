@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+  <a href="dashboard.php" style="color:white;">← Dashboard</a>
 </header>
 
 <div class="profile-card">
@@ -25,11 +25,11 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   async function init() {
     await requireRole('employer');
-    const data = await apiGet('/profiles.php');
+    const data = await apiGet(`${API}/profiles.php`);
     if (data) {
       document.getElementById('company').value  = data.company  || '';
       document.getElementById('industry').value = data.industry || '';
@@ -39,7 +39,7 @@
   }
 
   async function handleSave() {
-    const res = await apiPut('/profiles.php', {
+    const res = await apiPut(`${API}/profiles.php`, {
       company:  document.getElementById('company').value,
       industry: document.getElementById('industry').value,
       website:  document.getElementById('website').value,

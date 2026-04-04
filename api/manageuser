@@ -1,0 +1,197 @@
+<?php
+require_once '../config/session.php';
+$user = requireRole('admin');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Users - JSTACK Admin</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    table { width:100%; border-collapse:collapse; background:white; }
+    th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #eee; font-size:14px; }
+    th { background:#f8f9fa; color:#555; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+    tr:hover { background:#fafbff; }
+    .badge { padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+    .badge-admin    { background:#ffebee; color:#c62828; }
+    .badge-employer { background:#e8f5e9; color:#2e7d32; }
+    .badge-seeker   { background:#e3f2fd; color:#1565c0; }
+    .search-row { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+    .search-row input, .search-row select { padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:14px; }
+    .search-row input[type=text] { flex:1; min-width:200px; }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <h2>JSTACK <span style="font-weight:normal;opacity:.8;">| Admin</span></h2>
+  <nav>
+    <a href="dashboard.php" style="color:white;margin-right:16px;text-decoration:none;">Dashboard</a>
+    <button onclick="handleLogout()" class="btn-sm" style="background:#c62828;color:white;border:none;padding:6px 14px;border-radius:5px;cursor:pointer;">Logout</button>
+  </nav>
+</header>
+
+<div class="container" style="margin-top:30px;">
+  <h2 class="title">User Management</h2>
+
+  <!-- Add New User -->
+  <div class="panel" style="background:white;padding:24px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:28px;">
+    <h3 style="margin-top:0;">➕ Add New User</h3>
+    <div id="create-alert"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" id="new-name" placeholder="Full name">
+      </div>
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="new-email" placeholder="email@example.com">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="new-password" placeholder="Min 6 characters">
+      </div>
+      <div class="input-group">
+        <label>Role</label>
+        <select id="new-role" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;">
+          <option value="seeker">Job Seeker</option>
+          <option value="employer">Employer</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:16px;text-align:right;">
+      <button id="btn-add-user" onclick="createUser()" class="btn-primary" style="padding:10px 24px;">
+        Add User
+      </button>
+    </div>
+  </div>
+
+  <!-- Search + Table -->
+  <div class="search-row">
+    <input type="text" id="search-text" placeholder="Search by name or email..." oninput="localSearch()">
+    <button onclick="loadUsers()" style="padding:8px 16px;background:#666;color:white;border:none;border-radius:6px;cursor:pointer;">
+      Reset
+    </button>
+  </div>
+
+  <div style="background:white;border-radius:8px;border:1px solid #eee;overflow:hidden;">
+    <div id="table-alert"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="users-table">
+        <tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">Loading users...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  let allUsers = [];
+
+  window.addEventListener('DOMContentLoaded', loadUsers);
+
+  async function loadUsers() {
+    document.getElementById('search-text').value = '';
+    document.getElementById('users-table').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">Loading...</td></tr>';
+
+    // GET all users — jstack_db.users table
+    const res = await apiGet(`${API}/users.php`);
+    if (res && res.success) {
+      allUsers = res.data || [];
+      renderTable(allUsers);
+    } else {
+      showAlert('table-alert', res?.error || 'Failed to load users.', 'error');
+    }
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('users-table');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">No users found.</td></tr>';
+      return;
+    }
+    const roleClass = { admin:'badge-admin', employer:'badge-employer', seeker:'badge-seeker' };
+    tbody.innerHTML = data.map(u => `
+      <tr>
+        <td><strong>#${u.id}</strong></td>
+        <td>${esc(u.name)}</td>
+        <td style="color:#666;">${esc(u.email)}</td>
+        <td><span class="badge ${roleClass[u.role]||'badge-seeker'}">${u.role.toUpperCase()}</span></td>
+        <td style="color:#999;font-size:12px;">${new Date(u.created_at).toLocaleDateString()}</td>
+        <td>
+          ${u.role !== 'admin'
+            ? `<button onclick="deleteUser(${u.id})"
+                style="background:none;border:none;color:#d32f2f;cursor:pointer;font-size:13px;text-decoration:underline;">
+                Delete
+              </button>`
+            : '<span style="font-size:11px;color:#aaa;font-style:italic;">Protected</span>'
+          }
+        </td>
+      </tr>`).join('');
+  }
+
+  async function createUser() {
+    clearAlert('create-alert');
+    const name     = document.getElementById('new-name').value.trim();
+    const email    = document.getElementById('new-email').value.trim();
+    const password = document.getElementById('new-password').value;
+    const role     = document.getElementById('new-role').value;
+
+    if (!name || !email || !password) {
+      showAlert('create-alert', 'All fields are required.', 'error');
+      return;
+    }
+    if (password.length < 6) {
+      showAlert('create-alert', 'Password must be at least 6 characters.', 'error');
+      return;
+    }
+
+    setLoading('btn-add-user', true, 'Adding...');
+    // POST to users.php — inserts into jstack_db.users
+    const res = await apiPost(`${API}/users.php`, { name, email, password, role });
+    setLoading('btn-add-user', false);
+
+    if (res && res.success) {
+      showAlert('create-alert', 'User added successfully!', 'success');
+      document.getElementById('new-name').value     = '';
+      document.getElementById('new-email').value    = '';
+      document.getElementById('new-password').value = '';
+      loadUsers();
+    } else {
+      showAlert('create-alert', res?.error || 'Failed to create user.', 'error');
+    }
+  }
+
+  async function deleteUser(id) {
+    if (!confirm('Delete this user and all their data?')) return;
+    // DELETE — cascades to seeker_profiles/employer_profiles/applications etc.
+    const res = await apiDelete(`${API}/users.php?id=${id}`);
+    if (res && res.success) {
+      showAlert('table-alert', 'User deleted.', 'success');
+      loadUsers();
+    } else {
+      showAlert('table-alert', res?.error || 'Delete failed.', 'error');
+    }
+  }
+
+  function localSearch() {
+    const q = document.getElementById('search-text').value.toLowerCase();
+    renderTable(allUsers.filter(u =>
+      u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+    ));
+  }
+
+  const esc = s => String(s).replace(/[&<>"']/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+</script>
+</body>
+</html>

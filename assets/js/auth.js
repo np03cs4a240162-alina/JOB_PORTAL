@@ -1,11 +1,15 @@
 /**
- * ── LOGIN ──
+ * auth.js - Login, Registration, Password Reset
+ * Matches: jstack_db → users (id, name, email, password, role)
  */
-async function handleLogin(e) {
-    e.preventDefault();
-    if (typeof clearAlert === 'function') clearAlert('alert-box');
-    
-    const email = document.getElementById('email').value.trim();
+
+const authUrl = (action) => `${API}/auth.php?action=${action}`;
+
+// ── LOGIN ──────────────────────────────────────────────────────────────────────
+async function handleLogin() {
+    clearAlert('alert-box');
+
+    const email    = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
     if (!email || !password) {
@@ -13,165 +17,193 @@ async function handleLogin(e) {
         return;
     }
 
-    setLoading('login-btn', true, 'Authenticating...');
-    // The wrapper in main.js will now automatically inject "action: login" into the body
-    const result = await apiPost('/api/auth.php?action=login', { email, password });
-    setLoading('login-btn', false);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showAlert('alert-box', 'Please enter a valid email address.', 'error');
+        return;
+    }
 
-    if (result && result.success) {
-        showAlert('alert-box', 'Login successful! Redirecting...', 'success');
-        
-        const paths = { 
-            admin:    BASE + '/admin/dashboard.html',
-            employer: BASE + '/employer/dashboard.html', 
-            seeker:   BASE + '/seeker/dashboard.html' 
-        };
-        
-        setTimeout(() => {
-            const target = result.user && result.user.role ? paths[result.user.role] : BASE + '/index.html';
-            window.location.href = target;
-        }, 800);
-    } else {
-        showAlert('alert-box', result?.error || 'Invalid credentials or Server Error.', 'error');
+    setLoading('login-btn', true, 'Authenticating...');
+
+    try {
+        const res = await apiPost(authUrl('login'), { email, password });
+        setLoading('login-btn', false);
+
+        if (res && res.success) {
+            showAlert('alert-box', 'Login successful! Redirecting...', 'success');
+
+            const role  = res.user?.role || 'seeker';
+            const paths = {
+                admin:    `${BASE}/admin/dashboard.php`,
+                employer: `${BASE}/employer/dashboard.php`,
+                seeker:   `${BASE}/seeker/dashboard.php`,
+            };
+
+            setTimeout(() => {
+                window.location.href = paths[role] || `${BASE}/index.html`;
+            }, 1000);
+
+        } else {
+            showAlert('alert-box', res?.error || 'Invalid email or password.', 'error');
+        }
+    } catch (err) {
+        setLoading('login-btn', false);
+        showAlert('alert-box', 'Server connection failed. Is XAMPP running?', 'error');
     }
 }
 
-/**
- * ── REGISTER STEP 1: Send OTP ──
- */
-async function handleSendOtp(e) {
-    e.preventDefault();
-    if (typeof clearAlert === 'function') clearAlert('alert-box');
+// ── REGISTER STEP 1: Send OTP ──────────────────────────────────────────────────
+async function handleSendOtp() {
+    clearAlert('alert-box');
 
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value;
-    const confirm = document.getElementById('confirm-password')?.value;
-    const role = document.getElementById('role')?.value || 'seeker';
+    const name    = document.getElementById('name').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const pass    = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm-password').value;
+    const role    = document.getElementById('role')?.value || 'seeker';
 
-    if (pass !== confirm) { 
-        showAlert('alert-box', 'Passwords do not match.', 'error'); 
-        return; 
+    if (!name || !email || !pass) {
+        showAlert('alert-box', 'Please fill in all fields.', 'error');
+        return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showAlert('alert-box', 'Please enter a valid email address.', 'error');
+        return;
+    }
+
+    if (pass.length < 6) {
+        showAlert('alert-box', 'Password must be at least 6 characters.', 'error');
+        return;
+    }
+
+    if (pass !== confirm) {
+        showAlert('alert-box', 'Passwords do not match.', 'error');
+        return;
     }
 
     setLoading('register-btn', true, 'Sending Code...');
-    const result = await apiPost('/api/auth.php?action=send-otp', { name, email, password: pass, role });
+
+    const res = await apiPost(authUrl('send-otp'), { name, email, password: pass, role });
     setLoading('register-btn', false);
 
-    if (result && result.success) {
-        document.getElementById('step-register').style.display = 'none';
-        document.getElementById('step-otp').style.display = 'block';
+    if (res && res.success) {
+        if (typeof toggleSteps === 'function') toggleSteps('otp');
 
-        if (result.dev_otp) {
+        if (res.dev_otp) {
             const otpInput = document.getElementById('otp');
-            if (otpInput) otpInput.value = result.dev_otp;
-            showAlert('alert-box', `[DEV MODE] Use OTP: ${result.dev_otp}`, 'info');
+            if (otpInput) otpInput.value = res.dev_otp;
+            showAlert('alert-box', `Dev mode — OTP auto-filled: ${res.dev_otp}`, 'info');
         } else {
             showAlert('alert-box', 'Verification code sent to your email!', 'success');
         }
     } else {
-        showAlert('alert-box', result?.error || 'Failed to send OTP.', 'error');
+        showAlert('alert-box', res?.error || 'Failed to send code.', 'error');
     }
 }
 
-/**
- * ── REGISTER STEP 2: Verify OTP ──
- */
-async function handleVerifyOtp(e) {
-    e.preventDefault();
-    // Use the email from the registration step to ensure consistency
-    const emailInput = document.getElementById('email');
-    const email = emailInput ? emailInput.value.trim() : '';
-    const otp = document.getElementById('otp')?.value.replace(/\s/g, ''); 
+// ── REGISTER STEP 2: Verify OTP ───────────────────────────────────────────────
+async function handleVerifyOtp() {
+    clearAlert('alert-box');
 
-    if (!otp || otp.length < 4) {
-        showAlert('alert-box', 'Enter the full verification code.', 'error');
+    const email = document.getElementById('email').value.trim();
+    const otp   = document.getElementById('otp')?.value.trim();
+
+    if (!otp || otp.length < 6) {
+        showAlert('alert-box', 'Please enter the 6-digit code.', 'error');
         return;
     }
 
     setLoading('verify-btn', true, 'Verifying...');
-    const result = await apiPost('/api/auth.php?action=verify-otp', { email, otp });
+
+    const res = await apiPost(authUrl('verify-otp'), { email, otp });
     setLoading('verify-btn', false);
 
-    if (result && result.success) {
-        showAlert('alert-box', 'Account verified! Redirecting to login...', 'success');
-        setTimeout(() => window.location.href = 'login.html', 1500);
+    if (res && res.success) {
+        showAlert('alert-box', 'Account created! Redirecting to login...', 'success');
+        setTimeout(() => {
+            window.location.href = `${BASE}/auth/login.html`;
+        }, 1500);
     } else {
-        showAlert('alert-box', result?.error || 'Verification failed.', 'error');
+        showAlert('alert-box', res?.error || 'Verification failed. Try again.', 'error');
     }
 }
 
-/**
- * ── FORGOT PASSWORD FLOW ──
- */
-async function handleForgotPasswordRequest(e) {
-    e.preventDefault();
+// ── FORGOT PASSWORD: Request Reset Code ───────────────────────────────────────
+async function handleForgotPasswordRequest() {
+    clearAlert('alert-box');
+
     const email = document.getElementById('email').value.trim();
-    
+
     if (!email) {
         showAlert('alert-box', 'Please enter your email address.', 'error');
         return;
     }
 
-    setLoading('send-otp-btn', true, 'Checking email...');
-    const result = await apiPost('/api/auth.php?action=forgot-password', { email });
-    setLoading('send-otp-btn', false);
-
-    if (result && result.success) {
-        document.getElementById('step-request').style.display = 'none';
-        document.getElementById('step-reset').style.display = 'block';
-        
-        // Auto-fill OTP if in dev mode
-        if (result.dev_otp) {
-            const otpField = document.getElementById('otp');
-            if (otpField) otpField.value = result.dev_otp;
-        }
-        
-        showAlert('alert-box', 'Reset code sent! Check your inbox.', 'success');
-    } else {
-        showAlert('alert-box', result?.error || 'Request failed.', 'error');
-    }
-}
-
-/**
- * ── PASSWORD RESET FINAL ──
- */
-async function handlePasswordResetFinal(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const otp = document.getElementById('otp').value.trim();
-    const new_password = document.getElementById('newpass').value;
-    const confirm = document.getElementById('confirm').value;
-
-    if (!otp) {
-        showAlert('alert-box', 'Please enter the verification code.', 'error');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showAlert('alert-box', 'Please enter a valid email address.', 'error');
         return;
     }
 
-    if (new_password.length < 6) {
+    setLoading('send-otp-btn', true, 'Sending reset code...');
+
+    const res = await apiPost(authUrl('forgot-password'), { email });
+    setLoading('send-otp-btn', false);
+
+    if (res && res.success) {
+        if (typeof toggleResetSteps === 'function') toggleResetSteps('reset');
+
+        if (res.dev_otp) {
+            const otpField = document.getElementById('otp');
+            if (otpField) otpField.value = res.dev_otp;
+            showAlert('alert-box', `Dev mode — Reset code auto-filled: ${res.dev_otp}`, 'info');
+        } else {
+            showAlert('alert-box', 'Reset code sent! Check your inbox.', 'success');
+        }
+    } else {
+        showAlert('alert-box', res?.error || 'Email not found.', 'error');
+    }
+}
+
+// ── FORGOT PASSWORD: Submit New Password ──────────────────────────────────────
+async function handleResetPassword() {
+    clearAlert('alert-box');
+
+    const email   = document.getElementById('email').value.trim();
+    const otp     = document.getElementById('otp').value.trim();
+    const newPass = document.getElementById('new-password').value;
+    const confirm = document.getElementById('confirm-password').value;
+
+    if (!otp || otp.length < 6) {
+        showAlert('alert-box', 'Please enter the 6-digit reset code.', 'error');
+        return;
+    }
+
+    if (newPass.length < 6) {
         showAlert('alert-box', 'Password must be at least 6 characters.', 'error');
         return;
     }
 
-    if (new_password !== confirm) {
-        showAlert('alert-box', 'New passwords do not match.', 'error');
+    if (newPass !== confirm) {
+        showAlert('alert-box', 'Passwords do not match.', 'error');
         return;
     }
 
-    setLoading('reset-btn', true, 'Updating...');
-    // Match the backend key 'new_password' precisely
-    const result = await apiPost('/api/auth.php?action=reset-password', { email, otp, new_password });
+    setLoading('reset-btn', true, 'Resetting password...');
+
+    const res = await apiPost(authUrl('reset-password'), {
+        email,
+        otp,
+        new_password: newPass
+    });
+
     setLoading('reset-btn', false);
 
-    if (result && result.success) {
-        showAlert('alert-box', 'Password updated! Redirecting to login...', 'success');
-        setTimeout(() => window.location.href = 'login.html', 1500);
+    if (res && res.success) {
+        showAlert('alert-box', 'Password reset! Redirecting to login...', 'success');
+        setTimeout(() => {
+            window.location.href = `${BASE}/auth/login.html`;
+        }, 1500);
     } else {
-        showAlert('alert-box', result?.error || 'Reset failed.', 'error');
+        showAlert('alert-box', res?.error || 'Reset failed. Try again.', 'error');
     }
-}
-
-function clearAlert(id) {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '';
 }

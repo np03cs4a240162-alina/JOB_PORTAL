@@ -2,9 +2,9 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-require_once '../config/cors.php';
-require_once '../config/db.php';
-require_once '../config/session.php';
+require_once __DIR__ . '/../config/cors.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/session.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
@@ -37,10 +37,9 @@ if ($method === 'POST') {
         $stmt->execute([$jobId, $user['id']]);
         if ($stmt->fetch()) jsonResponse(['success' => false, 'error' => 'You have already applied for this position.'], 409);
 
-        // 3. Insert Application
-        // Note: Make sure your applications table has a resume_id column if you use it
-        $sql = "INSERT INTO applications (job_id, seeker_id, resume_id, resume_note, status) VALUES (?, ?, ?, ?, 'pending')";
-        $db->prepare($sql)->execute([$jobId, $user['id'], $resumeId, $note]);
+        // 3. Insert Application (Removed resume_id as it is missing from schema)
+        $sql = "INSERT INTO applications (job_id, seeker_id, resume_note, status) VALUES (?, ?, ?, 'pending')";
+        $db->prepare($sql)->execute([$jobId, $user['id'], $note]);
 
         // 4. Notify Employer
         $notifMsg = "New applicant for '{$job['title']}' from " . $user['name'];
@@ -94,13 +93,13 @@ if ($method === 'GET') {
 
     // 1. Employer View (Includes Resume info)
     if ($user['role'] === 'employer') {
-        $sql = "SELECT a.*, u.name AS seeker_name, u.email AS seeker_email, 
-                       r.filepath AS resume_path, j.title AS job_title 
-                FROM applications a 
-                JOIN users u ON a.seeker_id = u.id 
-                JOIN jobs j ON a.job_id = j.id 
-                LEFT JOIN resumes r ON a.resume_id = r.id
-                WHERE j.employer_id = ? 
+        $sql = "SELECT a.id, a.status, a.applied_at, a.resume_note,
+                       u.name AS seeker_name, u.email AS seeker_email,
+                       j.title AS job_title
+                FROM applications a
+                JOIN users u ON a.seeker_id = u.id
+                JOIN jobs j ON a.job_id = j.id
+                WHERE j.employer_id = ?
                 ORDER BY a.applied_at DESC";
         $stmt = $db->prepare($sql);
         $stmt->execute([$user['id']]);

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Applicants - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
 </head>
 <body>
 
@@ -18,7 +18,7 @@
 <div class="container" style="margin-top: 30px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2 class="title" style="margin:0;">Job Applicants</h2>
-    <a href="dashboard.html" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Back to Dashboard</a>
+    <a href="dashboard.php" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Back to Dashboard</a>
   </div>
 
   <div id="alert-box"></div>
@@ -48,22 +48,22 @@
   <p>© 2026 JSTACK</p>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   /**
    * Initialize page and fetch data
    */
   async function init() {
     // 1. Protect page: ensure only employers can see this
-    const user = await checkAuth('employer');
+    const user = await requireAuth('employer');
     if (!user) return;
 
-    // 2. Fetch data (API uses the BASE path automatically from main.js)
-    const res = await apiGet('/applications.php');
+    // 2. Fetch data (API uses the global API constant from main.js)
+    const res = await apiGet(`${API}/applications.php`);
     const tbody = document.getElementById('applicants-table');
     
-    // 3. Handle empty states
-    if (!res.success || !res.data || res.data.length === 0) {
+    // 3. Handle empty states or failures
+    if (!res || !res.success || !res.data || res.data.length === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="6" style="text-align:center; padding: 50px; color: #666;">
@@ -115,7 +115,7 @@
   async function updateStatus(id, newStatus) {
     setLoading(`verify-btn-${id}`, true, 'Updating...'); // Optional: unique button ID
     
-    const res = await apiPost(`/applications.php?action=update-status`, { 
+    const res = await apiPost(`${API}/applications.php?action=update-status`, { 
         id: id, 
         status: newStatus 
     });

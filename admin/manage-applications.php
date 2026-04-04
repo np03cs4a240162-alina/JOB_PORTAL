@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK <span>Admin</span></h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+  <a href="dashboard.php" style="color:white;">← Dashboard</a>
 </header>
 
 <div class="container">
@@ -40,14 +40,14 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   let allApps = [];
 
   async function init() {
     await requireRole('admin');
-    const data = await apiGet('/applications.php?admin_view=1');
-    allApps = Array.isArray(data) ? data : [];
+    const data = await apiGet(`${API}/applications.php?admin_view=1`);
+    allApps = (data && Array.isArray(data.data)) ? data.data : (Array.isArray(data) ? data : []);
     renderTable(allApps);
   }
 
@@ -82,7 +82,7 @@
   }
 
   async function updateStatus(id, status) {
-    const res = await apiPut(`/applications.php?id=${id}`, { status });
+    const res = await apiPut(`${API}/applications.php?id=${id}`, { status });
     if (res.success) { showAlert('alert-box', `Updated to ${status}.`, 'success'); init(); }
     else showAlert('alert-box', res.error || 'Update failed.', 'error');
   }

@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+  <a href="dashboard.php" style="color:white;">← Dashboard</a>
 </header>
 
 <div class="container">
@@ -21,12 +21,13 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
-<script src="../assets/js/jobs.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
+<script src="../assets/js/jobs.js?v=1.1"></script>
 <script>
   async function init() {
     await requireRole('seeker');
-    const data = await apiGet('/saved.php');
+    let data = await apiGet(`${API}/saved.php`);
+    data = (data && Array.isArray(data.data)) ? data.data : (Array.isArray(data) ? data : []);
     const list = document.getElementById('saved-list');
     if (!Array.isArray(data) || !data.length) {
       list.innerHTML = '<p style="text-align:center;color:#888;grid-column:1/-1;">No saved jobs yet.</p>'; return;
@@ -44,7 +45,7 @@
   }
 
   async function unsave(jobId) {
-    const res = await apiDelete(`/saved.php?job_id=${jobId}`);
+    const res = await apiDelete(`${API}/saved.php?job_id=${jobId}`);
     if (res.success) init();
     else showAlert('alert-box', res.error || 'Failed.', 'error');
   }

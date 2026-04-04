@@ -10,7 +10,7 @@
 
 <header class="navbar">
   <h2>JSTACK <span>Admin</span></h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+  <a href="dashboard.php" style="color:white;">← Dashboard</a>
 </header>
 
 <div class="container">
@@ -35,7 +35,7 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.1"></script>
 <script>
   let allJobs = [];
 
@@ -49,8 +49,8 @@
 
   async function loadJobs() {
     document.getElementById('search-text').value = '';
-    const res = await apiGet('/jobs.php?admin_view=1');
-    allJobs = Array.isArray(res) ? res : [];
+    const res = await apiGet(`${API}/jobs.php?admin_view=1`);
+    allJobs = (res && Array.isArray(res.data)) ? res.data : (Array.isArray(res) ? res : []);
     renderTable(allJobs);
   }
 
@@ -80,7 +80,7 @@
 
   async function deleteJob(id) {
     if (!confirm('Delete this job and all its applications?')) return;
-    const res = await apiDelete(`/jobs.php?id=${id}`);
+    const res = await apiDelete(`${API}/jobs.php?id=${id}`);
     if (res.success) { showAlert('alert-box', 'Job deleted.', 'success'); loadJobs(); }
     else showAlert('alert-box', res.error || 'Delete failed.', 'error');
   }

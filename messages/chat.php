@@ -25,21 +25,22 @@
 
 <footer><p>© 2026 JSTACK</p></footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   let currentUser = null;
   const partnerId = parseInt(new URLSearchParams(location.search).get('with'));
 
   async function init() {
     currentUser = await requireLogin();
-    const partner = await apiGet(`/users.php?id=${partnerId}`);
+    const partner = await apiGet(`${API}/users.php?id=${partnerId}`);
     document.getElementById('chat-title').textContent = 'Chat with ' + escHtml(partner.name || 'User');
     loadMessages();
     setInterval(loadMessages, 5000);
   }
 
   async function loadMessages() {
-    const msgs = await apiGet(`/messages.php?with=${partnerId}`);
+    let msgs = await apiGet(`${API}/messages.php?with=${partnerId}`);
+    msgs = (msgs && Array.isArray(msgs.data)) ? msgs.data : (Array.isArray(msgs) ? msgs : []);
     const box  = document.getElementById('chat-messages');
     if (!Array.isArray(msgs) || !msgs.length) {
       box.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No messages yet. Say hello!</p>'; return;
@@ -61,14 +62,14 @@
     const input = document.getElementById('msg-input');
     const text  = input.value.trim();
     if (!text) return;
-    const res = await apiPost('/messages.php', { to_user: partnerId, message: text });
+    const res = await apiPost(`${API}/messages.php`, { to_user: partnerId, message: text });
     if (res.success) { input.value = ''; loadMessages(); }
     else alert(res.error || 'Failed to send.');
   }
 
   async function deleteMsg(id) {
     if (!confirm('Delete this message?')) return;
-    const res = await apiDelete(`/messages.php?id=${id}`);
+    const res = await apiDelete(`${API}/messages.php?id=${id}`);
     if (res.success) document.getElementById(`msg-${id}`)?.remove();
   }
 

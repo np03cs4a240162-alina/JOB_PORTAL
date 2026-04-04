@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
 </head>
 <body>
 
@@ -19,7 +19,7 @@
   <div class="form-box shadow-sm" style="background: white; padding: 30px; border-radius: 8px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
       <h2 style="margin:0; color: #333;"><i class="fas fa-user-edit"></i> Edit Professional Profile</h2>
-      <a href="dashboard.html" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Dashboard</a>
+      <a href="dashboard.php" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Dashboard</a>
     </div>
 
     <div id="alert-box"></div>
@@ -63,18 +63,18 @@
   <p>© 2026 JSTACK</p>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   /**
    * Load existing profile data
    */
   async function init() {
     // 1. Ensure only seekers can access this page
-    const user = await checkAuth('seeker');
+    const user = await requireAuth('seeker');
     if (!user) return;
 
     // 2. Fetch profile from /api/profiles.php
-    const res = await apiGet('/profiles.php');
+    const res = await apiGet(`${API}/profiles.php`);
     
     if (res && res.success && res.data) {
       const p = res.data;
@@ -99,7 +99,7 @@
     setLoading('save-btn', true, 'Saving changes...');
 
     // Use apiPost with an update action to handle the profile change
-    const res = await apiPost('/profiles.php?action=update', {
+    const res = await apiPost(`${API}/profiles.php?action=update`, {
       name:       name,
       phone:      document.getElementById('phone').value.trim(),
       skills:     document.getElementById('skills').value.trim(),

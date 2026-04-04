@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apply for Job - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
 </head>
 <body>
 
@@ -51,7 +51,7 @@
   <p>© 2026 JSTACK</p>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=1.2"></script>
 <script>
   // Get Job ID from URL: ?id=123
   const jobId = new URLSearchParams(location.search).get('id');
@@ -61,7 +61,7 @@
    */
   async function init() {
     // 1. Ensure user is a seeker
-    const user = await checkAuth('seeker');
+    const user = await requireAuth('seeker');
     if (!user) return;
 
     if (!jobId) {
@@ -71,7 +71,7 @@
     }
 
     // 2. Fetch Job Details to show what they are applying for
-    const res = await apiGet(`/jobs.php?id=${jobId}`);
+    const res = await apiGet(`${API}/jobs.php?id=${jobId}`);
     
     if (res && res.success && res.data) {
       const job = res.data;
@@ -101,7 +101,7 @@
     setLoading('apply-btn', true, 'Sending Application...');
 
     // Use the action=apply endpoint we set up in the updated PHP
-    const res = await apiPost('/applications.php?action=apply', { 
+    const res = await apiPost(`${API}/applications.php?action=apply`, { 
       job_id: parseInt(jobId), 
       resume_note: note 
     });
