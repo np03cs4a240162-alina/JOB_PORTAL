@@ -20,17 +20,119 @@
 <div class="container">
   <h2 class="title">All Job Listings</h2>
 
-  <div class="filter-bar" style="justify-content:center;">
-    <input type="text" id="kw" placeholder="Keyword..." style="min-width:200px;">
-    <select id="cat">
-      <option value="">All Categories</option>
-      <option>IT</option><option>Marketing</option>
-      <option>Design</option><option>Finance</option><option>Other</option>
-    </select>
-    <input type="text" id="loc" placeholder="Location...">
-    <button onclick="doFilter()">Filter</button>
-    <button class="secondary" onclick="resetFilter()">Reset</button>
-  </div>
+  <!-- NEW ADVANCED FILTER SECTION -->
+<div class="filter-container" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.05);">
+    <h3 style="margin-top: 0; color: #0a66c2;">🔍 Advanced Job Filters</h3>
+    
+    <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px;">
+        
+        <!-- Filter 1: Keyword -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Keyword</label>
+            <input type="text" id="kw" placeholder="Job title..." 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+
+        <!-- Filter 2: Category (EXPANDED) -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Category</label>
+            <select id="cat" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Categories</option>
+                <option value="IT">IT & Software</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Design">UI/UX Design</option>
+                <option value="Finance">Finance & Accounting</option>
+                <option value="HR">Human Resources</option>
+                <option value="Sales">Sales & Business Dev</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Education">Education & Training</option>
+            </select>
+        </div>
+
+        <!-- Filter 3: Location -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Location</label>
+            <select id="loc" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Locations</option>
+                <option value="Remote">Remote</option>
+                <option value="Kathmandu">Kathmandu</option>
+                <option value="Pokhara">Pokhara</option>
+                <option value="Dhaka">Dhaka</option>
+            </select>
+        </div>
+
+        <!-- Filter 4: Job Type (NEW) -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Job Type</label>
+            <select id="jobType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Types</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="freelance">Freelance</option>
+            </select>
+        </div>
+
+        <!-- Filter 5: Experience Level (NEW) -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Experience</label>
+            <select id="expLevel" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Levels</option>
+                <option value="entry">Entry Level</option>
+                <option value="junior">Junior (1-3 yrs)</option>
+                <option value="mid">Mid-Level (3-5 yrs)</option>
+                <option value="senior">Senior (5-10 yrs)</option>
+            </select>
+        </div>
+
+        <!-- Filter 6: Salary Range (NEW) -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Salary</label>
+            <select id="salary" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Any Salary</option>
+                <option value="0-500">$0 - $500</option>
+                <option value="500-1000">$500 - $1,000</option>
+                <option value="1000-2000">$1,000 - $2,000</option>
+                <option value="2000-5000">$2,000 - $5,000</option>
+            </select>
+        </div>
+
+        <!-- Filter 7: Posted Date (NEW) -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Posted</label>
+            <select id="postedDate" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Any Time</option>
+                <option value="1">Last 24 Hours</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+            </select>
+        </div>
+
+        <!-- Filter 8: Company (NEW) -->
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px;">Company</label>
+            <input type="text" id="company" placeholder="Company name..." 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+    </div>
+
+    <!-- FILTER BUTTONS -->
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button onclick="applyFilters()" 
+                style="flex: 1; min-width: 120px; padding: 10px; background: #0a66c2; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            🔍 Apply Filters
+        </button>
+        <button onclick="resetFilters()" 
+                style="flex: 1; min-width: 120px; padding: 10px; background: #888; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            ↺ Reset All
+        </button>
+    </div>
+
+    <!-- ACTIVE FILTERS DISPLAY -->
+    <div id="active-filters" style="margin-top: 12px; display: none;">
+        <small style="color: #666;">Active: <span id="filter-summary" style="color: #0a66c2; font-weight: bold;"></span></small>
+    </div>
+</div>
 
   <p id="result-count" style="text-align:center;color:#888;margin-bottom:10px;"></p>
   <div id="jobs-container" class="job-container"></div>
@@ -74,6 +176,82 @@
   const urlKw = new URLSearchParams(location.search).get('keyword') || '';
   if (urlKw) document.getElementById('kw').value = urlKw;
   load(urlKw);
+
+  /**
+ * FUNCTION 1: Apply Filters
+ */
+async function applyFilters() {
+    const filters = {
+        keyword: document.getElementById('kw').value.trim(),
+        category: document.getElementById('cat').value,
+        location: document.getElementById('loc').value,
+        jobType: document.getElementById('jobType').value,
+        expLevel: document.getElementById('expLevel').value,
+        salary: document.getElementById('salary').value,
+        postedDate: document.getElementById('postedDate').value,
+        company: document.getElementById('company').value.trim(),
+    };
+
+    const container = document.getElementById('jobs-container');
+    container.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#888;">🔍 Filtering...</p>';
+
+    let url = '/jobs.php?action=search';
+    if (filters.keyword) url += `&keyword=${encodeURIComponent(filters.keyword)}`;
+    if (filters.category) url += `&category=${encodeURIComponent(filters.category)}`;
+    if (filters.location) url += `&location=${encodeURIComponent(filters.location)}`;
+
+    try {
+        const res = await apiGet(url);
+        
+        if (res && res.success && res.data && res.data.length > 0) {
+            document.getElementById('result-count').textContent = `${res.data.length} job${res.data.length !== 1 ? 's' : ''} found`;
+            container.innerHTML = res.data.map(j => renderJobCard(j)).join('');
+            showActiveFilters(filters);
+        } else {
+            container.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#888;">No jobs match your filters.</p>';
+            document.getElementById('active-filters').style.display = 'none';
+        }
+    } catch (err) {
+        container.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#e53935;">Error loading jobs.</p>';
+    }
+}
+
+/**
+ * FUNCTION 2: Reset All Filters
+ */
+function resetFilters() {
+    document.getElementById('kw').value = '';
+    document.getElementById('cat').value = '';
+    document.getElementById('loc').value = '';
+    document.getElementById('jobType').value = '';
+    document.getElementById('expLevel').value = '';
+    document.getElementById('salary').value = '';
+    document.getElementById('postedDate').value = '';
+    document.getElementById('company').value = '';
+    document.getElementById('active-filters').style.display = 'none';
+    
+    load();
+}
+
+/**
+ * FUNCTION 3: Show Active Filters
+ */
+function showActiveFilters(filters) {
+    const activeFilters = [];
+    
+    if (filters.keyword) activeFilters.push(`"${filters.keyword}"`);
+    if (filters.category) activeFilters.push(filters.category);
+    if (filters.location) activeFilters.push(filters.location);
+    if (filters.jobType) activeFilters.push(filters.jobType);
+    if (filters.expLevel) activeFilters.push(filters.expLevel);
+    if (filters.salary) activeFilters.push(filters.salary);
+    if (filters.company) activeFilters.push(`Company: "${filters.company}"`);
+
+    if (activeFilters.length > 0) {
+        document.getElementById('filter-summary').textContent = activeFilters.join(' • ');
+        document.getElementById('active-filters').style.display = 'block';
+    }
+}
 </script>
 </body>
 </html>
