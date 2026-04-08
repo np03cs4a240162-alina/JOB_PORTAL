@@ -71,7 +71,6 @@ $user = requireRole('admin');
     document.getElementById('jobs-table').innerHTML =
       '<tr><td colspan="7" style="text-align:center;padding:40px;color:#aaa;">Loading...</td></tr>';
 
-    // GET all jobs — jstack_db.jobs table
     const res = await apiGet(`${API}/jobs.php?admin_view=1`);
     if (res && res.success) {
       allJobs = res.data || [];
@@ -119,7 +118,7 @@ $user = requireRole('admin');
 
   async function deleteJob(id) {
     if (!confirm('Delete this job and all its applications? This cannot be undone.')) return;
-    // DELETE — cascades to jstack_db.applications (FK ON DELETE CASCADE)
+
     const res = await apiDelete(`${API}/jobs.php?id=${id}`);
     if (res && res.success) {
       showAlert('alert-box', 'Job deleted successfully.', 'success');
@@ -134,3 +133,4 @@ $user = requireRole('admin');
 </script>
 </body>
 </html>
+

@@ -29,3 +29,4 @@ if ($method === 'DELETE') {
     jsonResponse($stmt->rowCount() ? ['success' => true] : ['error' => 'Not found.'], $stmt->rowCount() ? 200 : 404);
 }
 jsonResponse(['error' => 'Invalid.'], 405);
+

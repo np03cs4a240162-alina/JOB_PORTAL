@@ -44,7 +44,7 @@ $user = requireRole('admin');
 <div class="container" style="margin-top:30px;">
   <h1 class="title">Welcome, <?php echo htmlspecialchars($user['name']); ?> 👋</h1>
 
-  <!-- Stats -->
+  
   <div class="grid-3">
     <a href="manage-users.php" class="stat-link">
       <div class="card">
@@ -68,7 +68,7 @@ $user = requireRole('admin');
 
   <div class="dashboard-layout">
 
-    <!-- Recent Users -->
+    
     <div class="panel">
       <h3 style="margin-top:0;color:#0a66c2;border-bottom:2px solid #f4f4f4;padding-bottom:10px;">
         Recent Users
@@ -81,7 +81,7 @@ $user = requireRole('admin');
       </a>
     </div>
 
-    <!-- Quick Actions -->
+    
     <div class="panel">
       <h3 style="margin-top:0;">Quick Actions</h3>
       <button class="quick-btn" onclick="location.href='manage-jobs.php'">📋 Manage Job Listings</button>
@@ -101,7 +101,7 @@ $user = requireRole('admin');
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
   async function initDashboard() {
-    // Fetch stats from API — matches jstack_db tables
+
     const res = await apiGet(`${API}/dashboard-stats.php`);
 
     if (!res || !res.success) {
@@ -114,7 +114,6 @@ $user = requireRole('admin');
     document.getElementById('active-jobs').textContent = s.active_jobs  ?? 0;
     document.getElementById('total-apps').textContent  = s.total_applications ?? 0;
 
-    // Render recent users
     const list = document.getElementById('recent-users-list');
     if (res.recent_users && res.recent_users.length > 0) {
       list.innerHTML = res.recent_users.map(u => `
@@ -134,3 +133,4 @@ $user = requireRole('admin');
 </script>
 </body>
 </html>
+

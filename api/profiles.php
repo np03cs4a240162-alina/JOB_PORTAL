@@ -1,5 +1,5 @@
 <?php
-// Prevent PHP warnings from breaking JSON output in XAMPP
+
 error_reporting(0);
 ini_set('display_errors', 0);
 
@@ -11,13 +11,10 @@ $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 $user   = requireLogin();
 
-/**
- * ── GET: Fetch Profile Data ──
- */
+
 if ($method === 'GET') {
     $profileData = [];
-    
-    // Fetch basic user info first (Name and Email)
+
     $stmtUser = $db->prepare('SELECT name, email FROM users WHERE id = ?');
     $stmtUser->execute([$user['id']]);
     $basicInfo = $stmtUser->fetch(PDO::FETCH_ASSOC);
@@ -41,24 +38,20 @@ if ($method === 'GET') {
     jsonResponse(['success' => true, 'data' => $profileData]);
 }
 
-/**
- * ── POST/PUT: Update Profile Data ──
- */
+
 if ($method === 'POST' || $method === 'PUT') {
     $data = getBody();
     $action = $_GET['action'] ?? '';
 
     if ($user['role'] === 'seeker') {
-        // 1. Update main 'users' table name
+
         if (!empty($data['name'])) {
             $db->prepare('UPDATE users SET name = ? WHERE id = ?')
                ->execute([sanitize($data['name']), $user['id']]);
-            
-            // Sync session name so navbar updates
+
             $_SESSION['user']['name'] = sanitize($data['name']);
         }
 
-        // 2. Update or Insert into seeker_profiles
         $stmt = $db->prepare('SELECT id FROM seeker_profiles WHERE user_id = ?');
         $stmt->execute([$user['id']]);
         
@@ -111,9 +104,7 @@ if ($method === 'POST' || $method === 'PUT') {
     }
 }
 
-/**
- * ── PATCH: Update Account Credentials (Name/Email) ──
- */
+
 if ($method === 'PATCH') {
     $data  = getBody();
     $name  = sanitize($data['name']  ?? '');
@@ -124,8 +115,7 @@ if ($method === 'PATCH') {
 
     try {
         $db->prepare('UPDATE users SET name = ?, email = ? WHERE id = ?')->execute([$name, $email, $user['id']]);
-        
-        // Refresh session data
+
         $stmt = $db->prepare('SELECT id, name, email, role FROM users WHERE id = ?');
         $stmt->execute([$user['id']]);
         $updated = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -138,3 +128,4 @@ if ($method === 'PATCH') {
 }
 
 jsonResponse(['success' => false, 'error' => 'Method not allowed.'], 405);
+

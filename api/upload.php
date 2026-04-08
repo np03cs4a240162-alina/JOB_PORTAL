@@ -11,9 +11,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 $user   = requireRole('seeker');
 
-/**
- * ── GET: Fetch Resumes ──
- */
+
 if ($method === 'GET') {
     $stmt = $db->prepare('SELECT id, filename, filepath, uploaded_at FROM resumes WHERE user_id = ? ORDER BY uploaded_at DESC');
     $stmt->execute([$user['id']]);
@@ -22,23 +20,19 @@ if ($method === 'GET') {
     jsonResponse(['success' => true, 'data' => $resumes]);
 }
 
-/**
- * ── POST: Upload and Auto-Cleanup ──
- */
+
 if ($method === 'POST') {
     if (!isset($_FILES['resume'])) {
         jsonResponse(['success' => false, 'error' => 'No file selected.'], 400);
     }
 
     $file = $_FILES['resume'];
-    
-    // 1. Validate using project config
+
     $validationResult = validateUpload($file);
     if ($validationResult !== true) {
         jsonResponse(['success' => false, 'error' => $validationResult], 400);
     }
 
-    // 2. Strict MIME check
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime  = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
@@ -47,12 +41,10 @@ if ($method === 'POST') {
         jsonResponse(['success' => false, 'error' => 'Unsupported file type.'], 400);
     }
 
-    // 3. Folder Setup
     $subDir = 'resumes/';
     $targetDir = UPLOAD_DIR . $subDir;
     if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
 
-    // 4. File Naming
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $newFilename = 'res_' . $user['id'] . '_' . time() . '.' . $ext;
     $savePath = $targetDir . $newFilename;
@@ -62,16 +54,7 @@ if ($method === 'POST') {
         try {
             $db->beginTransaction();
 
-            // OPTIONAL: If you only want ONE resume per user, uncomment the lines below:
-            /*
-            $old = $db->prepare("SELECT filepath FROM resumes WHERE user_id = ?");
-            $old->execute([$user['id']]);
-            while($r = $old->fetch()) { 
-                $oldFile = __DIR__ . '/../' . $r['filepath'];
-                if(file_exists($oldFile)) unlink($oldFile);
-            }
-            $db->prepare("DELETE FROM resumes WHERE user_id = ?")->execute([$user['id']]);
-            */
+            
 
             $stmt = $db->prepare('INSERT INTO resumes (user_id, filename, filepath) VALUES (?, ?, ?)');
             $stmt->execute([$user['id'], htmlspecialchars($file['name']), $dbPath]);
@@ -99,9 +82,7 @@ if ($method === 'POST') {
     }
 }
 
-/**
- * ── DELETE: Remove Resume ──
- */
+
 if ($method === 'DELETE' || (isset($_GET['action']) && $_GET['action'] === 'delete')) {
     $id = (int)($_GET['id'] ?? 0);
     
@@ -122,3 +103,4 @@ if ($method === 'DELETE' || (isset($_GET['action']) && $_GET['action'] === 'dele
 }
 
 jsonResponse(['success' => false, 'error' => 'Invalid Request.'], 405);
+

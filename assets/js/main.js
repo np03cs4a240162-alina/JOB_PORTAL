@@ -1,12 +1,8 @@
-/**
- * main.js — Global helpers for JSTACK Job Portal
- * XAMPP folder: C:\xampp\htdocs\jobportalsystem\
- */
+
 
 const BASE = '/jobportalsystem';
 const API  = BASE + '/api';
 
-// ── Alert helpers ──
 function showAlert(boxId, message, type = 'info') {
     const box = document.getElementById(boxId);
     if (!box) return;
@@ -17,7 +13,6 @@ function clearAlert(boxId) {
     if (box) box.innerHTML = '';
 }
 
-// ── Button loading state ──
 function setLoading(btnId, loading, text = '') {
     const btn = document.getElementById(btnId);
     if (!btn) return;
@@ -26,7 +21,6 @@ function setLoading(btnId, loading, text = '') {
     btn.textContent = loading ? (text || 'Loading...') : btn.dataset.original;
 }
 
-// ── POST ──
 async function apiPost(url, data) {
     try {
         const res = await fetch(url, {
@@ -48,7 +42,6 @@ async function apiPost(url, data) {
     }
 }
 
-// ── GET ──
 async function apiGet(url) {
     try {
         const res = await fetch(url, {
@@ -68,7 +61,6 @@ async function apiGet(url) {
     }
 }
 
-// ── PUT (update) ──
 async function apiPut(url, data) {
     try {
         const res = await fetch(url, {
@@ -84,7 +76,6 @@ async function apiPut(url, data) {
     }
 }
 
-// ── DELETE ──
 async function apiDelete(url) {
     try {
         const res = await fetch(url, {
@@ -98,7 +89,6 @@ async function apiDelete(url) {
     }
 }
 
-// ── Check session (used by .html pages) ──
 async function requireAuth(expectedRole = null) {
     const res = await apiGet(`${API}/auth.php?action=me`);
     if (!res || !res.success) {
@@ -112,12 +102,10 @@ async function requireAuth(expectedRole = null) {
     return res.user;
 }
 
-// ── Role protection function — used by both .html and .php views ──
 async function requireRole(expectedRole = null) {
     return await requireAuth(expectedRole);
 }
 
-// ── Basic session check without specific role ──
 async function requireLogin() {
     return await requireAuth();
 }
@@ -125,7 +113,6 @@ async function requireLogin() {
 window.requireRole = requireRole;
 window.requireLogin = requireLogin;
 
-// ── Check session WITHOUT redirect (silently) ──
 async function getCurrentUser() {
     try {
         const res = await apiGet(`${API}/auth.php?action=me`);
@@ -135,12 +122,11 @@ async function getCurrentUser() {
     }
 }
 
-// ── Logout (POST) ──
 async function handleLogout() {
     await apiPost(`${API}/auth.php?action=logout`, {});
     window.location.href = `${BASE}/auth/login.html`;
 }
-// ── XSS Protection ──
+
 function escHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -148,5 +134,114 @@ function escHtml(str) {
     return div.innerHTML;
 }
 
-// Alias for buttons calling onclick="logout()"
 window.logout = handleLogout;
+
+
+
+function showToast(title, message, icon = "fas fa-bell") {
+    let container = document.querySelector(".toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.className = "toast-container";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerHTML = `
+        <i class="${icon}"></i>
+        <div class="toast-info">
+            <strong>${title}</strong>
+            <p>${message}</p>
+        </div>
+        <div class="toast-close">&times;</div>
+    `;
+
+    container.appendChild(toast);
+
+    const closeBtn = toast.querySelector(".toast-close");
+    closeBtn.onclick = () => {
+        toast.classList.add("hide");
+        setTimeout(() => toast.remove(), 400);
+    };
+
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.add("hide");
+            setTimeout(() => toast.remove(), 400);
+        }
+    }, 6000);
+}
+
+
+function updateBadges(notifCount, msgCount) {
+
+    const notifLinks = document.querySelectorAll("a[href*=\"notifications\"]");
+    notifLinks.forEach(link => {
+        link.classList.add("nav-link-badge");
+        let badge = link.querySelector(".badge-count");
+        if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "badge-count";
+            link.appendChild(badge);
+        }
+        if (notifCount > 0) {
+            link.classList.add("has-new");
+            badge.textContent = notifCount;
+        } else {
+            link.classList.remove("has-new");
+        }
+    });
+
+    const msgLinks = document.querySelectorAll("a[href*=\"inbox\"], a[href*=\"chat\"]");
+    msgLinks.forEach(link => {
+        link.classList.add("nav-link-badge");
+        let badge = link.querySelector(".badge-count");
+        if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "badge-count";
+            link.appendChild(badge);
+        }
+        if (msgCount > 0) {
+            link.classList.add("has-new");
+            badge.textContent = msgCount;
+        } else {
+            link.classList.remove("has-new");
+        }
+    });
+}
+
+
+let lastTotalNotifications = -1;
+async function pollActivity() {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    try {
+        const resN = await apiGet(`${API}/notifications.php`);
+        const notifications = (resN && Array.isArray(resN.data)) ? resN.data : (Array.isArray(resN) ? resN : []);
+        const unreadN = notifications.filter(n => !n.is_read);
+
+        if (lastTotalNotifications !== -1 && notifications.length > lastTotalNotifications) {
+            const newest = notifications[0]; // Assuming newest first
+            if (newest) showToast("New Activity", newest.message);
+        }
+        lastTotalNotifications = notifications.length;
+
+        const resM = await apiGet(`${API}/messages.php`);
+        const msgSyncCount = (resM && Array.isArray(resM)) ? resM.length : 0;
+        
+        updateBadges(unreadN.length, msgSyncCount);
+    } catch (err) {}
+}
+
+if (!window.location.href.includes("login.html")) {
+    window.addEventListener("DOMContentLoaded", () => {
+        pollActivity();
+        setInterval(pollActivity, 30000); // 30 seconds interval
+    });
+}
+
+window.showToast = showToast;
+
+

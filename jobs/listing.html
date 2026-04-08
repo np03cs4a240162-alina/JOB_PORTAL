@@ -70,10 +70,10 @@
     load();
   }
 
-  // Pre-fill keyword from URL if redirected from home search
   const urlKw = new URLSearchParams(location.search).get('keyword') || '';
   if (urlKw) document.getElementById('kw').value = urlKw;
   load(urlKw);
 </script>
 </body>
 </html>
+

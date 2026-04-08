@@ -1,8 +1,5 @@
 <?php
-/**
- * config/otp.php
- * DB-based OTP — compatible with PHP 7.4+
- */
+
 
 function generateOtp($email) {
     $email = strtolower(trim($email));
@@ -21,7 +18,6 @@ function generateOtp($email) {
         'INSERT INTO otp_tokens (email, otp_code, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))'
     )->execute([$email, $otp]);
 
-    // Send email and also log to file
     sendOtpEmail($email, $otp);
 
     return $otp;
@@ -54,7 +50,6 @@ function clearOtp($email) {
 function sendOtpEmail($toEmail, $otp) {
     $toEmail = strtolower(trim($toEmail));
 
-    // Always log OTP to file so you can see it even if email fails
     $logDir = __DIR__ . '/../logs';
     if (!is_dir($logDir)) {
         mkdir($logDir, 0755, true);
@@ -69,7 +64,6 @@ function sendOtpEmail($toEmail, $otp) {
     );
     file_put_contents($logDir . '/otp_debug.txt', $entry, FILE_APPEND | LOCK_EX);
 
-    // Send real email — safely, so it doesn't crash if your laptop has no SMTP server
     $subject = 'Your JSTACK Verification Code';
     $headers  = "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -91,14 +85,13 @@ function sendOtpEmail($toEmail, $otp) {
     </body>
     </html>';
 
-    // Temporarily disable custom error handler so mail() doesn't trigger a 500
     $prevHandler = set_error_handler(null);
     $sent = @mail($toEmail, $subject, $message, $headers);
     set_error_handler($prevHandler);
 
-    // Update log with result
     $status = $sent ? 'SENT OK' : 'FAILED - Laptop SMTP not configured (Check log for OTP below)';
     file_put_contents($logDir . '/otp_debug.txt', "[mail()] $status\n", FILE_APPEND | LOCK_EX);
 
     return $sent;
 }
+

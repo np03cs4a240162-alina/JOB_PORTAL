@@ -65,15 +65,12 @@
 
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
-  /**
-   * Load existing profile data
-   */
+  
   async function init() {
-    // 1. Ensure only seekers can access this page
+
     const user = await requireAuth('seeker');
     if (!user) return;
 
-    // 2. Fetch profile from /api/profiles.php
     const res = await apiGet(`${API}/profiles.php`);
     
     if (res && res.success && res.data) {
@@ -86,9 +83,7 @@
     }
   }
 
-  /**
-   * Save profile updates
-   */
+  
   async function handleSave() {
     const name = document.getElementById('fullname').value.trim();
     if (!name) {
@@ -98,7 +93,6 @@
 
     setLoading('save-btn', true, 'Saving changes...');
 
-    // Use apiPost with an update action to handle the profile change
     const res = await apiPost(`${API}/profiles.php?action=update`, {
       name:       name,
       phone:      document.getElementById('phone').value.trim(),
@@ -111,7 +105,7 @@
 
     if (res.success) {
       showAlert('alert-box', 'Profile successfully updated!', 'success');
-      // Update the name in the navbar immediately without refreshing
+
       const navName = document.querySelector('#nav-actions strong');
       if (navName) navName.textContent = name;
     } else {
@@ -123,3 +117,4 @@
 </script>
 </body>
 </html>
+

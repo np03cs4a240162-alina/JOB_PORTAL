@@ -53,14 +53,12 @@
 
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
-  // Get Job ID from URL: ?id=123
+
   const jobId = new URLSearchParams(location.search).get('id');
 
-  /**
-   * Page Initialization
-   */
+  
   async function init() {
-    // 1. Ensure user is a seeker
+
     const user = await requireAuth('seeker');
     if (!user) return;
 
@@ -70,7 +68,6 @@
       return;
     }
 
-    // 2. Fetch Job Details to show what they are applying for
     const res = await apiGet(`${API}/jobs.php?id=${jobId}`);
     
     if (res && res.success && res.data) {
@@ -87,9 +84,7 @@
     }
   }
 
-  /**
-   * Handle Application Submission
-   */
+  
   async function handleApply() {
     const note = document.getElementById('note').value.trim();
 
@@ -100,7 +95,6 @@
 
     setLoading('apply-btn', true, 'Sending Application...');
 
-    // Use the action=apply endpoint we set up in the updated PHP
     const res = await apiPost(`${API}/applications.php?action=apply`, { 
       job_id: parseInt(jobId), 
       resume_note: note 
@@ -110,12 +104,10 @@
 
     if (res.success) {
       showAlert('alert-box', '<strong>Success!</strong> Your application has been sent to the employer.', 'success');
-      
-      // Disable form to prevent double-submit
+
       document.getElementById('apply-form').style.opacity = '0.5';
       document.getElementById('apply-btn').disabled = true;
 
-      // Redirect to "My Applications"
       setTimeout(() => {
         location.href = 'applied-jobs.html';
       }, 2000);
@@ -128,3 +120,5 @@
 </script>
 </body>
 </html>
+
+

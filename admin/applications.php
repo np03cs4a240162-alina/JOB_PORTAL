@@ -52,7 +52,7 @@
 
   async function init() {
     await requireRole('admin');
-    // Calling the API endpoint you already have
+
     const data = await apiGet(`${API}/applications.php?admin_view=1`);
     allApps = (data && Array.isArray(data.data)) ? data.data : (Array.isArray(data) ? data : []);
     renderTable(allApps);
@@ -105,3 +105,4 @@
 </script>
 </body>
 </html>
+

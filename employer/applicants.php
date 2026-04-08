@@ -50,19 +50,15 @@
 
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
-  /**
-   * Initialize page and fetch data
-   */
+  
   async function init() {
-    // 1. Protect page: ensure only employers can see this
+
     const user = await requireAuth('employer');
     if (!user) return;
 
-    // 2. Fetch data (API uses the global API constant from main.js)
     const res = await apiGet(`${API}/applications.php`);
     const tbody = document.getElementById('applicants-table');
-    
-    // 3. Handle empty states or failures
+
     if (!res || !res.success || !res.data || res.data.length === 0) {
       tbody.innerHTML = `
         <tr>
@@ -74,9 +70,8 @@
       return;
     }
 
-    // 4. Render Table Rows
     tbody.innerHTML = res.data.map(a => {
-      // Logic for status badge colors
+
       const statusColor = a.status === 'accepted' ? '#28a745' : (a.status === 'rejected' ? '#dc3545' : '#ffc107');
       const textColor = a.status === 'pending' ? '#000' : '#fff';
 
@@ -109,9 +104,7 @@
     }).join('');
   }
 
-  /**
-   * Update Application Status
-   */
+  
   async function updateStatus(id, newStatus) {
     setLoading(`verify-btn-${id}`, true, 'Updating...'); // Optional: unique button ID
     
@@ -128,9 +121,9 @@
     }
   }
 
-  // Run on load
   init();
 </script>
 
 </body>
 </html>
+

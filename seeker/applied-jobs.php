@@ -52,15 +52,13 @@
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
   async function init() {
-    // 1. Verify seeker role using the helper in main.js
+
     const user = await requireAuth('seeker');
     if (!user) return;
 
-    // 2. Fetch applications - The PHP now handles the 'seeker' role check internally
     const res = await apiGet(`${API}/applications.php`);
     const tbody = document.getElementById('apps-table');
-    
-    // 3. Handle the new { success, data } response structure
+
     if (!res.success || !res.data || res.data.length === 0) {
       tbody.innerHTML = `
         <tr>
@@ -72,9 +70,8 @@
       return;
     }
 
-    // 4. Render Table
     tbody.innerHTML = res.data.map(a => {
-      // Dynamic badge styling
+
       const statusInfo = {
         pending:  { color: '#856404', bg: '#fff3cd', icon: 'fa-clock' },
         accepted: { color: '#155724', bg: '#d4edda', icon: 'fa-check-circle' },
@@ -102,3 +99,4 @@
 </script>
 </body>
 </html>
+

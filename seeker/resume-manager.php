@@ -52,18 +52,14 @@
 
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
-  /**
-   * Initialize page
-   */
+  
   async function init() {
     const user = await requireAuth('seeker');
     if (!user) return;
     loadResumes();
   }
 
-  /**
-   * Fetch and display resume list
-   */
+  
   async function loadResumes() {
     const res = await apiGet(`${API}/upload.php`);
     const list = document.getElementById('resume-list');
@@ -97,9 +93,7 @@
       </div>`).join('');
   }
 
-  /**
-   * Handle file upload
-   */
+  
   async function handleUpload() {
     const fileInput = document.getElementById('resume-file');
     const file = fileInput.files[0];
@@ -109,7 +103,6 @@
       return; 
     }
 
-    // Basic client-side size check (5MB)
     if (file.size > 5 * 1024 * 1024) {
       showAlert('alert-box', 'File is too large. Max size is 5MB.', 'error');
       return;
@@ -143,9 +136,7 @@
     }
   }
 
-  /**
-   * Delete a resume
-   */
+  
   async function deleteResume(id) {
     if (!confirm('Are you sure you want to delete this resume?')) return;
     
@@ -162,3 +153,4 @@
 </script>
 </body>
 </html>
+

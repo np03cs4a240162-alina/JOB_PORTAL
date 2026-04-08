@@ -1,5 +1,5 @@
 <?php
-// Prevent PHP warnings from corrupting JSON output
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -13,7 +13,6 @@ $db     = getDB();
 if ($method === 'GET') {
     $action = $_GET['action'] ?? '';
 
-    // 1. Ajax Autocomplete
     if ($action === 'autocomplete') {
         $q = sanitize($_GET['q'] ?? '');
         $stmt = $db->prepare("SELECT DISTINCT title FROM jobs WHERE status='active' AND title LIKE ? ORDER BY title LIMIT 8");
@@ -22,7 +21,6 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'data' => $titles]);
     }
 
-    // 2. Advanced Search
     if ($action === 'search') {
         $keyword  = sanitize($_GET['keyword']  ?? '');
         $category = sanitize($_GET['category'] ?? '');
@@ -56,7 +54,6 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'count' => count($jobs), 'data' => $jobs]);
     }
 
-    // 3. Single Job Details
     if (isset($_GET['id'])) {
         $stmt = $db->prepare("SELECT j.*, u.name AS employer_name FROM jobs j LEFT JOIN users u ON j.employer_id = u.id WHERE j.id = ?");
         $stmt->execute([(int)$_GET['id']]);
@@ -66,7 +63,6 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'data' => $job]);
     }
 
-    // 4. Employer's Dashboard View
     if (isset($_GET['mine'])) {
         $user = requireRole('employer');
         $stmt = $db->prepare("SELECT j.*, COUNT(a.id) AS application_count 
@@ -79,7 +75,6 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
-    // 5. Admin Panel View
     if (isset($_GET['admin_view'])) {
         requireRole('admin');
         $stmt = $db->query("SELECT j.*, u.name AS employer_name, COUNT(a.id) AS application_count 
@@ -91,12 +86,10 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
-    // 6. Default: All Active Jobs (Home/Listings)
     $stmt = $db->query("SELECT j.*, u.name AS employer_name FROM jobs j LEFT JOIN users u ON j.employer_id = u.id WHERE j.status = 'active' ORDER BY j.created_at DESC LIMIT 20");
     jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
-// ── POST: Create Job ──
 if ($method === 'POST') {
     $user = requireRole('employer');
     $data = getBody();
@@ -113,11 +106,18 @@ if ($method === 'POST') {
 
     $stmt = $db->prepare("INSERT INTO jobs (title, company, salary, category, location, description, employer_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')");
     $success = $stmt->execute([$clean['title'], $clean['company'], $clean['salary'], $clean['category'], $clean['location'], $clean['description'], $user['id']]);
+    $jobId = (int)$db->lastInsertId();
+
+    if ($success) {
+
+        $msg = "New Job: " . $clean['title'] . " at " . $clean['company'];
+        $db->prepare("INSERT INTO notifications (user_id, message) 
+                     SELECT id, ? FROM users WHERE role = 'seeker'")->execute([$msg]);
+    }
     
-    jsonResponse(['success' => $success, 'id' => (int)$db->lastInsertId()]);
+    jsonResponse(['success' => $success, 'id' => $jobId]);
 }
 
-// ── PUT: Update Job ──
 if ($method === 'PUT' && isset($_GET['id'])) {
     $user = requireLogin();
     $jobId = (int)$_GET['id'];
@@ -144,7 +144,6 @@ if ($method === 'PUT' && isset($_GET['id'])) {
     jsonResponse(['success' => true, 'message' => 'Job updated.']);
 }
 
-// ── DELETE: Remove Job ──
 if ($method === 'DELETE' && isset($_GET['id'])) {
     $user = requireLogin();
     $jobId = (int)$_GET['id'];
@@ -158,7 +157,6 @@ if ($method === 'DELETE' && isset($_GET['id'])) {
         jsonResponse(['success' => false, 'error' => 'Permission denied.'], 403);
     }
 
-    // Cascade delete related records
     $db->prepare('DELETE FROM applications WHERE job_id = ?')->execute([$jobId]);
     $db->prepare('DELETE FROM saved_jobs WHERE job_id = ?')->execute([$jobId]);
     $db->prepare('DELETE FROM jobs WHERE id = ?')->execute([$jobId]);
@@ -167,3 +165,4 @@ if ($method === 'DELETE' && isset($_GET['id'])) {
 }
 
 jsonResponse(['success' => false, 'error' => 'Invalid request.'], 400);
+

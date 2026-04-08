@@ -25,7 +25,7 @@
   </div>
 </div>
 
-<!-- Edit Modal -->
+
 <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
      background:rgba(0,0,0,.5);z-index:999;justify-content:center;align-items:center;">
   <div style="background:white;padding:30px;border-radius:12px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;">
@@ -56,7 +56,7 @@
 
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
-  // ── XSS / Escaping Fallback ──
+
   function escHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -133,3 +133,4 @@
 </script>
 </body>
 </html>
+

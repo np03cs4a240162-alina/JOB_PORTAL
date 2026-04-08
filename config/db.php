@@ -89,3 +89,4 @@ if (!function_exists('sanitize')) {
         return htmlspecialchars(trim((string)$data), ENT_QUOTES, 'UTF-8');
     }
 }      
+

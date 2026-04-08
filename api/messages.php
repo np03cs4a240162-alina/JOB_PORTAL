@@ -1,8 +1,5 @@
 <?php
-/**
- * MESSAGES API - JSTACK Job Portal
- * Synchronized with DB table: id, from_user, to_user, message, sent_at
- */
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
@@ -14,14 +11,12 @@ $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 $user   = requireLogin();
 
-// ── DEBUG LOGGING ──
 $logFile = __DIR__ . '/api_debug.txt';
 $logMsg  = "[" . date('Y-m-d H:i:s') . "] User ID: " . ($user['id'] ?? 'NONE') . " | Method: $method\n";
 file_put_contents($logFile, $logMsg, FILE_APPEND);
 
-// ── GET: Conversations or Chat History ──
 if ($method === 'GET') {
-    // 1. History
+
     if (isset($_GET['with'])) {
         $pid  = (int)$_GET['with'];
         $stmt = $db->prepare("SELECT m.*, u.name AS sender_name 
@@ -34,7 +29,6 @@ if ($method === 'GET') {
         jsonResponse($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    // 2. Converations (Inbox)
     $stmt = $db->prepare("SELECT DISTINCT CASE WHEN from_user=? THEN to_user ELSE from_user END AS partner_id 
                          FROM messages 
                          WHERE from_user=? OR to_user=?");
@@ -68,7 +62,6 @@ if ($method === 'GET') {
     jsonResponse($convs);
 }
 
-// ── POST: Send Message ──
 if ($method === 'POST') {
     $data   = getBody();
     $toUser = (int)($data['to_user'] ?? 0);
@@ -82,3 +75,4 @@ if ($method === 'POST') {
 }
 
 jsonResponse(['success' => false, 'error' => 'Unsupported method.'], 405);
+

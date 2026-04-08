@@ -3,7 +3,6 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../config/session.php';
 require_once '../config/db.php';
 
-// Auth check
 $user = requireLogin();
 $id   = $user['id'];
 $role = $user['role'];
@@ -25,7 +24,7 @@ try {
     } 
     elseif ($role === 'employer') {
         $stats['total_jobs']           = (int)$db->prepare("SELECT COUNT(*) FROM jobs WHERE employer_id = ?")->execute([$id]) ? $db->prepare("SELECT COUNT(*) FROM jobs WHERE employer_id = ?")->execute([$id]) : 0; 
-        // Let's re-write more cleanly
+
         $stmtJobs = $db->prepare("SELECT COUNT(*) FROM jobs WHERE employer_id = ?");
         $stmtJobs->execute([$id]);
         $stats['total_jobs'] = (int)$stmtJobs->fetchColumn();
@@ -63,3 +62,5 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
+
+

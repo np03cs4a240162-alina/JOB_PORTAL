@@ -80,7 +80,6 @@ $user = requireRole('admin');
     document.getElementById('apps-table').innerHTML =
       '<tr><td colspan="6" style="text-align:center;padding:40px;color:#aaa;">Loading...</td></tr>';
 
-    // GET applications joined with users + jobs — jstack_db.applications
     const res = await apiGet(`${API}/applications.php?admin_view=1`);
     if (res && res.success) {
       allApps = res.data || [];
@@ -128,7 +127,7 @@ $user = requireRole('admin');
   }
 
   async function updateStatus(id, status) {
-    // PUT to update jstack_db.applications.status
+
     const res = await apiPut(`${API}/applications.php?id=${id}`, { status });
     if (res && res.success) {
       showAlert('alert-box', `Status updated to "${status}".`, 'success');
@@ -143,3 +142,4 @@ $user = requireRole('admin');
 </script>
 </body>
 </html>
+

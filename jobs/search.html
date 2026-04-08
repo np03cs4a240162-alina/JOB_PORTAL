@@ -10,7 +10,7 @@
       box-shadow:0 4px 12px rgba(0,0,0,.08);max-width:800px;margin:30px auto;}
     .search-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .autocomplete-wrapper{position:relative;}
-    #autocomplete-list{position:absolute;width:100%;top:100%;left:0;
+
       background:white;border:1px solid #ddd;border-radius:8px;
       box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:1000;padding:0;margin-top:4px;}
   </style>
@@ -89,7 +89,6 @@
     doSearch();
   }
 
-  // Pre-fill from URL params
   const params = new URLSearchParams(location.search);
   if (params.get('keyword')) document.getElementById('keyword').value = params.get('keyword');
 
@@ -98,3 +97,5 @@
 </script>
 </body>
 </html>
+
+

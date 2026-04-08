@@ -1,11 +1,7 @@
-/**
- * auth.js - Login, Registration, Password Reset
- * Matches: jstack_db → users (id, name, email, password, role)
- */
+
 
 const authUrl = (action) => `${API}/auth.php?action=${action}`;
 
-// ── LOGIN ──────────────────────────────────────────────────────────────────────
 async function handleLogin() {
     clearAlert('alert-box');
 
@@ -51,7 +47,6 @@ async function handleLogin() {
     }
 }
 
-// ── REGISTER STEP 1: Send OTP ──────────────────────────────────────────────────
 async function handleSendOtp() {
     clearAlert('alert-box');
 
@@ -93,15 +88,16 @@ async function handleSendOtp() {
             const otpInput = document.getElementById('otp');
             if (otpInput) otpInput.value = res.dev_otp;
             showAlert('alert-box', `Dev mode — OTP auto-filled: ${res.dev_otp}`, 'info');
+            if (window.showToast) showToast('System', `OTP Sent: ${res.dev_otp}`, 'fas fa-key');
         } else {
             showAlert('alert-box', 'Verification code sent to your email!', 'success');
+            if (window.showToast) showToast('Registration', 'A 6-digit verification code has been sent.', 'fas fa-envelope');
         }
     } else {
         showAlert('alert-box', res?.error || 'Failed to send code.', 'error');
     }
 }
 
-// ── REGISTER STEP 2: Verify OTP ───────────────────────────────────────────────
 async function handleVerifyOtp() {
     clearAlert('alert-box');
 
@@ -128,7 +124,6 @@ async function handleVerifyOtp() {
     }
 }
 
-// ── FORGOT PASSWORD: Request Reset Code ───────────────────────────────────────
 async function handleForgotPasswordRequest() {
     clearAlert('alert-box');
 
@@ -156,15 +151,16 @@ async function handleForgotPasswordRequest() {
             const otpField = document.getElementById('otp');
             if (otpField) otpField.value = res.dev_otp;
             showAlert('alert-box', `Dev mode — Reset code auto-filled: ${res.dev_otp}`, 'info');
+            if (window.showToast) showToast('System', `Reset Code: ${res.dev_otp}`, 'fas fa-key');
         } else {
             showAlert('alert-box', 'Reset code sent! Check your inbox.', 'success');
+            if (window.showToast) showToast('Identity', 'A password reset code has been sent.', 'fas fa-user-shield');
         }
     } else {
         showAlert('alert-box', res?.error || 'Email not found.', 'error');
     }
 }
 
-// ── FORGOT PASSWORD: Submit New Password ──────────────────────────────────────
 async function handleResetPassword() {
     clearAlert('alert-box');
 
@@ -207,3 +203,4 @@ async function handleResetPassword() {
         showAlert('alert-box', res?.error || 'Reset failed. Try again.', 'error');
     }
 }
+

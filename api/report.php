@@ -35,7 +35,7 @@ $user = requireRole('admin');
   <h2 class="title">System Performance Overview</h2>
   <p id="report-date" style="text-align:center;color:#aaa;margin-bottom:24px;"></p>
 
-  <!-- Stats Grid -->
+  
   <div class="grid-stats">
     <div class="stat-card"><div class="val" id="t-users">--</div><div class="lbl">Total Users</div></div>
     <div class="stat-card"><div class="val" id="t-jobs">--</div><div class="lbl">Jobs Posted</div></div>
@@ -45,7 +45,7 @@ $user = requireRole('admin');
     <div class="stat-card"><div class="val" id="t-accepted" style="color:#28a745;">--</div><div class="lbl">Accepted</div></div>
   </div>
 
-  <!-- Company Ratings Chart -->
+  
   <div class="panel">
     <h3 style="margin-top:0;color:#0a66c2;">Top Rated Companies</h3>
     <div style="height:300px;position:relative;">
@@ -54,7 +54,7 @@ $user = requireRole('admin');
     <p id="no-chart" style="text-align:center;color:#aaa;display:none;">No review data yet.</p>
   </div>
 
-  <!-- Summary Table -->
+  
   <div class="panel">
     <h3 style="margin-top:0;">Summary Report</h3>
     <table>
@@ -74,7 +74,6 @@ $user = requireRole('admin');
     document.getElementById('report-date').textContent =
       'Generated: ' + new Date().toLocaleString();
 
-    // Fetch from admindrashbord.php — jstack_db aggregates
     const res = await apiGet(`${API}/admindashboard.php`);
     if (!res || !res.success) {
       document.getElementById('report-table').innerHTML =
@@ -84,7 +83,6 @@ $user = requireRole('admin');
 
     const s = res.stats;
 
-    // Fill stat cards
     document.getElementById('t-users').textContent     = s.total_users          ?? '--';
     document.getElementById('t-jobs').textContent      = s.total_jobs           ?? '--';
     document.getElementById('t-apps').textContent      = s.total_applications   ?? '--';
@@ -96,14 +94,12 @@ $user = requireRole('admin');
       ? ((s.accepted_applications / s.total_applications) * 100).toFixed(1)
       : '0.0';
 
-    // Summary table
     document.getElementById('report-table').innerHTML = `
       <tr><td><strong>User Base</strong></td><td>${s.total_users} accounts</td><td>✅ Active</td><td>${s.total_employers} employers / ${s.total_seekers} seekers</td></tr>
       <tr><td><strong>Job Market</strong></td><td>${s.total_jobs} listings</td><td>📈 Active</td><td>${s.active_jobs ?? 0} live now</td></tr>
       <tr><td><strong>Applications</strong></td><td>${s.total_applications} total</td><td>⚡ Processing</td><td>${s.pending_applications ?? 0} pending</td></tr>
       <tr><td><strong>Success Rate</strong></td><td>${rate}% accepted</td><td>🎯 Target: 15%</td><td>${parseFloat(rate) >= 15 ? '✅ Excellent' : '📈 Growing'}</td></tr>`;
 
-    // Company ratings chart — from jstack_db.reviews
     if (res.company_stats && res.company_stats.length > 0) {
       renderChart(res.company_stats);
     } else {
@@ -137,3 +133,4 @@ $user = requireRole('admin');
 </script>
 </body>
 </html>
+

@@ -5,28 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Reviews | JSTACK</title>
     <style>
-        /* Professional UI Styling */
+        
         :root { --primary: #0a66c2; --bg: #f3f2ef; --white: #ffffff; --text: #333; --gold: #f1c40f; }
         body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; color: var(--text); }
-        
-        /* Navbar Styling */
-        #nav-actions { background: #000; padding: 12px 50px; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
-        #nav-actions a { color: white; text-decoration: none; font-weight: 600; font-size: 14px; }
+
+
 
         .container { max-width: 850px; margin: 30px auto; padding: 0 20px; }
         
-        /* Card Styling */
+        
         .card { background: var(--white); border-radius: 8px; border: 1px solid #e0e0e0; padding: 25px; margin-bottom: 20px; }
         
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h1 { font-size: 24px; margin: 0; color: var(--text); }
         
-        /* Search Bar */
+        
         .search-container { position: relative; margin-bottom: 25px; }
-        #search-company { width: 100%; padding: 15px 15px 15px 45px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+
         .search-icon { position: absolute; left: 15px; top: 15px; color: #888; }
 
-        /* Review Item Styling */
+        
         .review-item { background: white; border-bottom: 1px solid #eee; padding: 20px 0; position: relative; }
         .review-item:last-child { border-bottom: none; }
         .review-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -35,7 +33,7 @@
         .author-info { font-size: 13px; color: #666; margin-top: 5px; }
         .review-text { font-size: 15px; line-height: 1.6; color: #444; margin: 10px 0; }
 
-        /* Form Styling */
+        
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
@@ -96,17 +94,16 @@
 
     <script src="/jobportalsystem/assets/js/main.js?v=1.2"></script>
     <script>
-        // Safety constants if main.js fails to load
+
         const BASE_PATH = typeof BASE !== 'undefined' ? BASE : '/jobportalsystem';
         const API_ENDPOINT = typeof API !== 'undefined' ? API : BASE_PATH + '/api';
 
         let currentUser = null;
         const API_URL = API_ENDPOINT + '/reviews.php'; 
 
-        // Local helper to ensure it's always defined and SILENT
         async function getCurrentUser() {
             try {
-                // Using raw fetch to prevent generic main.js error logging
+
                 const res = await fetch(API_ENDPOINT + '/auth.php?action=me', {
                     method: 'GET',
                     credentials: 'include'
@@ -144,7 +141,6 @@
                 const data = await apiGet(url);
                 if (!data) throw new Error("No data");
 
-                // 1. Organize Average
                 if (data && data.total_count > 0) {
                     const totalScore = (data.reviews || []).reduce((acc, r) => acc + parseInt(r.rating), 0);
                     const calcAvg = (totalScore / data.total_count).toFixed(1);
@@ -153,7 +149,6 @@
                     avgDisp.innerHTML = '';
                 }
 
-                // 2. Organize Review List
                 if (!data.reviews || data.reviews.length === 0) {
                     list.innerHTML = `<p style="text-align:center; color:#999; padding:40px;">No reviews yet. Be the first to write one!</p>`;
                     return;
@@ -207,3 +202,4 @@
     </script>
 </body>
 </html>
+

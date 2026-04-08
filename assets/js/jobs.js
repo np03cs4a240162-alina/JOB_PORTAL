@@ -1,4 +1,4 @@
-// ── Job Fetching ──────────────────────────────────────────────────────────────
+
 async function loadAllJobs(keyword='', category='', location='') {
     let url = `${API}/jobs.php?action=search`;
     if (keyword)  url += `&keyword=${encodeURIComponent(keyword)}`;
@@ -6,11 +6,10 @@ async function loadAllJobs(keyword='', category='', location='') {
     if (location) url += `&location=${encodeURIComponent(location)}`;
     
     const res = await apiGet(url);
-    // Standardize return to ensure 'data' is always an array for .map()
+
     return res.success ? res : { success: false, data: [] };
 }
 
-// ── Ajax Autocomplete ─────────────────────────────────────────────────────────
 async function setupAutocomplete(inputId, listId) {
     const input = document.getElementById(inputId);
     const list  = document.getElementById(listId);
@@ -21,7 +20,6 @@ async function setupAutocomplete(inputId, listId) {
         list.innerHTML = '';
         if (q.length < 2) { list.style.display = 'none'; return; }
 
-        // Updated: Backend now returns {success: true, data: [...]}
         const res = await apiGet(`${API}/jobs.php?action=autocomplete&q=${encodeURIComponent(q)}`);
         
         if (res.success && Array.isArray(res.data) && res.data.length) {
@@ -46,12 +44,9 @@ async function setupAutocomplete(inputId, listId) {
     });
 }
 
-// ── Applications ──────────────────────────────────────────────────────────────
-/**
- * Submits a job application with an optional resume ID
- */
+
 async function applyToJob(jobId, resumeId = 0, resumeNote = '') {
-    // Matches the updated backend 'action=apply' logic
+
     return apiPost(`${API}/applications.php?action=apply`, { 
         job_id: jobId, 
         resume_id: resumeId,
@@ -64,14 +59,13 @@ async function getMyApplications() {
 }
 
 async function updateApplicationStatus(appId, status) { 
-    // Matches 'action=update-status' in the updated backend
+
     return apiPost(`${API}/applications.php?action=update-status`, { 
         id: appId, 
         status: status 
     });
 }
 
-// ── Saved Jobs ────────────────────────────────────────────────────────────────
 async function saveJobAction(jobId, btn) {
     let isSeeker = false;
     if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'seeker') isSeeker = true;
@@ -83,20 +77,19 @@ async function saveJobAction(jobId, btn) {
     }
 
     btn.disabled = true;
-    const res = await apiPost(`${API}/saved_jobs.php`, { job_id: jobId });
+    const res = await apiPost(`${API}/saved.php`, { job_id: jobId });
     
     if (res.success) {
         btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
         btn.classList.add('btn-saved'); // Better than inline styles
     } else {
         btn.disabled = false;
-        // Logic for "Already Saved" (409 conflict)
+
         if (res.status === 409) btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
         else alert(res.error || "Failed to save job.");
     }
 }
 
-// ── Render Card ───────────────────────────────────────────────────────────────
 function renderJobCard(job) {
     const closed  = job.status === 'closed';
     const company = escHtml(job.employer_name || job.company || 'JSTACK');
@@ -128,3 +121,4 @@ function renderJobCard(job) {
         </div>
     </div>`;
 }
+

@@ -146,6 +146,11 @@ if ($method === 'POST' && $action === 'verify-otp') {
         clearOtp($email);
         unset($_SESSION['pending_reg']);
 
+        $welcomeMsg = ($pending['role'] === 'seeker') 
+            ? "Welcome to JSTACK! Complete your profile to start applying for jobs."
+            : "Welcome to JSTACK! Start by posting your first job listing to find talent.";
+        $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")->execute([$newId, $welcomeMsg]);
+
         ob_end_clean();
         jsonResponse(['success' => true, 'message' => 'Account created! Please login.']);
     } catch (PDOException $e) {
@@ -187,6 +192,15 @@ if ($method === 'POST' && $action === 'reset-password') {
     $stmt->execute([password_hash($newPass, PASSWORD_DEFAULT), $email]);
     if ($stmt->rowCount() === 0) jsonError('Password update failed.', 500);
 
+    $uStmt = $db->prepare('SELECT id FROM users WHERE email = ?');
+    $uStmt->execute([$email]);
+    $userId = $uStmt->fetchColumn();
+
+    if ($userId) {
+        $msg = "Security Alert: Your password was successfully reset.";
+        $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")->execute([$userId, $msg]);
+    }
+
     clearOtp($email);
     unset($_SESSION['reset_email']);
 
@@ -196,3 +210,4 @@ if ($method === 'POST' && $action === 'reset-password') {
 
 ob_end_clean();
 jsonError("Action '$action' not found.", 404);
+

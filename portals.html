@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Portals — JSTACK</title>
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        .portal-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            background: var(--primary);
+        }
+        .portal-card.employer::before { background: var(--secondary); }
+        .portal-card.admin::before { background: var(--accent); }
+        
+        .portal-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+        .portal-card i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .portal-card.employer i { color: var(--secondary); }
+        .portal-card.admin i { color: var(--accent-dark); }
+        
+        .portal-card h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+        .portal-card p {
+            color: var(--text-mid);
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .portal-btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+        }
+        .portal-footer {
+            margin-top: 50px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <h2>JSTACK</h2>
+    <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="jobs/listing.html">Browse Jobs</a>
+        <a href="reviews/company-review.html">Company Reviews</a>
+        <div id="nav-actions">
+            
+        </div>
+    </nav>
+</header>
+
+<section class="hero" style="min-height: 300px; padding: 60px 20px;">
+    <h1>Resource Portals</h1>
+    <p>Choose your pathway. Access specialized tools and dashboards for seekers, employers, and administrators.</p>
+</section>
+
+<div class="container">
+    <div class="portal-grid">
+        
+        <article class="portal-card">
+            <i class="fas fa-user-graduate"></i>
+            <h3>Job Seeker Portal</h3>
+            <p>Find your next career move, track applications, and manage your professional profile with our smart career tools.</p>
+            <div class="portal-btn-group" id="seeker-actions">
+                <button class="btn-primary" onclick="location.href='seeker/dashboard.php'">Enter Dashboard</button>
+            </div>
+        </article>
+
+        
+        <article class="portal-card employer">
+            <i class="fas fa-building"></i>
+            <h3>Employer Portal</h3>
+            <p>Post job openings, manage candidates, and build your employer brand with our powerful talent acquisition platform.</p>
+            <div class="portal-btn-group" id="employer-actions">
+                <button class="btn-primary" style="background: linear-gradient(135deg,var(--secondary) 0%,#047857 100%);" onclick="location.href='employer/dashboard.php'">Enter Dashboard</button>
+            </div>
+        </article>
+
+        
+        <article class="portal-card admin">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Admin Portal</h3>
+            <p>Corporate overview, user management, and system configuration tools for platform administrators only.</p>
+            <div class="portal-btn-group" id="admin-actions">
+                <button class="btn-primary" style="background: linear-gradient(135deg,var(--accent) 0%,var(--accent-dark) 100%);" onclick="location.href='admin/dashboard.php'">Management Console</button>
+            </div>
+        </article>
+    </div>
+
+    <div class="portal-footer">
+        <p>Not sure where to go? <a href="index.html">Return to Home</a> or <a href="auth/login.html">Sign in</a> to be automatically redirected.</p>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <p>© 2026 JSTACK — The Smart Job Portal. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script src="assets/js/main.js?v=1.2"></script>
+<script>
+    async function updatePortalActions() {
+        const user = await getCurrentUser();
+        const navActions = document.getElementById('nav-actions');
+
+        if (user) {
+            navActions.innerHTML = `
+                <a href="${user.role}/dashboard.php" class="btn-sm btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff;">Dashboard</a>
+                <button onclick="logout()" class="btn-sm danger">Logout</button>
+            `;
+        } else {
+            navActions.innerHTML = `
+                <a href="auth/login.html" class="btn-sm btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff;">Login</a>
+                <a href="auth/register.html" class="btn-sm" style="background: var(--accent); color:#fff; border:none;">Register</a>
+            `;
+
+
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', updatePortalActions);
+</script>
+
+</body>
+</html>
+
+

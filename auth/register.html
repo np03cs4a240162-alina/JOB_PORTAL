@@ -6,12 +6,11 @@
   <title>Register - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <style>
-    #otp:focus { border-color: #0a66c2; box-shadow: 0 0 8px rgba(10,102,194,0.2); outline: none; }
+
     .step-indicator { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
     .dot.active { background: #0a66c2; }
 
-    #otp {
       font-family: 'Courier New', Courier, monospace;
       letter-spacing: 15px;
       text-indent: 15px;
@@ -48,7 +47,7 @@
 
     <div id="alert-box"></div>
 
-    <!-- STEP 1: Registration Details -->
+    
     <div id="step-register">
       <div class="step-indicator">
         <div class="dot active"></div>
@@ -98,7 +97,7 @@
       </form>
     </div>
 
-    <!-- STEP 2: OTP Verification -->
+    
     <div id="step-otp" style="display:none;">
       <div class="step-indicator">
         <div class="dot"></div>
@@ -151,10 +150,7 @@
 <script src="../assets/js/main.js?v=1.2"></script>
 <script src="../assets/js/auth.js"></script>
 <script>
-  /**
-   * Switches between Step 1 (register form) and Step 2 (OTP input).
-   * Called from auth.js after OTP is sent, and from the "Go back" button.
-   */
+  
   function toggleSteps(step) {
     const regStep  = document.getElementById('step-register');
     const otpStep  = document.getElementById('step-otp');
@@ -174,3 +170,4 @@
 </script>
 </body>
 </html>
+

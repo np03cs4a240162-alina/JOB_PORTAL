@@ -86,3 +86,4 @@ function logout() {
     header('Location: /jobportalsystem/auth/login.html');
     exit;
 }
+

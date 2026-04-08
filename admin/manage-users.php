@@ -6,13 +6,13 @@
     <title>User Management | JSTACK Admin</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        /* Table Badges */
+        
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
         .badge-error { background: #ffebee; color: #c62828; }
         .badge-success { background: #e8f5e9; color: #2e7d32; }
         .badge-info { background: #e3f2fd; color: #1565c0; }
         
-        /* Table specific styles */
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; color: #555; font-size: 13px; }
@@ -97,7 +97,7 @@
 
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
-    // Config
+
     const API_URL = `${API}/users.php`;
     let allUsers = [];
     const roleClass = { 
@@ -108,9 +108,7 @@
 
     window.onload = loadUsers;
 
-    /**
-     * 1. GET ALL USERS
-     */
+    
     async function loadUsers() {
         const tbody = document.getElementById('users-table');
         document.getElementById('search-text').value = '';
@@ -119,7 +117,7 @@
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">Loading users...</td></tr>';
 
         try {
-            // Using the apiGet function from your main.js
+
             const res = await apiGet(API_URL);
             
             if (res && res.success) {
@@ -133,9 +131,7 @@
         }
     }
 
-    /**
-     * 2. RENDER TABLE
-     */
+    
     function renderTable(data) {
         const tbody = document.getElementById('users-table');
         
@@ -168,9 +164,7 @@
         `).join('');
     }
 
-    /**
-     * 3. CREATE USER (POST)
-     */
+    
     async function createUser() {
         const payload = {
             name: document.getElementById('new-name').value.trim(),
@@ -197,14 +191,12 @@
         }
     }
 
-    /**
-     * 4. DELETE USER (DELETE)
-     */
+    
     async function deleteUser(id) {
         if (!confirm("Warning: Deleting this user will remove all their profile data. Continue?")) return;
 
         try {
-            // Use apiDelete (assuming it's in your main.js) or fetch directly
+
             const response = await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
             const res = await response.json();
 
@@ -219,9 +211,7 @@
         }
     }
 
-    /**
-     * SEARCH HELPERS
-     */
+    
     function localSearch() {
         const q = document.getElementById('search-text').value.toLowerCase();
         const filtered = allUsers.filter(u => 
@@ -251,3 +241,4 @@
 
 </body>
 </html>
+

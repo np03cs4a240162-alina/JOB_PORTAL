@@ -21,3 +21,4 @@ if ($method === 'DELETE') {
     jsonResponse(['success' => true]);
 }
 jsonResponse(['error' => 'Invalid request.'], 400);
+

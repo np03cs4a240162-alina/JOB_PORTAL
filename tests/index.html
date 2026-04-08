@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSTACK | Test Suite</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .test-pass { color: var(--secondary); font-weight: bold; }
+        .test-fail { color: var(--danger); font-weight: bold; }
+        .test-running { color: var(--warning); font-style: italic; }
+        .test-log { background: #1e293b; color: #acc; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 13px; line-height: 1.5; height: 300px; overflow-y: auto; margin-top: 20px; }
+        .test-card { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-light); }
+        .test-card:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-container">
+        <h2>JSTACK <span style="font-weight:normal; opacity:0.6; font-size: 16px;">Test Suite</span></h2>
+        <a href="../index.html" class="btn-sm btn-outline">Back to Portal</a>
+    </div>
+</header>
+
+<div class="container" style="margin-top: 40px;">
+    <div style="margin-bottom: 30px;">
+        <h1 style="font-size: 28px; font-weight: 900;">System Health Diagnostics</h1>
+        <p>Integrity tests for API endpoints and database connectivity.</p>
+    </div>
+
+    <div class="card" style="padding: 0;">
+        <div class="test-card" id="test-db">
+            <span>Database Connection Health</span>
+            <span class="test-running">Waiting...</span>
+        </div>
+        <div class="test-card" id="test-jobs">
+            <span>Jobs API Integrity (api/jobs.php)</span>
+            <span class="test-running">Waiting...</span>
+        </div>
+        <div class="test-card" id="test-profiles">
+            <span>Profiles API Availability</span>
+            <span class="test-running">Waiting...</span>
+        </div>
+        <div class="test-card" id="test-auth">
+            <span>Auth Session Verification</span>
+            <span class="test-running">Waiting...</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <button class="btn-primary" onclick="runAllTests()">Run All Diagnostics</button>
+        <button class="btn-outline" onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <div id="test-log" class="test-log">
+        [SYSTEM] Ready for diagnostics. Click "Run All Diagnostics" to start.
+    </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    const logEl = document.getElementById('test-log');
+
+    function log(msg, color = '#acc') {
+        const time = new Date().toLocaleTimeString();
+        logEl.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setStatus(id, status, isPass) {
+        const el = document.getElementById(id).querySelector('span:last-child');
+        el.textContent = status;
+        el.className = isPass ? 'test-pass' : 'test-fail';
+    }
+
+    async function runAllTests() {
+        log("Starting system-wide diagnostics...", "#6366f1");
+        
+        // 1. DB Check
+        try {
+            log("Checking database connectivity...");
+            const res = await apiGet(`../api/db_check.php`); 
+            if (res.success) {
+                log("Database connected successfully.", "#10b981");
+                setStatus('test-db', 'ONLINE', true);
+            } else {
+                throw new Exception("Check script failed");
+            }
+        } catch (e) {
+            log("Database connection failed or check script missing.", "#ef4444");
+            setStatus('test-db', 'OFFLINE', false);
+        }
+
+        // 2. Jobs API
+        try {
+            log("Testing Jobs API Integrity...");
+            const res = await apiGet(`../api/jobs.php`);
+            if (res.success) {
+                log(`Jobs API returned ${res.data.length} records.`, "#10b981");
+                setStatus('test-jobs', 'PASS', true);
+            } else {
+                throw new Error(res.error || "Unknown error");
+            }
+        } catch (e) {
+            log(`Jobs API Error: ${e.message}`, "#ef4444");
+            setStatus('test-jobs', 'FAIL', false);
+        }
+
+        // 3. Profiles
+        try {
+            log("Testing Profiles API...");
+            const res = await apiGet(`../api/profiles.php`);
+            log("Profiles API reachable.", "#10b981");
+            setStatus('test-profiles', 'PASS', true);
+        } catch (e) {
+            log("Profiles API check failed.", "#ef4444");
+            setStatus('test-profiles', 'FAIL', false);
+        }
+
+        log("Diagnostics completed.", "#6366f1");
+    }
+
+    function clearLog() {
+        logEl.innerHTML = "[SYSTEM] Log cleared.";
+    }
+</script>
+
+</body>
+</html>

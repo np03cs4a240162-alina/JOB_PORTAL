@@ -29,16 +29,15 @@
     </div>
 </section>
 
-<section class="container" style="position: relative; z-index: 10;">
-    <div class="search-container">
-        <div style="position: relative; flex: 1; display: flex;">
-            <i class="fas fa-search" style="position: absolute; left: 20px; top: 15px; color: #888;"></i>
-            <input type="text" id="search" placeholder="Job title, keywords, or company..." style="padding-left: 50px;">
-            
-            <ul id="autocomplete-list" class="autocomplete-list" style="display:none; top: 55px;"></ul>
+<section class="container" style="position: relative; z-index: 10; margin-top: -40px;">
+    <div class="search-bar">
+        <div class="search-input-group">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search" placeholder="Job title, keywords, or company...">
+            <ul id="autocomplete-list" class="autocomplete-list" style="display:none; top: 100%;"></ul>
         </div>
         
-        <select id="search-category">
+        <select id="search-category" class="search-select">
             <option value="All">All Categories</option>
             <option value="Technology">Technology</option>
             <option value="Design">Design</option>
@@ -46,7 +45,7 @@
             <option value="Business">Business</option>
         </select>
         
-        <button class="btn-primary" onclick="doSearch()">Search Jobs</button>
+        <button class="btn-primary" onclick="doSearch()"><i class="fas fa-magnifying-glass"></i> Search</button>
     </div>
 </section>
 
@@ -74,9 +73,7 @@
 <script src="assets/js/jobs.js?v=1.1"></script>
 
 <script>
-    /**
-     * Redirects to the search page with parameters
-     */
+    
     function doSearch() {
         const keyword = document.getElementById('search').value.trim();
         const category = document.getElementById('search-category').value;
@@ -87,18 +84,16 @@
         window.location.href = `${BASE}/jobs/search.html?${query}`;
     }
 
-    /**
-     * Loads the 6 most recent jobs from the API
-     */
+    
     async function loadLatestJobs() {
         const container = document.getElementById('jobs-list');
         
         try {
-            // Using the default GET action from jobs.php which returns active jobs
+
             const res = await apiGet(`${API}/jobs.php`);
             
             if (res.success && res.data.length > 0) {
-                // Show only first 6 for the homepage
+
                 container.innerHTML = res.data.slice(0, 6).map(job => renderJobCard(job)).join('');
             } else {
                 container.innerHTML = `
@@ -111,12 +106,10 @@
         }
     }
 
-    // Initialize Page components
     document.addEventListener('DOMContentLoaded', () => {
         setupAutocomplete('search', 'autocomplete-list');
         loadLatestJobs();
-        
-        // Optional: Trigger search on 'Enter' key
+
         document.getElementById('search').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') doSearch();
         });
@@ -125,3 +118,4 @@
 
 </body>
 </html>
+

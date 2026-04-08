@@ -71,7 +71,6 @@
       <tr><td><strong>Applications</strong></td><td>${s.total_applications} total</td><td>⚡ Active</td><td>${s.pending_applications} pending</td></tr>
       <tr><td><strong>Success Rate</strong></td><td>${rate}% accepted</td><td>🎯 Target: 15%</td><td>${parseFloat(rate)>=15?'✅ Excellent':'📈 Growing'}</td></tr>`;
 
-    // NEW: Initialize Company Ratings Chart
     if (res.company_stats && res.company_stats.length > 0) {
       renderCompanyChart(res.company_stats);
     }
@@ -113,3 +112,4 @@
 </script>
 </body>
 </html>
+

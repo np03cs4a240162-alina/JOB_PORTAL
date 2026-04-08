@@ -58,16 +58,14 @@
 <script src="../assets/js/main.js?v=1.2"></script>
 <script>
   async function init() {
-    // Ensure user is logged in
+
     await requireAuth();
 
     const list = document.getElementById('conversations-list');
     const countEl = document.getElementById('convo-count');
 
-    // Fetch conversations from API
     const res = await apiGet(`${API}/messages.php`);
 
-    // The API returns a plain array of conversations (not wrapped in {data:[]})
     const data = Array.isArray(res) ? res :
                  (res && Array.isArray(res.data)) ? res.data : [];
 
@@ -113,3 +111,4 @@
 </script>
 </body>
 </html>
+

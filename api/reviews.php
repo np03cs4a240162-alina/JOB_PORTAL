@@ -6,7 +6,6 @@ require_once __DIR__ . '/../config/session.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 
-// ── GET: FETCH REVIEWS ───────────────────────────────────────────────────────
 if ($method === 'GET') {
     $company = isset($_GET['company']) ? sanitize($_GET['company']) : '';
     
@@ -27,7 +26,6 @@ if ($method === 'GET') {
         $stmt->execute($params);
         $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Improved Average Calculation
         $avg = null;
         if (!empty($company)) {
             $a = $db->prepare('SELECT AVG(rating) FROM reviews WHERE company LIKE ?');
@@ -46,11 +44,9 @@ if ($method === 'GET') {
     }
 }
 
-// ── POST: CREATE REVIEW ──────────────────────────────────────────────────────
 if ($method === 'POST') {
     $user = requireLogin(); // Ensure this handles the session check
-    
-    // Support both JSON (from apiPost) and Form Data
+
     $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 
     $company = sanitize($data['company'] ?? '');
@@ -75,11 +71,9 @@ if ($method === 'POST') {
     }
 }
 
-// ── DELETE: REMOVE REVIEW ────────────────────────────────────────────────────
 if ($method === 'DELETE') {
     $user = requireLogin();
-    
-    // Get ID from URL query string
+
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
     if (!$id) {
@@ -95,7 +89,6 @@ if ($method === 'DELETE') {
             jsonResponse(['error' => 'Review not found.'], 404);
         }
 
-        // Authorization: Owner or Admin only
         $isAdmin = (isset($user['role']) && $user['role'] === 'admin');
         if ($r['user_id'] != $user['id'] && !$isAdmin) {
             jsonResponse(['error' => 'You do not have permission to delete this.'], 403);
@@ -109,5 +102,5 @@ if ($method === 'DELETE') {
     }
 }
 
-// 405 Method Not Allowed
 jsonResponse(['error' => "Method $method not allowed."], 405);
+

@@ -33,3 +33,4 @@ if ($action === 'reset') {
     jsonResponse(['success' => true, 'message' => 'Password reset.']);
 }
 jsonResponse(['error' => 'Invalid action.'], 400);
+

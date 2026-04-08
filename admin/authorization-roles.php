@@ -11,7 +11,7 @@ $user = requireRole('admin');
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
     <style>
-        /* Modern View Transitions */
+        
         ::view-transition-group(*),
         ::view-transition-old(*),
         ::view-transition-new(*) {
@@ -146,3 +146,5 @@ $user = requireRole('admin');
 <script src="../assets/js/main.js?v=1.2"></script>
 </body>
 </html>
+
+
