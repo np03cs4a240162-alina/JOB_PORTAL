@@ -1,0 +1,2 @@
+[2026-04-08 04:36:00] TO: roshanadkhari68@gmail.com | OTP: 219154 | EXPIRES: 2026-04-08 04:46:00
+[mail()] FAILED - Laptop SMTP not configured (Check log for OTP below)
