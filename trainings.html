@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSTACK Trainings | Skills for the Future</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #fdfdfd; font-family: 'Segoe UI', sans-serif; }
+        .train-header { background: linear-gradient(135deg, #0a66c2, #004182); color: white; padding: 80px 20px; text-align: center; }
+        .train-header h1 { font-size: 42px; margin: 0 0 15px; }
+        .train-header p { font-size: 18px; opacity: 0.9; }
+        
+        .train-grid { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .train-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #eee; transition: 0.3s; }
+        .train-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .train-img { height: 200px; background: #eef; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #0a66c2; position: relative; }
+        .train-batch { position: absolute; top: 15px; right: 15px; background: #ffb300; color: #111; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase;}
+        .train-body { padding: 25px; }
+        .train-body h3 { margin: 0 0 10px; color: #111; }
+        .train-body p { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .train-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 20px; }
+        .price { font-size: 20px; font-weight: 800; color: #0a66c2; }
+        .btn-enroll { background: #0a66c2; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header class="navbar" style="background: white; padding: 15px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+    <h2 onclick="location.href='index.html'" style="color: #0a66c2; cursor: pointer; margin:0;"><i class="fas fa-cube"></i> JSTACK</h2>
+    <a href="index.html" style="color: #555; text-decoration: none; font-weight: 600;">Back to Home</a>
+</header>
+
+<div class="train-header">
+    <h1>Skills for the Future</h1>
+    <p>Advance your career with JSTACK's industry-led expert trainings.</p>
+</div>
+
+<div class="train-grid" id="dynamic-train-list">
+    <p style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">Loading available trainings...</p>
+</div>
+
+<footer style="padding: 40px; text-align: center; color: #888;">
+    <p>© 2026 JSTACK Trainings • Empowering Professionals</p>
+</footer>
+
+<script src="assets/js/main.js"></script>
+<script>
+    async function load() {
+        const container = document.getElementById('dynamic-train-list');
+        const res = await apiGet('/trainings.php');
+        
+        if (res.success && res.data.length > 0) {
+            container.innerHTML = res.data.map(t => `
+                <div class="train-card">
+                    <div class="train-img">
+                        <i class="fas fa-${t.title.toLowerCase().includes('design')?'paint-brush':t.title.toLowerCase().includes('code')?'code':'graduation-cap'}"></i>
+                        <span class="train-batch">Registering</span>
+                    </div>
+                    <div class="train-body">
+                        <h3>${escHtml(t.title)}</h3>
+                        <p>${escHtml(t.description)}</p>
+                        <div class="train-meta">
+                            <span class="price">${t.price || 'Free'}</span>
+                            <div style="text-align:right;">
+                                <div style="font-size:11px; color:#888; margin-bottom:5px;">Duration: ${escHtml(t.duration)}</div>
+                                <button class="btn-enroll" onclick="alert('Applications opening soon!')">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = `<p style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">No trainings currently available. Check back soon!</p>`;
+        }
+    }
+    load();
+</script>
+
+</body>
+</html>

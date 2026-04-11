@@ -3,53 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post a Job - JSTACK</title>
+  <title>Post Vacancy v2 - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    body { background: #f4f7f6; }
-    .form-container { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 120px); padding: 40px 20px; }
-    .form-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 700px; }
-    .form-box h2 { color: #1a56c4; margin-bottom: 30px; font-weight: 700; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 14px; }
-    .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
-    .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: #1a56c4; box-shadow: 0 0 0 4px rgba(26, 86, 196, 0.1); }
-    .btn-submit { background: #1a56c4; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 20px; width: 100%; }
-    .btn-submit:hover { background: #1649a8; transform: translateY(-2px); }
+    body { background: #f0f2f5; font-family: 'Inter', sans-serif; }
+    .form-wrapper { max-width: 800px; margin: 40px auto; }
+    .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+    .card h1 { color: #1a56c4; margin-bottom: 30px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; font-weight: 800; display: flex; align-items: center; gap: 15px; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
+    .input-group label { display: block; margin-bottom: 10px; font-weight: 700; color: #333; font-size: 14px; }
+    .input-group select, .input-group input, .input-group textarea { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 10px; font-size: 15px; transition: 0.3s; box-sizing: border-box; }
+    .input-group select:focus, .input-group input:focus, .input-group textarea:focus { border-color: #1a56c4; outline: none; box-shadow: 0 0 0 4px rgba(26, 86, 196, 0.1); }
+    .btn-submit { background: #1a56c4; color: white; border: none; padding: 18px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s; margin-top: 20px; }
+    .btn-submit:hover { background: #111; transform: translateY(-3px); }
   </style>
 </head>
 <body>
 
-<header class="navbar" style="background: #1a56c4; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px;">
+<header class="navbar" style="background: #1a56c4; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; border-bottom: none;">
   <h2 onclick="location.href='../'"><i class="fas fa-cube"></i> JSTACK</h2>
-  <a href="dashboard.html" style="color: white; text-decoration: none; font-size: 14px; font-weight: 500;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  <a href="dashboard.html" style="color: white; text-decoration: none; font-size: 14px; font-weight: 600;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 
-<div class="form-container">
-  <div class="form-box">
-    <h2>🚀 Post a New Vacancy</h2>
+<div class="form-wrapper">
+  <div class="card">
+    <h1><i class="fas fa-plus-circle"></i> Advanced Vacancy Posting</h1>
     <div id="alert-box"></div>
 
-    <div class="input-group" style="margin-bottom: 20px;">
+    <div class="input-group" style="margin-bottom: 25px;">
       <label>Job Title</label>
-      <input type="text" id="title" placeholder="e.g. Senior PHP Developer" required>
+      <input type="text" id="title" placeholder="e.g. Senior Fullstack Developer" required>
     </div>
 
     <div class="input-row">
       <div class="input-group">
         <label>Company Name</label>
-        <input type="text" id="company" placeholder="Your company name" required>
+        <input type="text" id="company" placeholder="Enter company name" required>
       </div>
       <div class="input-group">
-        <label>Industry</label>
+        <label>Industry Category</label>
         <select id="industry">
           <option value="IT">IT & Software</option>
+          <option value="Marketing">Marketing & Sales</option>
+          <option value="Design">UI/UX Design</option>
+          <option value="Finance">Finance & Banking</option>
           <option value="Healthcare">Healthcare</option>
           <option value="Education">Education</option>
-          <option value="Banking">Banking & Finance</option>
-          <option value="Marketing">Marketing / Creative</option>
-          <option value="Other">Other Professionals</option>
         </select>
       </div>
     </div>
@@ -58,31 +58,57 @@
       <div class="input-group">
         <label>Job Type</label>
         <select id="type">
-          <option value="Full Time">Full Time</option>
-          <option value="Part Time">Part Time</option>
-          <option value="Contract">Contract / Project</option>
-          <option value="Internship">Internship</option>
+          <option value="full-time">Full-time</option>
+          <option value="part-time">Part-time</option>
+          <option value="contract">Contract</option>
+          <option value="freelance">Freelance</option>
+          <option value="internship">Internship</option>
         </select>
       </div>
       <div class="input-group">
-        <label>Workplace</label>
+        <label>Workplace Setting</label>
         <select id="workplace">
+          <option value="Remote">Remote (100% WFH)</option>
           <option value="On-site">On-site (Office)</option>
-          <option value="Remote">Remote (WFH)</option>
-          <option value="Hybrid">Hybrid / Flexible</option>
+          <option value="Hybrid">Hybrid (Flexible)</option>
         </select>
       </div>
     </div>
 
     <div class="input-row">
       <div class="input-group">
-        <label>Salary Range</label>
+        <label>Expected Salary ($)</label>
         <select id="salary">
-          <option value="Negotiable">Negotiable</option>
-          <option value="Rs. 20,000 - 40,000">Rs. 20k - 40k</option>
-          <option value="Rs. 40,000 - 80,000">Rs. 40k - 80k</option>
-          <option value="Rs. 80,000 - 150,000">Rs. 80k - 150k</option>
-          <option value="Rs. 150,000+">Rs. 150k+</option>
+          <option value="">Negotiable / Not Specified</option>
+          <option value="0-500">$0 - $500</option>
+          <option value="500-1000">$500 - $1,000</option>
+          <option value="1000-2000">$1,000 - $2,000</option>
+          <option value="2000-5000">$2,000 - $5,000</option>
+          <option value="5000+">$5,000+</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Experience Level Required</label>
+        <select id="experience_level">
+          <option value="entry">Entry Level (No Exp)</option>
+          <option value="junior">Junior (1-3 yrs)</option>
+          <option value="mid">Mid-Level (3-5 yrs)</option>
+          <option value="senior">Senior (5-10 yrs)</option>
+          <option value="expert">Expert (10+ yrs)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Primary Location</label>
+        <select id="location">
+          <option value="Remote">Remote</option>
+          <option value="Kathmandu">Kathmandu</option>
+          <option value="Pokhara">Pokhara</option>
+          <option value="Dhaka">Dhaka</option>
+          <option value="Butwal">Butwal</option>
+          <option value="Other">Other Global Location</option>
         </select>
       </div>
       <div class="input-group">
@@ -91,23 +117,16 @@
       </div>
     </div>
 
-    <div class="input-group" style="margin-bottom: 20px;">
-      <label>Location</label>
-      <input type="text" id="location" placeholder="e.g. Kathmandu, Nepal" required>
+    <div class="input-group">
+      <label>Full Job Description</label>
+      <textarea id="description" rows="6" placeholder="Describe the role, responsibilities, and benefits in detail..." required></textarea>
     </div>
 
-    <div class="input-group" style="margin-bottom: 20px;">
-      <label>Job Description</label>
-      <textarea id="description" rows="5" placeholder="Specify responsibilities, skills, and requirements..." required></textarea>
-    </div>
-
-    <button id="submit-btn" class="btn-submit" onclick="handlePost()">🚀 Post Job Opportunity</button>
+    <button id="submit-btn" class="btn-submit" onclick="handlePost()">🚀 Publish Vacancy v2</button>
   </div>
+  
+  <p style="text-align:center; color:#999; margin-top:20px; font-size:12px;">App Version: 2.0.1 • All changes are synchronized with database.</p>
 </div>
-
-<footer style="padding: 20px; text-align: center; color: #888; font-size: 14px;">
-  <p>© 2026 JSTACK</p>
-</footer>
 
 <script src="../assets/js/main.js"></script>
 <script>
@@ -116,9 +135,9 @@
   async function init() {
     currentUser = await checkAuth('employer');
     
-    // Set default deadline to 14 days from now
+    // Default deadline: 30 days from now
     const d = new Date();
-    d.setDate(d.getDate() + 14);
+    d.setDate(d.getDate() + 30);
     document.getElementById('deadline').value = d.toISOString().split('T')[0];
   }
 
@@ -130,18 +149,18 @@
       type: document.getElementById('type').value,
       workplace: document.getElementById('workplace').value,
       salary: document.getElementById('salary').value,
+      experience_level: document.getElementById('experience_level').value,
       deadline: document.getElementById('deadline').value,
-      location: document.getElementById('location').value.trim(),
+      location: document.getElementById('location').value,
       description: document.getElementById('description').value.trim(),
       employer_id: currentUser.id
     };
 
-    if (!formData.title || !formData.company || !formData.location || !formData.description) {
-      showAlert('alert-box', 'Please fill all required fields marked as required.', 'error');
-      return;
+    if (!formData.title || !formData.company || !formData.description) {
+      return showAlert('alert-box', 'Job Title, Company, and Description are required!', 'error');
     }
 
-    setLoading('submit-btn', true, 'Processing...');
+    setLoading('submit-btn', true, 'Publishing Opportunity...');
     const res = await apiPost('/jobs.php', formData);
     setLoading('submit-btn', false);
 
@@ -149,11 +168,11 @@
       showAlert('alert-box', 'Vacancy published successfully!', 'success');
       setTimeout(() => location.href = 'dashboard.html', 1500);
     } else {
-      showAlert('alert-box', res.error || 'Failed to post vacancy.', 'error');
+      showAlert('alert-box', res.error || 'Server error occurred.', 'error');
     }
   }
 
   init();
 </script>
 </body>
-</html>
+</html>

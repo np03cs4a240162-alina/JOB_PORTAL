@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host a Training - JSTACK</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: #fdfdfd; font-family: 'Inter', sans-serif; }
+    .form-box { max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;}
+    .input-group input, .input-group textarea { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 8px; font-size: 15px; outline: none; box-sizing: border-box;}
+    .input-group input:focus, .input-group textarea:focus { border-color: #0a66c2; }
+    .btn-submit { width: 100%; background: #0a66c2; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<header class="navbar" style="background: white; padding: 15px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+    <h2 onclick="location.href='../'" style="color: #0a66c2; cursor: pointer; margin:0;"><i class="fas fa-cube"></i> JSTACK</h2>
+    <a href="dashboard.html" style="color: #555; text-decoration: none; font-weight: 600;">Back to Dashboard</a>
+</header>
+
+<div class="form-box">
+  <h2 style="margin-top:0; color: #0a66c2;"><i class="fas fa-graduation-cap"></i> Host a New Training</h2>
+  <p style="color: #666; font-size: 14px; margin-bottom: 30px;">Offer professional development courses to our community of jobseekers.</p>
+  
+  <div id="alert-box"></div>
+
+  <div class="input-group">
+    <label>Training Title</label>
+    <input type="text" id="title" placeholder="e.g. Advanced Graphic Design Workshop">
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div class="input-group">
+      <label>Fee (in Rs.)</label>
+      <input type="text" id="price" placeholder="e.g. 5000 or Free">
+    </div>
+    <div class="input-group">
+      <label>Duration</label>
+      <input type="text" id="duration" placeholder="e.g. 4 Weeks">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label>Description & Highlights</label>
+    <textarea id="description" rows="5" placeholder="What will be covered? Prerequisites?"></textarea>
+  </div>
+
+  <button id="post-btn" class="btn-submit" onclick="handlePost()">Post Training Opportunity</button>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  async function handlePost() {
+    const data = {
+      title: document.getElementById('title').value.trim(),
+      price: document.getElementById('price').value.trim(),
+      duration: document.getElementById('duration').value.trim(),
+      description: document.getElementById('description').value.trim()
+    };
+
+    if(!data.title || !data.description) {
+      return alert("Title and Description are required");
+    }
+
+    setLoading('post-btn', true, 'Publishing...');
+    const res = await apiPost('/trainings.php', data);
+    setLoading('post-btn', false);
+
+    if(res.success) {
+      alert("Training posted successfully!");
+      location.href = 'dashboard.html';
+    } else {
+      alert(res.error || "Failed to post training");
+    }
+  }
+
+  checkAuth('employer');
+</script>
+</body>
+</html>

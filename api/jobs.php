@@ -60,9 +60,10 @@ if ($method === 'GET') {
             $params[] = $days;
         }
         
-        $type      = sanitize($_GET['type'] ?? '');
+        $type      = sanitize($_GET['jobType'] ?? $_GET['type'] ?? '');
         $workplace = sanitize($_GET['workplace'] ?? '');
         $industry  = sanitize($_GET['industry'] ?? '');
+        $expLevel  = sanitize($_GET['expLevel'] ?? $_GET['exp_level'] ?? '');
         
         if ($type !== '') {
             $sql .= " AND j.type = ?";
@@ -75,6 +76,10 @@ if ($method === 'GET') {
         if ($industry !== '') {
             $sql .= " AND j.industry = ?";
             $params[] = $industry;
+        }
+        if ($expLevel !== '') {
+            $sql .= " AND j.experience_level = ?";
+            $params[] = $expLevel;
         }
 
         $sql .= " ORDER BY j.created_at DESC";
@@ -130,7 +135,7 @@ if ($method === 'POST') {
     $user = checkAuth('employer');
     $data = getBody();
     
-    $fields = ['title', 'company', 'salary', 'category', 'location', 'description', 'type', 'workplace', 'industry', 'deadline'];
+    $fields = ['title', 'company', 'salary', 'category', 'location', 'description', 'type', 'workplace', 'industry', 'deadline', 'experience_level'];
     $clean = [];
     foreach ($fields as $f) {
         $clean[$f] = sanitize($data[$f] ?? '');
@@ -140,10 +145,10 @@ if ($method === 'POST') {
         jsonResponse(['success' => false, 'error' => 'Required fields missing.'], 400);
     }
 
-    $stmt = $db->prepare("INSERT INTO jobs (title, company, salary, category, type, workplace, industry, location, description, deadline, employer_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
+    $stmt = $db->prepare("INSERT INTO jobs (title, company, salary, category, type, workplace, industry, experience_level, location, description, deadline, employer_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
     $success = $stmt->execute([
         $clean['title'], $clean['company'], $clean['salary'], $clean['category'], 
-        $clean['type'], $clean['workplace'], $clean['industry'],
+        $clean['type'], $clean['workplace'], $clean['industry'], $clean['experience_level'],
         $clean['location'], $clean['description'], $clean['deadline'] ?: null, 
         $user['id']
     ]);

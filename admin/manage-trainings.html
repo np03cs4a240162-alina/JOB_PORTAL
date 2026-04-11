@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Trainings - Admin - JSTACK</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="navbar">
+  <h2>JSTACK <span>Admin</span></h2>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="manage-users.html">Users</a>
+    <a href="manage-jobs.html">Jobs</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h1 class="title">Manage Trainings</h1>
+  
+  <div class="card">
+    <table class="data-table" style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: #f8f9fa;">
+          <th style="padding:15px; text-align:left;">Title</th>
+          <th style="padding:15px; text-align:left;">Provider (Employer)</th>
+          <th style="padding:15px; text-align:left;">Price</th>
+          <th style="padding:15px; text-align:left;">Status</th>
+          <th style="padding:15px; text-align:center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="trainings-list">
+        <!-- JS Populated -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  async function load() {
+    await checkAuth('admin');
+    const res = await apiGet('/trainings.php?admin_view=1');
+    const list = document.getElementById('trainings-list');
+    
+    if (res.success && res.data.length > 0) {
+        list.innerHTML = res.data.map(t => `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding:15px;"><strong>${escHtml(t.title)}</strong><br><small style="color:#888;">${escHtml(t.duration)}</small></td>
+            <td style="padding:15px;">${escHtml(t.employer_name)}</td>
+            <td style="padding:15px;">${escHtml(t.price)}</td>
+            <td style="padding:15px;"><span class="badge ${t.status==='active'?'badge-success':'badge-error'}">${t.status}</span></td>
+            <td style="padding:15px; text-align:center;">
+              <button class="btn-sm" onclick="toggleStatus(${t.id}, '${t.status}')" style="background:${t.status==='active'?'#e53e3e':'#28a745'}; color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer;">
+                ${t.status==='active'?'Close':'Activate'}
+              </button>
+              <button class="btn-sm" onclick="del(${t.id})" style="background:#333; color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; margin-left:5px;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+    } else {
+        list.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color:#999;'>No trainings found.</td></tr>";
+    }
+  }
+
+  async function toggleStatus(id, current) {
+      const status = current === 'active' ? 'closed' : 'active';
+      await apiPut(`/trainings.php?id=${id}`, { status });
+      load();
+  }
+
+  async function del(id) {
+      if(confirm("Permanently delete this training?")) {
+          await apiDelete(`/trainings.php?id=${id}`);
+          load();
+      }
+  }
+
+  load();
+</script>
+</body>
+</html>

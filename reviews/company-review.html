@@ -97,7 +97,7 @@
     <script src="../assets/js/main.js"></script>
     <script>
         let currentUser = null;
-        const API_URL = 'http://localhost/smartjobportal/api/reviews.php'; 
+        const RES_URL = '/reviews.php'; 
 
         async function init() {
             currentUser = await getCurrentUser();
@@ -115,7 +115,7 @@
             const list = document.getElementById('reviews-list');
             const avgDisp = document.getElementById('avg-rating');
             const search = document.getElementById('search-company').value.trim();
-            const url = search ? `${API_URL}?company=${encodeURIComponent(search)}` : API_URL;
+            const url = search ? `${RES_URL}?company=${encodeURIComponent(search)}` : RES_URL;
 
             try {
                 const data = await apiGet(url);
@@ -161,7 +161,7 @@
             const review = document.getElementById('review').value.trim();
             if(!company || !review) return alert("Please fill all fields");
 
-            const res = await apiPost(API_URL, { company, rating, review });
+            const res = await apiPost(RES_URL, { company, rating, review });
             if(res.success) {
                 document.getElementById('company').value = '';
                 document.getElementById('review').value = '';
@@ -173,7 +173,7 @@
 
         async function deleteReview(id) {
             if(confirm("Delete this review?")) {
-                const res = await apiDelete(`${API_URL}?id=${id}`);
+                const res = await apiDelete(`${RES_URL}?id=${id}`);
                 if(res.success) loadReviews();
             }
         }
