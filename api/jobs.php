@@ -27,6 +27,8 @@ if ($method === 'GET') {
         $keyword  = sanitize($_GET['keyword']  ?? '');
         $category = sanitize($_GET['category'] ?? '');
         $location = sanitize($_GET['location'] ?? '');
+        $company  = sanitize($_GET['company'] ?? '');
+        $days     = (int)($_GET['postedDate'] ?? 0);
         
         $sql = "SELECT j.*, u.name AS employer_name 
                 FROM jobs j 
@@ -46,6 +48,16 @@ if ($method === 'GET') {
         if ($location !== '') {
             $sql .= " AND j.location LIKE ?";
             $params[] = "%$location%";
+        }
+        if ($company !== '') {
+            $sql .= " AND (j.company LIKE ? OR u.name LIKE ?)";
+            $comp = "%$company%";
+            $params[] = $comp;
+            $params[] = $comp;
+        }
+        if ($days > 0) {
+            $sql .= " AND j.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)";
+            $params[] = $days;
         }
 
         $sql .= " ORDER BY j.created_at DESC";

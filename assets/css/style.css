@@ -110,8 +110,35 @@ tr:hover td{background:#f1f5ff;}
 /* DIVIDER */
 .divider,.section-divider{border:none;border-top:1px solid #e0e0e0;margin:24px 0;}
 
+/* PORTAL LAYOUT v2 */
+.portal-layout { max-width: 1300px; margin: 20px auto; display: flex; gap: 25px; align-items: flex-start; padding: 0 20px; }
+.portal-sidebar { width: 260px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
+.portal-content { flex: 1; min-width: 0; }
+
+/* SIDEBAR BRANDING & PROFILE */
+.sidebar-brand { text-align: center; margin-bottom: 20px; display: none; } /* Hidden if using global navbar */
+.sidebar-profile { text-align: center; margin-bottom: 20px; }
+.sidebar-profile .avatar-wrapper { width: 90px; height: 90px; margin: 0 auto 10px; border-radius: 12px; border: 2px solid #e0e0e0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fafafa; position: relative; }
+.sidebar-profile img { width: 100%; height: 100%; object-fit: cover; }
+.sidebar-profile h3 { font-size: 18px; color: #333; margin-bottom: 5px; }
+.sidebar-profile p { font-size: 13px; color: #888; margin-bottom: 15px; }
+
+.sidebar-stats { display: flex; justify-content: space-around; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+.sidebar-stats .stat-box h4 { font-size: 18px; color: #333; margin: 0;}
+.sidebar-stats .stat-box p { font-size: 12px; color: #666; margin: 0; }
+
+/* SIDEBAR NAV */
+.sidebar-nav { flex: 1; }
+.sidebar-nav a { display: flex; align-items: center; padding: 12px 15px; color: #444; text-decoration: none; font-size: 15px; border-radius: 8px; margin-bottom: 5px; transition: all 0.2s; }
+.sidebar-nav a i { width: 24px; font-size: 16px; margin-right: 10px; color: #666; }
+.sidebar-nav a:hover, .sidebar-nav a.active { background: #e8f0fe; color: #0a66c2; font-weight: 500; }
+.sidebar-nav a:hover i, .sidebar-nav a.active i { color: #0a66c2; }
+
+
 /* RESPONSIVE */
 @media(max-width:768px){
+    .portal-sidebar { width: 100%; height: auto; position: static; }
+    .portal-content { margin-left: 0; padding: 15px; }
     .navbar{padding:12px 20px;flex-wrap:wrap;gap:10px;}
     .dashboard,.dashboard-grid{padding:20px;}
     .search input{width:90%;}

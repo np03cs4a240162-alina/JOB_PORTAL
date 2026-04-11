@@ -79,7 +79,7 @@ async function saveJobAction(jobId, btn) {
     }
 
     btn.disabled = true;
-    const res = await apiPost('/saved_jobs.php', { job_id: jobId });
+    const res = await apiPost('/saved.php', { job_id: jobId });
     
     if (res.success) {
         btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';

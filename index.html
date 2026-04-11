@@ -4,123 +4,217 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSTACK | Find Your Dream Job</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #fdfdfd; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Navbar matching Image 2 */
+        .main-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-size: 24px; font-weight: bold; color: #0a66c2; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .nav-brand i { font-size: 28px; }
+        .nav-links-center { display: flex; gap: 25px; }
+        .nav-links-center a { color: #555; text-decoration: none; font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .nav-links-center a:hover { color: #0a66c2; }
+        .nav-links-right { display: flex; gap: 20px; border-left: 1px solid #ddd; padding-left: 20px; }
+        .nav-links-right a { color: #555; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .nav-links-right a:hover { color: #0a66c2; }
+
+        /* Banner matching Image 2 */
+        .hero-banner { 
+            text-align: center; 
+            padding: 80px 20px 100px; 
+            background: linear-gradient(to bottom, #f0f7fd, #ffffff);
+            /* A subtle pattern or SVG could go here */
+            border-bottom: 1px solid #eef2f5;
+        }
+        .hero-banner h1 { font-size: 38px; color: #333; margin-bottom: 30px; font-weight: 700; }
+        .hero-banner h1 span { color: #0a66c2; }
+        
+        /* Inline Search Bar matching Image 2 */
+        .mega-search { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            display: flex; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            overflow: hidden;
+            border: 1px solid #e0e5ea;
+        }
+        .mega-search .input-wrapper { display: flex; align-items: center; flex: 1; padding: 0 20px; }
+        .mega-search i { color: #999; font-size: 18px; }
+        .mega-search input { flex: 1; border: none; padding: 18px 15px; font-size: 16px; outline: none; }
+        .mega-search button { background: #0a66c2; color: white; border: none; padding: 0 40px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: 0;}
+        .mega-search button:hover { background: #08529e; }
+
+        /* Main Content Grid */
+        .home-grid { max-width: 1300px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 300px; gap: 30px; }
+        
+        .section-title { font-size: 20px; color: #111; margin-bottom: 20px; font-weight: 600; border-bottom: 2px solid #0a66c2; display: inline-block; padding-bottom: 5px;}
+
+        /* Featured Job Cards matching Image 2 */
+        .f-job-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .f-job-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #f1f1f1; position: relative; transition: 0.2s; cursor: pointer; }
+        .f-job-card:hover { transform: translateY(-4px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+        .f-job-card-header { display: flex; gap: 15px; margin-bottom: 15px; }
+        .f-logo { width: 45px; height: 45px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #eef; overflow: hidden; }
+        .f-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .f-info h3 { margin: 0 0 5px 0; font-size: 16px; color: #222; }
+        .f-info p { margin: 0; font-size: 13px; color: #666; }
+        .f-crown { position: absolute; top: 20px; right: 20px; color: #0a66c2; opacity: 0.8; }
+        
+        .f-details { font-size: 13px; color: #666; margin-bottom: 15px; }
+        .f-details i { margin-right: 5px; color: #999; }
+        .f-details div { margin-bottom: 5px; }
+        
+        .f-tags { display: flex; gap: 10px; }
+        .f-tags span { background: #e8f3fc; color: #0a66c2; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        
+        /* Right Sidebar Widgets */
+        .widget-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #f1f1f1; margin-bottom: 20px; text-align: center; }
+        .widget-box h4 { margin: 0 0 10px 0; color: #333; font-size: 16px; }
+        .widget-box p { font-size: 13px; color: #666; margin-bottom: 15px; line-height: 1.5; }
+        img.widget-img { width: 100px; height: 100px; margin: 0 auto 15px; display: block; border-radius: 50%; }
+
+        /* Top Bar Info */
+        .top-info-bar { background: #f4f6f9; color: #555; text-align: center; padding: 8px; font-size: 12px; }
+        .top-info-bar a { color: #0a66c2; text-decoration: none; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-<header class="navbar">
-    <h2>JSTACK</h2>
-    <nav class="nav-links">
-        <a href="jobs/listing.html">Browse Jobs</a>
-        <a href="reviews/company-review.html">Company Reviews</a>
-        <div id="nav-actions" style="display: flex; gap: 10px;">
-            </div>
-    </nav>
+<div class="top-info-bar">
+    Here is the service provided by JSTACK. <a href="auth/register.html">Post a Job</a>, <a href="jobs/listing.html">Apply For Job</a> and <a href="#">More About Services</a>
+</div>
+
+<header class="main-nav">
+  <a href="index.html" class="nav-brand"><i class="fas fa-cube"></i> JSTACK</a>
+  
+  <nav class="nav-links-center">
+      <a href="jobs/listing.html">Job Categories <i class="fas fa-chevron-down" style="font-size:10px;"></i></a>
+      <a href="#">Trainings <i class="fas fa-chevron-down" style="font-size:10px;"></i></a>
+      <a href="#">Services <i class="fas fa-chevron-down" style="font-size:10px;"></i></a>
+      <a href="#">Blogs</a>
+      <a href="reviews/company-review.html">More <i class="fas fa-chevron-down" style="font-size:10px;"></i></a>
+  </nav>
+
+  <div class="nav-links-right">
+      <a href="auth/login.html" style="color: #0a66c2;">For Jobseekers <i class="fas fa-chevron-down" style="font-size:10px;"></i></a>
+      <a href="auth/login.html">For Employers <i class="fas fa-chevron-down" style="font-size:10px;"></i></a>
+  </div>
 </header>
 
-<section class="hero">
-    <h1>Find Your Dream Job</h1>
-    <p>Connecting ambitious talent with top-tier employers. Your next career move starts here.</p>
-    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
-        <button class="btn-primary" onclick="location.href='jobs/listing.html'">Explore Jobs</button>
-        <button class="btn-outline" style="border-color: white; color: white;" onclick="location.href='auth/register.html'">Post a Job</button>
-    </div>
-</section>
-
-<section class="container" style="position: relative; z-index: 10;">
-    <div class="search-container">
-        <div style="position: relative; flex: 1; display: flex;">
-            <i class="fas fa-search" style="position: absolute; left: 20px; top: 15px; color: #888;"></i>
-            <input type="text" id="search" placeholder="Job title, keywords, or company..." style="padding-left: 50px;">
-            
-            <ul id="autocomplete-list" class="autocomplete-list" style="display:none; top: 55px;"></ul>
+<div class="hero-banner">
+    <h1>Find Your Dream Job In Nepal With <span>JSTACK</span></h1>
+    
+    <div class="mega-search">
+        <div class="input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="mega-keyword" placeholder="Search and Apply for the Best Jobs in Nepal Today">
         </div>
-        
-        <select id="search-category">
-            <option value="All">All Categories</option>
-            <option value="Technology">Technology</option>
-            <option value="Design">Design</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Business">Business</option>
-        </select>
-        
-        <button class="btn-primary" onclick="doSearch()">Search Jobs</button>
+        <button onclick="handleMegaSearch()">Search</button>
     </div>
-</section>
+</div>
 
-<section class="container section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="font-size: 24px; color: #111;">Latest Opportunities</h2>
-        <a href="jobs/listing.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">View All →</a>
+<div class="home-grid">
+    <!-- Left Column: Featured Jobs -->
+    <div>
+        <h2 class="section-title">Featured Jobs</h2>
+        <div id="featured-jobs-container" class="f-job-grid">
+            <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: #0a66c2;"></i>
+                <p style="margin-top: 10px; color: #888;">Loading featured jobs...</p>
+            </div>
+        </div>
     </div>
     
-    <div id="jobs-list" class="job-grid">
-        <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
-            <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: var(--primary);"></i>
-            <p style="margin-top: 10px; color: #888;">Finding the best jobs for you...</p>
+    <!-- Right Column: Widgets -->
+    <div>
+        <div style="display:flex; gap:10px; margin-bottom: 20px;">
+            <div style="flex:1; border:1px solid #0a66c2; border-radius:8px; padding:10px; text-align:center; color:#0a66c2; cursor:pointer;"><i class="fas fa-laptop-code"></i><br><span style="font-size:11px; font-weight:bold;">IT Jobs</span></div>
+            <div style="flex:1; border:1px solid #ddd; border-radius:8px; padding:10px; text-align:center; color:#555; cursor:pointer;"><i class="fas fa-concierge-bell"></i><br><span style="font-size:11px; font-weight:bold;">Hospitality</span></div>
+        </div>
+        
+        <div class="widget-box">
+            <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Training" class="widget-img" style="background:#0a66c2;">
+            <h4>JSTACK Training & Development</h4>
+            <p>JSTACK offers a wide range of job-oriented advance trainings.</p>
+            <button class="btn-primary" style="width:100%;">Available Trainings</button>
+        </div>
+        
+        <div class="widget-box" style="display:flex; text-align:left; gap:15px; align-items:center;">
+            <i class="fas fa-user-tie" style="font-size: 30px; color: #0a66c2;"></i>
+            <div>
+                <h4 style="margin:0 0 5px 0;">Looking for a job?</h4>
+                <p style="margin:0; font-size:12px;"><a href="auth/register.html" style="color:#0a66c2; text-decoration:none;">Create a Free Account</a></p>
+            </div>
         </div>
     </div>
-</section>
+</div>
 
-<footer>
-    <div class="container">
-        <p>© 2026 JSTACK — The Smart Job Portal. Built for developers and creators.</p>
-    </div>
+<footer style="background: #0a66c2; color: white; padding: 40px 20px; text-align: center;">
+    <p>© 2026 JSTACK. All Rights Reserved.</p>
 </footer>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/jobs.js"></script>
-
 <script>
-    /**
-     * Redirects to the search page with parameters
-     */
-    function doSearch() {
-        const keyword = document.getElementById('search').value.trim();
-        const category = document.getElementById('search-category').value;
-        
-        let query = `keyword=${encodeURIComponent(keyword)}`;
-        if (category !== 'All') query += `&category=${encodeURIComponent(category)}`;
-        
-        window.location.href = `${BASE}/jobs/search.html?${query}`;
+    function handleMegaSearch() {
+        const kw = document.getElementById('mega-keyword').value.trim();
+        window.location.href = `jobs/search.html?keyword=${encodeURIComponent(kw)}`;
     }
 
-    /**
-     * Loads the 6 most recent jobs from the API
-     */
-    async function loadLatestJobs() {
-        const container = document.getElementById('jobs-list');
+    // Override the renderer to match the new Image 2 styled featured cards
+    function renderFeaturedCard(job) {
+        const company = escHtml(job.company || job.employer_name || 'JSTACK');
+        let daysLeft = Math.floor(Math.random() * 10) + 1; // Fake days left
         
-        try {
-            // Using the default GET action from jobs.php which returns active jobs
-            const res = await apiGet('/jobs.php');
+        return `
+        <div class="f-job-card" onclick="location.href='jobs/detail.html?id=${job.id}'">
+            <div class="f-job-card-header">
+                <div class="f-logo">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" onerror="this.onerror=null;" alt="Log">
+                </div>
+                <div class="f-info">
+                    <h3>${escHtml(job.title)}</h3>
+                    <p>${company}</p>
+                </div>
+                <i class="fas fa-crown f-crown"></i>
+            </div>
             
+            <div class="f-details">
+                <div><i class="fas fa-map-marker-alt"></i> ${escHtml(job.location || 'Remote, Nepal')}</div>
+                <div><i class="far fa-hourglass"></i> ${daysLeft} days left</div>
+            </div>
+            
+            <div class="f-tags">
+                <span>${escHtml(job.type || 'Full Time')}</span>
+                <span>${escHtml(job.level || 'Mid Level')}</span>
+            </div>
+        </div>`;
+    }
+
+    async function loadLatestJobs() {
+        const container = document.getElementById('featured-jobs-container');
+        try {
+            const res = await apiGet('/jobs.php');
             if (res.success && res.data.length > 0) {
-                // Show only first 6 for the homepage
-                container.innerHTML = res.data.slice(0, 6).map(job => renderJobCard(job)).join('');
+                // Show 6 jobs styled like featured jobs
+                container.innerHTML = res.data.slice(0, 6).map(j => renderFeaturedCard(j)).join('');
             } else {
-                container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 12px;">
-                        <p style="color: #666;">No active job listings found. Check back later!</p>
-                    </div>`;
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #888;">No active jobs at the moment.</div>`;
             }
-        } catch (err) {
-            container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--danger);">Error loading jobs. Please refresh.</p>`;
+        } catch {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: red;">Failed to load jobs.</div>`;
         }
     }
 
-    // Initialize Page components
     document.addEventListener('DOMContentLoaded', () => {
-        setupAutocomplete('search', 'autocomplete-list');
         loadLatestJobs();
-        
-        // Optional: Trigger search on 'Enter' key
-        document.getElementById('search').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') doSearch();
+        document.getElementById('mega-keyword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleMegaSearch();
         });
     });
 </script>
-
 </body>
 </html>

@@ -6,76 +6,131 @@
   <title>My Profile - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    /* Top Blue Navbar */
+    .top-blue-nav { background: #1a56c4; height: 50px; width: 100%; position: fixed; top: 0; left: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; }
+    .top-blue-nav h2 { color: white; margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px;}
+    .top-blue-nav a { color: white; text-decoration: none; font-size: 14px; font-weight: 500; }
+    
+    /* Layout Container */
+    .dashboard-layout { max-width: 1200px; margin: 80px auto 40px; display: flex; gap: 30px; padding: 0 20px; align-items: flex-start; }
+    
+    /* Left Profile Card */
+    .profile-card-left { width: 300px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; flex-shrink: 0; text-align: center; }
+    .profile-card-top { background: #1a56c4; height: 100px; width: 100%; position: relative; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #e8f0fe; border: 4px solid white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: #1a56c4; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); }
+    .profile-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .profile-info { padding: 50px 20px 20px; border-bottom: 1px solid #f1f1f1; }
+    .profile-info h3 { margin: 0 0 5px 0; color: #333; font-size: 18px; }
+    .profile-info p { margin: 0 0 20px 0; color: #888; font-size: 13px; }
+    .btn-update-profile { display: block; width: 100%; padding: 10px; border: 1.5px solid #1a56c4; color: #1a56c4; background: #e8f0fe; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; text-decoration: none;}
+    
+    .profile-stats { padding: 20px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; color: #555; }
+    .stat-row strong { color: #1a56c4; font-size: 15px; }
+
+    /* Right Main Area */
+    .main-area { flex: 1; min-width: 0; }
+    
+    /* Content Box overlay */
+    .content-box { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 30px; }
+    .box-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f1f1; padding-bottom: 15px; margin-bottom: 20px; }
+    .box-header h3 { margin: 0; color: #1a56c4; font-size: 18px; font-weight: 700; }
+
+  </style>
 </head>
 <body>
 
-<header class="navbar">
-  <div class="nav-container">
-    <h2>JSTACK</h2>
-    <div id="nav-actions"></div> </div>
+<header class="top-blue-nav">
+  <h2><i class="fas fa-cube"></i> JSTACK</h2>
+  <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </header>
 
-<div class="container" style="max-width: 700px; margin-top: 40px;">
-  <div class="form-box shadow-sm" style="background: white; padding: 30px; border-radius: 8px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-      <h2 style="margin:0; color: #333;"><i class="fas fa-user-edit"></i> Edit Professional Profile</h2>
-      <a href="dashboard.html" class="btn-secondary" style="text-decoration:none; font-size:14px;">← Dashboard</a>
+<div class="dashboard-layout">
+  
+  <!-- LEFT PROFILE CARD -->
+  <aside class="profile-card-left">
+    <div class="profile-card-top">
+      <div class="profile-avatar" id="avatar-container">
+        <span id="avatar-initial">...</span>
+      </div>
     </div>
+    <div class="profile-info">
+      <h3 id="profile-name">Loading...</h3>
+      <p id="profile-email">applicant@example.com</p>
+      <a href="dashboard.html" class="btn-update-profile">← Back to Dashboard</a>
+    </div>
+    <div class="profile-stats">
+      <div class="stat-row">
+        <span>Applied Jobs</span>
+        <strong id="stat-applied">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>Saved Jobs</span>
+        <strong id="stat-saved">0</strong>
+      </div>
+    </div>
+  </aside>
 
-    <div id="alert-box"></div>
-
-    <div class="profile-form">
-      <div class="input-group" style="margin-bottom: 15px;">
-        <label style="font-weight: 600;">Full Name</label>
-        <input type="text" id="fullname" placeholder="e.g. John Doe" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+  <!-- Main Content -->
+  <main class="main-area">
+    <div class="content-box">
+      <div class="box-header">
+        <h3>Edit Professional Profile</h3>
       </div>
 
+      <div id="alert-box"></div>
+      
+      <!-- Upload Section -->
+      <div style="text-align:center; margin-bottom: 25px;">
+        <div class="avatar-wrapper" style="width:120px; height:120px; border-radius:50%; margin:0 auto 15px; border:2px dashed #ccc; overflow:hidden;">
+            <img id="profile-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;">
+        </div>
+        <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+        <button onclick="document.getElementById('photo-upload').click()" class="btn-outline">Upload Profile Photo</button>
+      </div>
+
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" id="fullname" placeholder="e.g. John Doe">
+      </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div class="input-group">
-          <label style="font-weight: 600;">Phone Number</label>
-          <input type="text" id="phone" placeholder="+977 98XXXXXXXX" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+        <div class="input-group" style="margin-bottom:0;">
+          <label>Phone Number</label>
+          <input type="text" id="phone" placeholder="+977 98XXXXXXXX">
         </div>
-        <div class="input-group">
-          <label style="font-weight: 600;">Years of Experience</label>
-          <input type="text" id="experience" placeholder="e.g. 3 years" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+        <div class="input-group" style="margin-bottom:0;">
+          <label>Years of Experience</label>
+          <input type="text" id="experience" placeholder="e.g. 3 years">
         </div>
       </div>
-
-      <div class="input-group" style="margin-bottom: 15px;">
-        <label style="font-weight: 600;">Key Skills (Comma separated)</label>
-        <input type="text" id="skills" placeholder="PHP, MySQL, JavaScript, UI/UX" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+      <div class="input-group">
+        <label>Key Skills (Comma separated)</label>
+        <input type="text" id="skills" placeholder="PHP, MySQL, JavaScript, UI/UX">
       </div>
-
-      <div class="input-group" style="margin-bottom: 25px;">
-        <label style="font-weight: 600;">Professional Bio</label>
-        <textarea id="bio" rows="5" placeholder="Tell employers about your background..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-family: inherit; resize: vertical;"></textarea>
+      <div class="input-group">
+        <label>Professional Bio</label>
+        <textarea id="bio" rows="5" placeholder="Tell employers about your background..."></textarea>
       </div>
-
-      <button id="save-btn" onclick="handleSave()" 
-        style="width: 100%; background: #0a66c2; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;">
-        Update Profile
-      </button>
+      <button onclick="handleSave()" style="width:100%;">Update Profile</button>
     </div>
-  </div>
+  </main>
 </div>
-
-<footer style="margin-top: 50px; text-align: center; color: #888; font-size: 14px;">
-  <p>© 2026 JSTACK</p>
-</footer>
 
 <script src="../assets/js/main.js"></script>
 <script>
-  /**
-   * Load existing profile data
-   */
   async function init() {
-    // 1. Ensure only seekers can access this page
     const user = await checkAuth('seeker');
     if (!user) return;
-
-    // 2. Fetch profile from /api/profiles.php
-    const res = await apiGet('/profiles.php');
     
+    document.getElementById('profile-name').textContent = user.name;
+    document.getElementById('profile-email').textContent = user.email || 'user@example.com';
+    document.getElementById('avatar-initial').textContent = user.name.charAt(0).toUpperCase();
+    
+    // Fetch profile
+    const res = await apiGet('/profiles.php');
     if (res && res.success && res.data) {
       const p = res.data;
       document.getElementById('fullname').value   = p.name || '';
@@ -83,22 +138,52 @@
       document.getElementById('skills').value     = p.skills || '';
       document.getElementById('experience').value = p.experience || '';
       document.getElementById('bio').value        = p.bio || '';
+      
+      if(p.photo) {
+          const photoUrl = '../uploads/images/' + p.photo;
+          document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl}" alt="Profile" onerror="this.onerror=null; this.outerHTML='<span id=\\'avatar-initial\\'>${user.name.charAt(0).toUpperCase()}</span>';">`;
+          document.getElementById('profile-photo-preview').src = photoUrl;
+      }
+    }
+
+    const statsRes = await apiGet('/dashboard-stats.php');
+    if (statsRes && statsRes.success) {
+      document.getElementById('stat-applied').textContent = statsRes.stats.total_applications || 0;
+      document.getElementById('stat-saved').textContent = statsRes.stats.saved_jobs || 0;
     }
   }
 
-  /**
-   * Save profile updates
-   */
+  async function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+
+      const fd = new FormData();
+      fd.append('image', file);
+      
+      try {
+          const response = await fetch('../api/upload-image.php', {
+              method: 'POST',
+              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+              body: fd
+          });
+          const result = await response.json();
+          if(result.success) {
+              showAlert('alert-box', 'Profile photo updated successfully!', 'success');
+              const photoUrl = '../uploads/images/' + result.filename;
+              document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl}" alt="Profile">`;
+              document.getElementById('profile-photo-preview').src = photoUrl;
+          } else {
+              showAlert('alert-box', result.error || 'Failed to upload photo.', 'error');
+          }
+      } catch (err) {
+          showAlert('alert-box', 'An error occurred uploading the photo.', 'error');
+      }
+  }
+
   async function handleSave() {
     const name = document.getElementById('fullname').value.trim();
-    if (!name) {
-      showAlert('alert-box', 'Full name is required.', 'error');
-      return;
-    }
+    if (!name) return showAlert('alert-box', 'Full name is required.', 'error');
 
-    setLoading('save-btn', true, 'Saving changes...');
-
-    // Use apiPost with an update action to handle the profile change
     const res = await apiPost('/profiles.php?action=update', {
       name:       name,
       phone:      document.getElementById('phone').value.trim(),
@@ -107,13 +192,10 @@
       bio:        document.getElementById('bio').value.trim(),
     });
 
-    setLoading('save-btn', false);
-
     if (res.success) {
       showAlert('alert-box', 'Profile successfully updated!', 'success');
-      // Update the name in the navbar immediately without refreshing
-      const navName = document.querySelector('#nav-actions strong');
-      if (navName) navName.textContent = name;
+      document.getElementById('profile-name').textContent = name;
+      document.getElementById('avatar-initial').textContent = name.charAt(0).toUpperCase();
     } else {
       showAlert('alert-box', res.error || 'Failed to update profile.', 'error');
     }

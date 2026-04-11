@@ -21,8 +21,6 @@ if ($method === 'POST') {
         $user  = checkAuth('seeker');
         $jobId = (int)($data['job_id'] ?? 0);
         $note  = isset($data['resume_note']) ? sanitize($data['resume_note']) : '';
-        // Added support for linking a specific resume ID if your seeker has multiple
-        $resumeId = (int)($data['resume_id'] ?? 0); 
 
         if (!$jobId) jsonResponse(['success' => false, 'error' => 'Job ID required.'], 400);
 
@@ -38,14 +36,18 @@ if ($method === 'POST') {
         if ($stmt->fetch()) jsonResponse(['success' => false, 'error' => 'You have already applied for this position.'], 409);
 
         // 3. Insert Application
-        // Note: Make sure your applications table has a resume_id column if you use it
-        $sql = "INSERT INTO applications (job_id, seeker_id, resume_id, resume_note, status) VALUES (?, ?, ?, ?, 'pending')";
-        $db->prepare($sql)->execute([$jobId, $user['id'], $resumeId, $note]);
+        try {
+            $sql = "INSERT INTO applications (job_id, seeker_id, resume_note, status) VALUES (?, ?, ?, 'pending')";
+            $db->prepare($sql)->execute([$jobId, $user['id'], $note]);
 
-        // 4. Notify Employer
-        $notifMsg = "New applicant for '{$job['title']}' from " . $user['name'];
-        $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
-           ->execute([$job['employer_id'], $notifMsg]);
+            // 4. Notify Employer
+            $notifMsg = "New applicant for '{$job['title']}' from " . $user['name'];
+            $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
+               ->execute([$job['employer_id'], $notifMsg]);
+        } catch (PDOException $e) {
+            file_put_contents('db_error.txt', $e->getMessage());
+            jsonResponse(['success' => false, 'error' => 'Database error occurred while applying: ' . $e->getMessage()], 500);
+        }
 
         jsonResponse(['success' => true, 'message' => 'Application submitted successfully!']);
     }
@@ -95,11 +97,10 @@ if ($method === 'GET') {
     // 1. Employer View (Includes Resume info)
     if ($user['role'] === 'employer') {
         $sql = "SELECT a.*, u.name AS seeker_name, u.email AS seeker_email, 
-                       r.filepath AS resume_path, j.title AS job_title 
+                       j.title AS job_title 
                 FROM applications a 
                 JOIN users u ON a.seeker_id = u.id 
                 JOIN jobs j ON a.job_id = j.id 
-                LEFT JOIN resumes r ON a.resume_id = r.id
                 WHERE j.employer_id = ? 
                 ORDER BY a.applied_at DESC";
         $stmt = $db->prepare($sql);

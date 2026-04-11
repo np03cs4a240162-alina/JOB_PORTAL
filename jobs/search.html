@@ -3,98 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Search - JSTACK</title>
+  <title>Global Search - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     .search-panel{background:white;padding:30px;border-radius:12px;
       box-shadow:0 4px 12px rgba(0,0,0,.08);max-width:800px;margin:30px auto;}
-    .search-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-    .autocomplete-wrapper{position:relative;}
-    #autocomplete-list{position:absolute;width:100%;top:100%;left:0;
-      background:white;border:1px solid #ddd;border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:1000;padding:0;margin-top:4px;}
+    .search-grid{display:grid;grid-template-columns:1fr 150px;gap:16px;}
+    
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .tab-btn { background: #f1f1f1; color: #555; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s; border: none; font-weight: bold; }
+    .tab-btn.active { background: #0a66c2; color: white; }
+    
+    .result-section { display: none; }
+    .result-section.active { display: block; }
+    
+    /* Result Cards */
+    .entity-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; box-shadow:0 2px 8px rgba(0,0,0,.05); border-left: 4px solid #0a66c2; }
+    .entity-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+    .entity-card .info { flex: 1; }
+    .entity-card h3 { margin: 0 0 5px 0; color: #333; }
+    .entity-card p { margin: 0; color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
 
 <header class="navbar">
-  <h2>JSTACK</h2>
+  <h2><i class="fas fa-search"></i> JSTACK</h2>
   <a href="../index.html">← Home</a>
-  <div id="nav-actions"></div>
 </header>
 
 <div class="container">
-  <h2 class="title">Advanced Job Search</h2>
+  <h2 class="title">Global Search</h2>
 
   <div class="search-panel">
     <div class="search-grid">
-      <div class="input-group autocomplete-wrapper">
-        <label>Keyword / Title</label>
-        <input type="text" id="keyword" placeholder="e.g. PHP Developer">
-        <ul id="autocomplete-list" style="display:none;list-style:none;"></ul>
+      <div class="input-group" style="margin:0;">
+        <input type="text" id="keyword" placeholder="Search for jobs, companies, or applicants...">
       </div>
-      <div class="input-group">
-        <label>Category</label>
-        <select id="category">
-          <option value="">All Categories</option>
-          <option>IT</option><option>Marketing</option>
-          <option>Design</option><option>Finance</option><option>Other</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Location</label>
-        <input type="text" id="location" placeholder="e.g. Kathmandu">
-      </div>
-      <div class="input-group" style="display:flex;align-items:flex-end;gap:10px;">
-        <button onclick="doSearch()" style="flex:1;">🔍 Search</button>
-        <button onclick="resetSearch()" class="secondary" style="flex:1;">Reset</button>
-      </div>
+      <button onclick="doGlobalSearch()"><i class="fas fa-search"></i> Search</button>
     </div>
   </div>
 
-  <p id="search-status" style="text-align:center;margin:10px 0;"></p>
-  <div id="jobs-container" class="job-container"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('jobs')">Jobs (<span id="count-jobs">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('companies')">Companies (<span id="count-comps">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('applicants')">Applicants (<span id="count-apps">0</span>)</button>
+  </div>
+  
+  <p id="search-status" style="text-align:center;margin:10px 0; color: #666;">Type a keyword to begin.</p>
+
+  <div id="tab-jobs" class="result-section active">
+    <div id="jobs-container" class="job-container"></div>
+  </div>
+  
+  <div id="tab-companies" class="result-section">
+    <div id="companies-container" style="max-width: 800px; margin: 0 auto;"></div>
+  </div>
+  
+  <div id="tab-applicants" class="result-section">
+    <div id="applicants-container" style="max-width: 800px; margin: 0 auto;"></div>
+  </div>
+
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer style="margin-top: 50px; text-align: center; color: #888; font-size: 14px;">
+  <p>© 2026 JSTACK</p>
+</footer>
 
 <script src="../assets/js/main.js"></script>
-<script src="../assets/js/jobs.js"></script>
 <script>
-  async function doSearch() {
+  let latestData = { jobs: [], companies: [], applicants: [] };
+
+  function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.result-section').forEach(s => s.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  async function doGlobalSearch() {
+    const kw = document.getElementById('keyword').value.trim();
+    if(!kw) return;
+    
     document.getElementById('search-status').textContent = 'Searching...';
-    document.getElementById('jobs-container').innerHTML  = '';
-    const res = await loadAllJobs(
-      document.getElementById('keyword').value,
-      document.getElementById('category').value,
-      document.getElementById('location').value
-    );
-    const status    = document.getElementById('search-status');
-    const container = document.getElementById('jobs-container');
-    if (res && res.success && res.data.length) {
-      status.textContent    = res.message;
-      status.style.color    = 'green';
-      container.innerHTML   = res.data.map(j => renderJobCard(j)).join('');
-    } else {
-      status.textContent  = 'No jobs found matching your criteria.';
-      status.style.color  = '#e53935';
+    
+    try {
+        const res = await fetch(`../api/global-search.php?keyword=${encodeURIComponent(kw)}`);
+        const result = await res.json();
+        
+        if(result.success) {
+            latestData = result.data;
+            document.getElementById('search-status').textContent = '';
+            
+            // Update Counts
+            document.getElementById('count-jobs').textContent = latestData.jobs.length;
+            document.getElementById('count-comps').textContent = latestData.companies.length;
+            document.getElementById('count-apps').textContent = latestData.applicants.length;
+            
+            // Render Jobs
+            const jc = document.getElementById('jobs-container');
+            if(latestData.jobs.length) {
+                jc.innerHTML = latestData.jobs.map(j => `
+                  <div class="job-card" onclick="location.href='detail.html?id=${j.id}'">
+                    <h3>${escHtml(j.title)}</h3>
+                    <p><strong><i class="fas fa-building"></i> ${escHtml(j.company)}</strong></p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${escHtml(j.location)}</p>
+                    <span class="badge badge-info">${escHtml(j.job_type)}</span>
+                  </div>
+                `).join('');
+            } else {
+                jc.innerHTML = '<p style="text-align:center; color:#888;">No jobs found.</p>';
+            }
+            
+            // Render Companies
+            const cc = document.getElementById('companies-container');
+            if(latestData.companies.length) {
+                cc.innerHTML = latestData.companies.map(c => `
+                  <div class="entity-card">
+                    <img src="${c.logo ? '../uploads/images/'+c.logo : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" onerror="this.onerror=null;">
+                    <div class="info">
+                        <h3>${escHtml(c.company || c.name)}</h3>
+                        <p>${escHtml(c.industry || 'Company')}</p>
+                    </div>
+                  </div>
+                `).join('');
+            } else {
+                cc.innerHTML = '<p style="text-align:center; color:#888;">No companies found.</p>';
+            }
+            
+            // Render Applicants
+            const ac = document.getElementById('applicants-container');
+            if(latestData.applicants.length) {
+                ac.innerHTML = latestData.applicants.map(a => `
+                  <div class="entity-card">
+                    <img src="${a.photo ? '../uploads/images/'+a.photo : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" onerror="this.onerror=null;">
+                    <div class="info">
+                        <h3>${escHtml(a.name)}</h3>
+                        <p><strong>Skills:</strong> ${escHtml(a.skills || 'Not specified')}</p>
+                        <p style="font-size:12px;"><strong>Experience:</strong> ${escHtml(a.experience || 'Not specified')}</p>
+                    </div>
+                  </div>
+                `).join('');
+            } else {
+                ac.innerHTML = '<p style="text-align:center; color:#888;">No applicants found.</p>';
+            }
+            
+        } else {
+            document.getElementById('search-status').textContent = 'Search failed.';
+        }
+    } catch(err) {
+        document.getElementById('search-status').textContent = 'Error executing search.';
     }
   }
 
-  function resetSearch() {
-    ['keyword','location'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('category').value = '';
-    document.getElementById('search-status').textContent = '';
-    document.getElementById('jobs-container').innerHTML  = '';
-    doSearch();
-  }
-
-  // Pre-fill from URL params
   const params = new URLSearchParams(location.search);
-  if (params.get('keyword')) document.getElementById('keyword').value = params.get('keyword');
-
-  setupAutocomplete('keyword', 'autocomplete-list');
-  doSearch();
+  if (params.get('keyword')) {
+      document.getElementById('keyword').value = params.get('keyword');
+      doGlobalSearch();
+  }
 </script>
 </body>
 </html>

@@ -5,37 +5,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Company Profile - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+<header class="navbar" style="background: white; color: #333; padding: 15px 40px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+  <h2 style="display:flex; align-items:center; gap:8px; margin:0;"><i class="fas fa-cube" style="color:#0a66c2;"></i> JSTACK <span style="font-size: 12px; font-weight: normal; color: #0a66c2; margin-left: 5px;">EMPLOYER</span></h2>
+  <div>
+    <span id="nav-name" style="color:#333;font-size:14px;margin-right:15px;font-weight:500;">Loading...</span>
+    <a href="#" onclick="logout()" style="color:#555; text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+  </div>
 </header>
+<style>body { background: #f8f9fa; }</style>
 
-<div class="profile-card">
-  <h3>Company Profile</h3>
-  <div id="alert-box"></div>
-  <div class="input-group"><label>Company Name</label><input type="text" id="company" placeholder="Company name"></div>
-  <div class="input-group"><label>Industry</label><input type="text" id="industry" placeholder="e.g. Technology"></div>
-  <div class="input-group"><label>Website</label><input type="url" id="website" placeholder="https://company.com"></div>
-  <div class="input-group"><label>About</label><textarea id="about" rows="4" placeholder="About your company..."></textarea></div>
-  <button onclick="handleSave()" style="width:100%;">Save Profile</button>
+<div class="portal-layout">
+  <!-- Sidebar -->
+  <aside class="portal-sidebar">
+    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: bold; margin-bottom: 20px; text-align:center;">Employer</div>
+    <div class="sidebar-profile">
+      <div class="avatar-wrapper">
+        <img id="sb-logo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Company Logo" onerror="this.onerror=null;">
+      </div>
+      <h3 id="sb-name">Loading...</h3>
+      <p id="sb-industry">Employer</p>
+    </div>
+    
+    <div class="sidebar-stats">
+      <div class="stat-box">
+        <h4 id="sb-jobs">0</h4>
+        <p>Job Post</p>
+      </div>
+      <div class="stat-box">
+        <h4 id="sb-apps">0</h4>
+        <p>Applications</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><i class="far fa-clock"></i> Dashboard</a>
+      <a href="profile.html" class="active"><i class="far fa-user"></i> Profile</a>
+      <a href="edit-job.html"><i class="fas fa-tasks"></i> Manage Jobs</a>
+      <a href="post-job.html"><i class="fas fa-plus-circle"></i> Post a Job</a>
+      <a href="applicants.html"><i class="fas fa-users"></i> View Applicants</a>
+      <a href="../messages/inbox.html"><i class="far fa-envelope"></i> Messages</a>
+      <a href="../settings/account.html"><i class="fas fa-cog"></i> Settings</a>
+      <hr class="section-divider">
+      <a href="#" onclick="logout()" style="color: #e53935;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="portal-content">
+    <h2 class="title" style="text-align:left; margin-top:0;">Company Profile</h2>
+
+    <div class="profile-card" style="margin: 0; width: 100%; max-width: 700px;">
+      <div id="alert-box"></div>
+      
+      <!-- Upload Section -->
+      <div style="text-align:center; margin-bottom: 25px;">
+        <div class="avatar-wrapper" style="width:120px; height:120px; border-radius:12px; margin:0 auto 15px; border:2px dashed #ccc; overflow:hidden;">
+            <img id="profile-logo-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;">
+        </div>
+        <input type="file" id="logo-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+        <button onclick="document.getElementById('logo-upload').click()" class="btn-outline">Upload New Logo</button>
+      </div>
+
+      <div class="input-group"><label>Company Name</label><input type="text" id="company" placeholder="Company name"></div>
+      <div class="input-group"><label>Industry</label><input type="text" id="industry" placeholder="e.g. Technology"></div>
+      <div class="input-group"><label>Website</label><input type="url" id="website" placeholder="https://company.com"></div>
+      <div class="input-group"><label>About</label><textarea id="about" rows="4" placeholder="About your company..."></textarea></div>
+      <button onclick="handleSave()" style="width:100%;">Save Profile</button>
+    </div>
+  </main>
 </div>
-
-<footer><p>© 2026 JSTACK</p></footer>
 
 <script src="../assets/js/main.js"></script>
 <script>
   async function init() {
-    await checkAuth('employer');
-    const data = await apiGet('/profiles.php');
-    if (data) {
+    const user = await checkAuth('employer');
+    if(!user) return;
+    document.getElementById('sb-name').textContent = user.name;
+    document.getElementById('nav-name').textContent = user.name;
+    
+    const dataRes = await apiGet('/profiles.php');
+    if (dataRes && dataRes.success && dataRes.data) {
+      const data = dataRes.data;
       document.getElementById('company').value  = data.company  || '';
       document.getElementById('industry').value = data.industry || '';
       document.getElementById('website').value  = data.website  || '';
       document.getElementById('about').value    = data.about    || '';
+      
+      if(data.industry) document.getElementById('sb-industry').textContent = data.industry;
+      if(data.logo) {
+          const logoUrl = '../uploads/images/' + data.logo;
+          document.getElementById('sb-logo').src = logoUrl;
+          document.getElementById('profile-logo-preview').src = logoUrl;
+      }
     }
+
+    const res = await apiGet('/dashboard-stats.php');
+    if (res && res.success) {
+      document.getElementById('sb-jobs').textContent = res.stats.total_jobs;
+      document.getElementById('sb-apps').textContent = res.stats.total_applications;
+    }
+  }
+
+  async function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+
+      const fd = new FormData();
+      fd.append('image', file);
+      
+      try {
+          const response = await fetch('../api/upload-image.php', {
+              method: 'POST',
+              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+              body: fd
+          });
+          const result = await response.json();
+          if(result.success) {
+              showAlert('alert-box', 'Logo updated successfully!', 'success');
+              const logoUrl = '../uploads/images/' + result.filename;
+              document.getElementById('sb-logo').src = logoUrl;
+              document.getElementById('profile-logo-preview').src = logoUrl;
+          } else {
+              showAlert('alert-box', result.error || 'Failed to upload image.', 'error');
+          }
+      } catch (err) {
+          showAlert('alert-box', 'An error occurred uploading the image.', 'error');
+      }
   }
 
   async function handleSave() {
@@ -46,6 +145,9 @@
       about:    document.getElementById('about').value,
     });
     showAlert('alert-box', res.success ? 'Profile saved!' : (res.error||'Save failed.'), res.success?'success':'error');
+    if (res.success) {
+        document.getElementById('sb-industry').textContent = document.getElementById('industry').value || 'Employer';
+    }
   }
 
   init();

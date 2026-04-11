@@ -199,6 +199,9 @@ async function applyFilters() {
     if (filters.keyword) url += `&keyword=${encodeURIComponent(filters.keyword)}`;
     if (filters.category) url += `&category=${encodeURIComponent(filters.category)}`;
     if (filters.location) url += `&location=${encodeURIComponent(filters.location)}`;
+    if (filters.company) url += `&company=${encodeURIComponent(filters.company)}`;
+    if (filters.salary) url += `&salary=${encodeURIComponent(filters.salary)}`;
+    if (filters.postedDate) url += `&postedDate=${encodeURIComponent(filters.postedDate)}`;
 
     try {
         const res = await apiGet(url);

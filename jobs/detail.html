@@ -33,9 +33,10 @@
     const box  = document.getElementById('job-detail');
     if (!jobId) { box.innerHTML = '<p>No job ID provided.</p>'; return; }
 
-    const job  = await apiGet(`/jobs.php?id=${jobId}`);
-    if (!job || job.error) { box.innerHTML = '<p>Job not found.</p>'; return; }
+    const response = await apiGet(`/jobs.php?id=${jobId}`);
+    if (!response || !response.success || !response.data) { box.innerHTML = '<p>Job not found.</p>'; return; }
 
+    const job = response.data;
     const user = await getCurrentUser();
     const isClosed = job.status === 'closed';
 
