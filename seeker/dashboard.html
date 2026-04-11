@@ -67,7 +67,21 @@
 
 <header class="top-blue-nav">
   <h2><i class="fas fa-cube"></i> JSTACK</h2>
-  <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <!-- Notification Bell -->
+    <div style="position: relative;">
+      <a href="#" id="notif-btn" onclick="toggleNotifications()" style="font-size: 18px;"><i class="fas fa-bell"></i> <span id="notif-count"></span></a>
+      <div id="notif-dropdown" style="display:none; position:absolute; top:40px; right:0; width:300px; background:white; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.1); z-index:1000; border:1px solid #eee;">
+        <div style="padding:12px 15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+          <strong style="color:#333; font-size:14px;">Notifications</strong>
+          <span onclick="clearNotifications()" style="color:#1a56c4; font-size:11px; cursor:pointer; font-weight:600;">Mark Read</span>
+        </div>
+        <ul id="notif-list" style="list-style:none; padding:0; margin:0; max-height:300px; overflow-y:auto; color: #333;">
+        </ul>
+      </div>
+    </div>
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
 </header>
 
 <div class="dashboard-layout">
@@ -106,13 +120,13 @@
         <i class="fas fa-search" style="color: #4fc3f7;"></i>
         <h4>Search Jobs</h4>
       </a>
+      <a href="saved-jobs.html" class="action-card">
+        <i class="fas fa-bookmark" style="color: #ffb300;"></i>
+        <h4>Saved Jobs</h4>
+      </a>
       <a href="resume-manager.html" class="action-card">
         <i class="far fa-file-alt" style="color: #ce93d8;"></i>
         <h4>My Resumes</h4>
-      </a>
-      <a href="../settings/account.html" class="action-card">
-        <i class="fas fa-cog" style="color: #b0bec5;"></i>
-        <h4>Settings</h4>
       </a>
     </div>
 
@@ -142,6 +156,8 @@
 
 <script src="../assets/js/main.js"></script>
 <script>
+  let notifOpen = false;
+
   async function init() {
     const user = await checkAuth('seeker');
     if (!user) return;
@@ -150,11 +166,14 @@
     document.getElementById('profile-name').textContent = user.name;
     document.getElementById('profile-email').textContent = user.email || 'user@example.com';
     document.getElementById('avatar-initial').textContent = user.name.charAt(0).toUpperCase();
+
+    // Fetch notifications
+    fetchNotifications();
     
     // Fetch user profile for photo
     const pRes = await apiGet('/profiles.php');
     if (pRes && pRes.success && pRes.data && pRes.data.photo) {
-        document.getElementById('avatar-container').innerHTML = `<img src="../uploads/images/${pRes.data.photo}" alt="Profile" onerror="this.onerror=null; this.outerHTML='<span id=\\'avatar-initial\\'>${user.name.charAt(0).toUpperCase()}</span>';">`;
+        document.getElementById('avatar-container').innerHTML = `<img src="${getImageUrl(pRes.data.photo)}" alt="Profile" onerror="this.onerror=null; this.outerHTML='<span id=\\'avatar-initial\\'>${user.name.charAt(0).toUpperCase()}</span>';">`;
     }
 
     // Fetch Stats
@@ -164,7 +183,7 @@
       document.getElementById('stat-saved').textContent = statsRes.stats.saved_jobs || 0;
     }
     
-    // Fetch Recent Applications
+    // Recent Applications List
     const appsRes = await apiGet('/applications.php');
     const appsContainer = document.getElementById('recent-apps-container');
     if (appsRes && appsRes.success && appsRes.data.length > 0) {
@@ -192,7 +211,7 @@
     const jobsRes = await apiGet('/jobs.php');
     if (jobsRes && jobsRes.success && jobsRes.data.length > 0) {
         document.getElementById('recommended-container').innerHTML = jobsRes.data.slice(0, 5).map(job => `
-            <a href="../jobs/detail.html?id=${job.id}" class="list-item">
+            <a href="../jobs/detail.html?id=${job.id}" class="list-item" style="text-decoration:none;">
                 <div class="item-info">
                     <h4 style="color: #333;">${escHtml(job.title)}</h4>
                     <p>${escHtml(job.company)} • ${escHtml(job.location || 'Remote')} • ${escHtml(job.salary || 'Negotiable')}</p>
@@ -204,6 +223,50 @@
         document.getElementById('recommended-container').innerHTML = '<p style="text-align:center; color:#999; padding:20px;">No jobs available at the moment.</p>';
     }
   }
+
+  async function fetchNotifications() {
+      const res = await apiGet('/notifications.php');
+      if(Array.isArray(res)) {
+          const unreadCount = res.filter(n => n.is_read == 0).length;
+          if (unreadCount > 0) {
+              document.getElementById('notif-count').innerHTML = `Notifications <span style="background:#ff4d4f; color:white; border-radius:50%; padding:2px 6px; font-size:10px; margin-left:5px;">${unreadCount}</span>`;
+          }
+          
+          const ul = document.getElementById('notif-list');
+          if (res.length > 0) {
+              ul.innerHTML = res.map(n => `
+                <li class="notif-item ${n.is_read == 0 ? 'unread' : ''}" style="padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 13px;">
+                    <div style="color:#333;">${escHtml(n.message)}</div>
+                    <span style="font-size:11px; color:#999; margin-top:4px; display:block;">${new Date(n.created_at).toLocaleString()}</span>
+                </li>
+              `).join('');
+          } else {
+              ul.innerHTML = '<li style="padding:20px; text-align:center; color:#999; font-size:13px;">No notifications</li>';
+          }
+      }
+  }
+
+  function toggleNotifications() {
+      const drop = document.getElementById('notif-dropdown');
+      notifOpen = !notifOpen;
+      drop.style.display = notifOpen ? 'block' : 'none';
+  }
+
+  async function clearNotifications() {
+      await apiPut('/notifications.php');
+      document.getElementById('notif-count').innerHTML = `Notifications`;
+      fetchNotifications();
+  }
+
+  // Close dropdown on outside click
+  document.addEventListener('click', (e) => {
+      const drop = document.getElementById('notif-dropdown');
+      const btn = document.getElementById('notif-btn');
+      if (notifOpen && drop && !drop.contains(e.target) && !btn.contains(e.target)) {
+          notifOpen = false;
+          drop.style.display = 'none';
+      }
+  });
   
   init();
 </script>

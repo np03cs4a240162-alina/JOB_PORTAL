@@ -72,8 +72,25 @@ async function updateApplicationStatus(appId, status) {
 }
 
 // ── Saved Jobs ────────────────────────────────────────────────────────────────
+async function toggleSaveJob(jobId, currentSaved = false) {
+    const user = await getCurrentUser();
+    if (!user || user.role !== 'seeker') {
+        alert('Please login as a seeker to save jobs.');
+        return { success: false, error: 'Auth required' };
+    }
+
+    if (currentSaved) {
+        // Unsave logic (DELETE)
+        return apiDelete(`/saved.php?job_id=${jobId}`);
+    } else {
+        // Save logic (POST)
+        return apiPost('/saved.php', { job_id: jobId });
+    }
+}
+
 async function saveJobAction(jobId, btn) {
-    if (!state.user || state.user.role !== 'seeker') {
+    const user = await getCurrentUser();
+    if (!user || user.role !== 'seeker') {
         showAlert('alert-box', 'Please login as a seeker to save jobs.', 'error');
         return;
     }
@@ -81,14 +98,15 @@ async function saveJobAction(jobId, btn) {
     btn.disabled = true;
     const res = await apiPost('/saved.php', { job_id: jobId });
     
-    if (res.success) {
+    if (res.success || res.status === 409) {
         btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-        btn.classList.add('btn-saved'); // Better than inline styles
+        btn.classList.add('btn-saved');
+        if (typeof showAlert === 'function' && res.success) {
+            showAlert('alert-box', 'Job saved successfully!', 'success');
+        }
     } else {
         btn.disabled = false;
-        // Logic for "Already Saved" (409 conflict)
-        if (res.status === 409) btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-        else alert(res.error || "Failed to save job.");
+        alert(res.error || "Failed to save job.");
     }
 }
 
@@ -96,7 +114,7 @@ async function saveJobAction(jobId, btn) {
 function renderJobCard(job) {
     const closed  = job.status === 'closed';
     const company = escHtml(job.employer_name || job.company || 'JSTACK');
-    const isSeeker = state.user && state.user.role === 'seeker';
+    const isSeeker = window.state.user && window.state.user.role === 'seeker';
     
     const saveBtn = isSeeker ? 
         `<button class="btn-icon-only" title="Save Job" onclick="saveJobAction(${job.id}, this)">

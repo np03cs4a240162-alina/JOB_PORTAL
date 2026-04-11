@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Profile - JSTACK</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .profile-header { background: #1a56c4; color: white; padding: 60px 20px; text-align: center; position: relative; }
+    .profile-avatar { width: 120px; height: 120px; border-radius: 50%; border: 5px solid white; background: #e8f0fe; position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: #1a56c4; overflow: hidden; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-content { max-width: 900px; margin: 80px auto 40px; padding: 0 20px; }
+    .card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .card h3 { color: #1a56c4; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .info-item label { display: block; color: #888; font-size: 13px; text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+    .info-item div { font-size: 16px; color: #333; font-weight: 600; }
+    .skill-tag { display: inline-block; background: #e8f0fe; color: #1a56c4; padding: 6px 15px; border-radius: 20px; margin: 0 8px 8px 0; font-size: 13px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<header class="navbar" style="background: #1a56c4; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; border:none; box-shadow: none;">
+  <h2 onclick="location.href='../'"><i class="fas fa-cube"></i> JSTACK</h2>
+  <a href="applicants.html" style="color: white; text-decoration: none; font-size: 14px; font-weight: 500;"><i class="fas fa-arrow-left"></i> Back to Applicants</a>
+</header>
+
+<div class="profile-header">
+  <h1 id="p-name" style="margin:0; font-size:32px;">...</h1>
+  <p id="p-role" style="opacity: 0.9; margin-top: 5px;">Job Candidate</p>
+  <div class="profile-avatar" id="p-avatar-container">
+    <span id="p-initial">?</span>
+  </div>
+</div>
+
+<div class="profile-content">
+  <div class="card">
+    <h3><i class="fas fa-info-circle"></i> Contact Information</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <label>Email Address</label>
+        <div id="p-email">...</div>
+      </div>
+      <div class="info-item">
+        <label>Phone Number</label>
+        <div id="p-phone">...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><i class="fas fa-file-pdf"></i> Resume / CV</h3>
+    <div id="p-resume" style="display:flex; align-items:center; justify-content:space-between; padding:15px; background:#f8f9fa; border-radius:8px; border:1px solid #e9ecef;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <i class="fas fa-file-pdf" style="font-size:24px; color:#e53e3e;"></i>
+        <div>
+          <div id="resume-filename" style="font-weight:600; color:#333;">Fetching...</div>
+          <div id="resume-date" style="font-size:11px; color:#888;">...</div>
+        </div>
+      </div>
+      <button id="resume-download-btn" class="btn-sm" style="background:#1a56c4; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:600;">
+        <i class="fas fa-download"></i> Download
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><i class="fas fa-tools"></i> Skills & Expertise</h3>
+    <div id="p-skills">...</div>
+  </div>
+
+  <div class="card">
+    <h3><i class="fas fa-briefcase"></i> Experience Summary</h3>
+    <div id="p-experience" style="font-size: 16px; line-height: 1.6; color: #444;">...</div>
+  </div>
+
+  <div class="card">
+    <h3><i class="fas fa-user"></i> About Candidate</h3>
+    <div id="p-bio" style="font-size: 16px; line-height: 1.6; color: #444; white-space: pre-wrap;">...</div>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  const seekerId = new URLSearchParams(location.search).get('id');
+
+  async function init() {
+    await checkAuth('employer');
+    if (!seekerId) { alert('No candidate selected'); location.href='applicants.html'; return; }
+
+    const res = await apiGet(`/profiles.php?id=${seekerId}`);
+    if (res.success && res.data) {
+        const p = res.data;
+        document.getElementById('p-name').textContent = p.name;
+        document.getElementById('p-email').textContent = p.email;
+        document.getElementById('p-phone').textContent = p.phone || 'Not provided';
+        document.getElementById('p-experience').textContent = p.experience || 'No summary provided';
+        document.getElementById('p-bio').textContent = p.bio || 'This candidate hasn\'t added a bio yet.';
+        document.getElementById('p-initial').textContent = p.name.charAt(0).toUpperCase();
+
+        if (p.photo) {
+            document.getElementById('p-avatar-container').innerHTML = `<img src="${getImageUrl(p.photo)}" alt="Candidate" onerror="this.onerror=null; this.outerHTML='<span id=\\'p-initial\\'>${p.name.charAt(0).toUpperCase()}</span>';">`;
+        }
+
+        if (p.skills) {
+            const skillsArr = p.skills.split(',').map(s => s.trim());
+            document.getElementById('p-skills').innerHTML = skillsArr.map(s => `<span class="skill-tag">${escHtml(s)}</span>`).join('');
+        } else {
+            document.getElementById('p-skills').textContent = 'No skills listed';
+        }
+
+        // Fetch Resume
+        const rRes = await apiGet(`/upload.php?user_id=${seekerId}`);
+        if(rRes.success && rRes.data.length > 0) {
+            const resData = rRes.data[0];
+            document.getElementById('resume-filename').textContent = resData.filename;
+            document.getElementById('resume-date').textContent = 'Uploaded on ' + new Date(resData.uploaded_at).toLocaleDateString();
+            document.getElementById('resume-download-btn').onclick = () => window.open(`${BASE}/${resData.filepath}`, '_blank');
+        } else {
+            document.getElementById('p-resume').innerHTML = '<p style="color:#999; margin:0; font-style:italic;">No resume uploaded yet.</p>';
+        }
+    } else {
+        alert('Candidate profile not found.');
+        location.href = 'applicants.html';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -9,14 +9,22 @@ require_once '../config/upload.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
-$user   = checkAuth('seeker');
+$user   = requireLogin();
 
 /**
  * ── GET: Fetch Resumes ──
  */
 if ($method === 'GET') {
+    $targetId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : $user['id'];
+
+    // Security: Seekers can only fetch their own resumes.
+    // Employers and Admins can fetch any seeker's resumes.
+    if ($user['role'] === 'seeker' && $targetId !== $user['id']) {
+        jsonResponse(['success' => false, 'error' => 'Permission denied.'], 403);
+    }
+
     $stmt = $db->prepare('SELECT id, filename, filepath, uploaded_at FROM resumes WHERE user_id = ? ORDER BY uploaded_at DESC');
-    $stmt->execute([$user['id']]);
+    $stmt->execute([$targetId]);
     $resumes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     jsonResponse(['success' => true, 'data' => $resumes]);

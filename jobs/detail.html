@@ -30,34 +30,50 @@
   const jobId = new URLSearchParams(location.search).get('id');
 
   async function loadDetail() {
+    // Explicitly wait for state to ensure escHtml and other helpers are ready if needed
+    // though they are sync, it's good practice.
+    await getCurrentUser();
+    
     const box  = document.getElementById('job-detail');
-    if (!jobId) { box.innerHTML = '<p>No job ID provided.</p>'; return; }
+    if (!jobId) { box.innerHTML = '<p style="padding:40px; text-align:center; color:#999;">No job ID provided.</p>'; return; }
 
     const response = await apiGet(`/jobs.php?id=${jobId}`);
-    if (!response || !response.success || !response.data) { box.innerHTML = '<p>Job not found.</p>'; return; }
+    if (!response || !response.success || !response.data) { 
+        box.innerHTML = '<p style="padding:40px; text-align:center; color:#999;">Job not found.</p>'; return; 
+    }
 
     const job = response.data;
-    const user = await getCurrentUser();
+    const user = window.state.user;
     const isClosed = job.status === 'closed';
 
     box.innerHTML = `
-      <h2 style="color:#0a66c2;">${escHtml(job.title)}</h2>
-      <p style="margin:8px 0;font-size:16px;color:#555;">
-        <strong>${escHtml(job.employer_name || job.company)}</strong>
-      </p>
-      <div style="display:flex;gap:20px;flex-wrap:wrap;margin:16px 0;">
-        <span>📍 ${escHtml(job.location||'N/A')}</span>
-        <span>💰 ${escHtml(job.salary||'Negotiable')}</span>
-        <span>📂 ${escHtml(job.category||'General')}</span>
-        <span class="badge ${isClosed?'badge-error':'badge-success'}">${isClosed?'CLOSED':'ACTIVE'}</span>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 style="color:#1a56c4; margin:0; font-size:28px;">${escHtml(job.title)}</h2>
+          <p style="margin:10px 0; font-size:18px; color:#555; font-weight:500;">
+            ${escHtml(job.employer_name || job.company)}
+          </p>
+        </div>
+        <div id="save-btn-container"></div>
       </div>
-      <hr style="margin:16px 0;">
-      <h4 style="margin-bottom:10px;">Job Description</h4>
-      <p style="line-height:1.8;color:#444;">${escHtml(job.description||'').replace(/\n/g,'<br>')}</p>
-      <p style="margin-top:16px;font-size:12px;color:#aaa;">
-        Posted: ${new Date(job.created_at).toLocaleDateString()}
+
+      <div style="display:flex; gap:25px; flex-wrap:wrap; margin:25px 0; padding:20px; background:#f8f9fc; border-radius:12px;">
+        <div style="display:flex; align-items:center; gap:8px;"><i class="fas fa-map-marker-alt" style="color:#888;"></i> <span>${escHtml(job.location||'Remote')}</span></div>
+        <div style="display:flex; align-items:center; gap:8px;"><i class="fas fa-wallet" style="color:#888;"></i> <span>${escHtml(job.salary||'Negotiable')}</span></div>
+        <div style="display:flex; align-items:center; gap:8px;"><i class="fas fa-briefcase" style="color:#888;"></i> <span>${escHtml(job.category||'General')}</span></div>
+        <span class="badge ${isClosed?'badge-error':'badge-success'}" style="margin-left:auto;">${isClosed?'CLOSED':'ACTIVE'}</span>
+      </div>
+
+      <div style="margin:30px 0;">
+        <h4 style="margin-bottom:15px; font-size:18px; color:#333;">Job Description</h4>
+        <div style="line-height:1.8; color:#444; white-space: pre-line;">${escHtml(job.description||'')}</div>
+      </div>
+
+      <p style="margin-top:30px; font-size:13px; color:#aaa; border-top:1px solid #eee; padding-top:15px;">
+        <i class="far fa-clock"></i> Posted on: ${new Date(job.created_at).toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'})}
       </p>
-      <div id="action-area" style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;"></div>
+
+      <div id="action-area" style="margin-top:30px; display:flex; gap:15px; flex-wrap:wrap;"></div>
     `;
 
     renderActions(user, job, isClosed);
@@ -65,23 +81,39 @@
 
   function renderActions(user, job, isClosed) {
     const area = document.getElementById('action-area');
+    const saveContainer = document.getElementById('save-btn-container');
+    
     if (!user) {
-      area.innerHTML = `<a href="${BASE}/auth/login.html"><button>Login to Apply</button></a>`;
+      area.innerHTML = `<button onclick="location.href='../auth/login.html'" style="width:200px;">Login to Apply</button>`;
     } else if (user.role === 'seeker' && !isClosed) {
       area.innerHTML = `
-        <button onclick="location.href='${BASE}/seeker/application.html?id=${job.id}'">
-          ✅ Apply Now
-        </button>
-        <button class="secondary" onclick="saveThisJob(${job.id})">🔖 Save Job</button>`;
+        <button onclick="location.href='${BASE}/seeker/application.html?id=${job.id}'" style="padding:12px 40px; font-size:16px;">
+          ✅ Apply for this position
+        </button>`;
+      
+      saveContainer.innerHTML = `
+        <button class="btn-outline" onclick="saveThisJob(${job.id})" style="border-radius:30px; padding:8px 20px;">
+          <i class="far fa-bookmark"></i> Save Job
+        </button>`;
     } else if (isClosed) {
-      area.innerHTML = `<span style="color:#e53935;font-weight:600;">This job is no longer accepting applications.</span>`;
+      area.innerHTML = `<div style="background:#fff5f5; color:#c53030; padding:15px 25px; border-radius:8px; border:1px solid #feb2b2; width:100%; font-weight:600;">This job is no longer accepting applications.</div>`;
     }
   }
 
   async function saveThisJob(id) {
+    // Ensure toggleSaveJob exists (it should, from jobs.js)
+    if (typeof toggleSaveJob !== 'function') {
+        console.error('toggleSaveJob not defined! Check jobs.js loading.');
+        showAlert('alert-box', 'Error: Save function not loaded. Please refresh.', 'error');
+        return;
+    }
+    
     const res = await toggleSaveJob(id, false);
-    if (res.success) showAlert('alert-box', 'Job saved to your list!', 'success');
-    else showAlert('alert-box', res.error || 'Could not save job.', 'error');
+    if (res && (res.success || res.status === 409)) {
+      showAlert('alert-box', 'Job saved successfully!', 'success');
+    } else {
+      showAlert('alert-box', (res && res.error) || 'Could not save job.', 'error');
+    }
   }
 
   loadDetail();

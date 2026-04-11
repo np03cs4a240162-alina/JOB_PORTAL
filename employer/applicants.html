@@ -96,17 +96,37 @@
           </span>
         </td>
         <td style="text-align: center;">
-          ${a.status === 'pending' ? `
-            <button class="btn-sm" onclick="updateStatus(${a.id}, 'accepted')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">
-              <i class="fas fa-check"></i>
+          <div style="display:flex; gap:8px; justify-content:center; align-items:center;">
+            <button class="btn-sm" onclick="location.href='seeker-profile.html?id=${a.seeker_id}'" style="background:#0a66c2; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;" title="View Candidate Profile">
+              <i class="fas fa-user-tie"></i> Profile
             </button>
-            <button class="btn-sm" onclick="updateStatus(${a.id}, 'rejected')" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
-              <i class="fas fa-times"></i>
+            <button class="btn-sm" onclick="viewResume(${a.seeker_id})" style="background:#6c757d; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;" title="View/Download Resume">
+              <i class="fas fa-file-pdf"></i> Resume
             </button>
-          ` : `<span style="color:#bbb; font-size:12px;">Finalized</span>`}
+            <div style="width:2px; height:20px; background:#eee; margin:0 5px;"></div>
+            ${a.status === 'pending' ? `
+              <button class="btn-sm" onclick="updateStatus(${a.id}, 'accepted')" style="background:#28a745; color:white; border:none; padding:6px; border-radius:4px; cursor:pointer;" title="Shortlist">
+                <i class="fas fa-check"></i>
+              </button>
+              <button class="btn-sm" onclick="updateStatus(${a.id}, 'rejected')" style="background:#dc3545; color:white; border:none; padding:6px; border-radius:4px; cursor:pointer;" title="Reject">
+                <i class="fas fa-times"></i>
+              </button>
+            ` : `<span style="color:#777; font-size:11px; font-weight:bold; text-transform:uppercase;">${escHtml(a.status)}</span>`}
+          </div>
         </td>
       </tr>`;
     }).join('');
+  }
+
+  async function viewResume(seekerId) {
+      const res = await apiGet(`/upload.php?user_id=${seekerId}`);
+      if (res.success && res.data.length > 0) {
+          // Open the most recent resume
+          const latest = res.data[0];
+          window.open(`${BASE}/${latest.filepath}`, '_blank');
+      } else {
+          showAlert('alert-box', 'This candidate has not uploaded a resume yet.', 'error');
+      }
   }
 
   /**

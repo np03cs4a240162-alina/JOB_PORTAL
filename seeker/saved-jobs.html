@@ -5,18 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saved Jobs - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: #f0f2f5; }
+    .page-header { background: white; padding: 30px 40px; border-bottom: 1px solid #e0e4e8; margin-bottom: 30px; }
+    .page-header h2 { margin: 0; color: #1a56c4; font-size: 24px; font-weight: 700; }
+    .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; padding: 0 40px 40px; }
+    .saved-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; transition: 0.2s; position: relative; }
+    .saved-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+    .saved-card h3 { margin: 0 0 8px 0; color: #1a56c4; font-size: 18px; }
+    .saved-card .company { color: #555; font-weight: 600; font-size: 14px; margin-bottom: 12px; }
+    .saved-card .meta { display: flex; gap: 15px; color: #888; font-size: 13px; margin-bottom: 20px; }
+    .saved-card .actions { display: flex; gap: 10px; border-top: 1px solid #f5f5f5; padding-top: 15px; }
+    .btn-remove { background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; }
+    .btn-remove:hover { background: #fff0f0; border-color: #feb2b2; }
+  </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+<header class="navbar" style="background: #1a56c4; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px;">
+  <h2 onclick="location.href='../'"><i class="fas fa-cube"></i> JSTACK</h2>
+  <a href="dashboard.html" style="color: white; text-decoration: none; font-size: 14px; font-weight: 500;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 
-<div class="container">
-  <h2 class="title">Saved Jobs</h2>
+<div class="page-header">
+  <div class="container" style="max-width: 1200px; margin: 0 auto;">
+    <h2><i class="fas fa-bookmark"></i> My Saved Jobs</h2>
+  </div>
+</div>
+
+<div class="container" style="max-width: 1200px; margin: 0 auto;">
   <div id="alert-box"></div>
-  <div id="saved-list" class="job-container"></div>
+  <div id="saved-list" class="saved-grid">
+    <div style="grid-column: 1/-1; text-align: center; padding: 100px;">
+      <i class="fas fa-spinner fa-spin" style="font-size: 30px; color: #1a56c4;"></i>
+      <p style="margin-top: 15px; color: #888;">Fetching your saved jobs...</p>
+    </div>
+  </div>
 </div>
 
 <footer><p>© 2026 JSTACK</p></footer>
@@ -26,27 +51,48 @@
 <script>
   async function init() {
     await checkAuth('seeker');
+    // data is an array
     const data = await apiGet('/saved.php');
     const list = document.getElementById('saved-list');
+    
     if (!Array.isArray(data) || !data.length) {
-      list.innerHTML = '<p style="text-align:center;color:#888;grid-column:1/-1;">No saved jobs yet.</p>'; return;
+      list.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 100px; background: white; border-radius: 12px;">
+          <i class="far fa-bookmark" style="font-size: 50px; color: #eee; margin-bottom: 20px; display: block;"></i>
+          <h3 style="color: #666;">No saved jobs yet</h3>
+          <p style="color: #999;">Jobs you save will appear here for easy access.</p>
+          <a href="../jobs/listing.html"><button style="margin-top: 20px;">Browse Jobs</button></a>
+        </div>`;
+      return;
     }
+
     list.innerHTML = data.map(job => `
-      <div class="job-card">
+      <div class="saved-card" id="card-${job.id}">
         <h3>${escHtml(job.title)}</h3>
-        <p>${escHtml(job.company)} — ${escHtml(job.location||'')}</p>
-        <p style="color:#0a66c2;font-weight:600;">${escHtml(job.salary||'Negotiable')}</p>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button onclick="location.href='../jobs/detail.html?id=${job.id}'">View</button>
-          <button class="danger" onclick="unsave(${job.id})">Remove</button>
+        <p class="company">${escHtml(job.company)}</p>
+        <div class="meta">
+          <span><i class="fas fa-map-marker-alt"></i> ${escHtml(job.location || 'Remote')}</span>
+          <span><i class="fas fa-wallet"></i> ${escHtml(job.salary || 'Negotiable')}</span>
+        </div>
+        <div class="actions">
+          <button onclick="location.href='../jobs/detail.html?id=${job.id}'" style="flex: 1;">View Details</button>
+          <button class="btn-remove" onclick="unsave(${job.id})" style="padding: 10px;"><i class="far fa-trash-alt"></i></button>
         </div>
       </div>`).join('');
   }
 
   async function unsave(jobId) {
+    if(!confirm('Remove this job from your saved list?')) return;
+    
     const res = await apiDelete(`/saved.php?job_id=${jobId}`);
-    if (res.success) init();
-    else showAlert('alert-box', res.error || 'Failed.', 'error');
+    if (res.success) {
+      const card = document.getElementById(`card-${jobId}`);
+      card.style.opacity = '0.5';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => init(), 300);
+    } else {
+      showAlert('alert-box', res.error || 'Failed to remove job.', 'error');
+    }
   }
 
   init();

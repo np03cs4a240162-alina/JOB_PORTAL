@@ -59,6 +59,23 @@ if ($method === 'GET') {
             $sql .= " AND j.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)";
             $params[] = $days;
         }
+        
+        $type      = sanitize($_GET['type'] ?? '');
+        $workplace = sanitize($_GET['workplace'] ?? '');
+        $industry  = sanitize($_GET['industry'] ?? '');
+        
+        if ($type !== '') {
+            $sql .= " AND j.type = ?";
+            $params[] = $type;
+        }
+        if ($workplace !== '') {
+            $sql .= " AND j.workplace = ?";
+            $params[] = $workplace;
+        }
+        if ($industry !== '') {
+            $sql .= " AND j.industry = ?";
+            $params[] = $industry;
+        }
 
         $sql .= " ORDER BY j.created_at DESC";
         $stmt = $db->prepare($sql);
@@ -113,7 +130,7 @@ if ($method === 'POST') {
     $user = checkAuth('employer');
     $data = getBody();
     
-    $fields = ['title', 'company', 'salary', 'category', 'location', 'description'];
+    $fields = ['title', 'company', 'salary', 'category', 'location', 'description', 'type', 'workplace', 'industry', 'deadline'];
     $clean = [];
     foreach ($fields as $f) {
         $clean[$f] = sanitize($data[$f] ?? '');
@@ -123,8 +140,13 @@ if ($method === 'POST') {
         jsonResponse(['success' => false, 'error' => 'Required fields missing.'], 400);
     }
 
-    $stmt = $db->prepare("INSERT INTO jobs (title, company, salary, category, location, description, employer_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')");
-    $success = $stmt->execute([$clean['title'], $clean['company'], $clean['salary'], $clean['category'], $clean['location'], $clean['description'], $user['id']]);
+    $stmt = $db->prepare("INSERT INTO jobs (title, company, salary, category, type, workplace, industry, location, description, deadline, employer_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
+    $success = $stmt->execute([
+        $clean['title'], $clean['company'], $clean['salary'], $clean['category'], 
+        $clean['type'], $clean['workplace'], $clean['industry'],
+        $clean['location'], $clean['description'], $clean['deadline'] ?: null, 
+        $user['id']
+    ]);
     
     jsonResponse(['success' => $success, 'id' => (int)$db->lastInsertId()]);
 }

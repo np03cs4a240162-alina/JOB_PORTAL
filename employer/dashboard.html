@@ -107,8 +107,10 @@
     <!-- Left Sidebar -->
     <aside class="emp-sidebar">
         <div class="sidebar-user">
-            <div class="user-avatar" id="avatar-initials">KJ</div>
-            <h3 id="sb-company">Jstack Job</h3>
+            <div class="user-avatar" id="avatar-container">
+                <span id="avatar-initials">...</span>
+            </div>
+            <h3 id="sb-company">Loading...</h3>
         </div>
         
         <div class="nav-section">
@@ -215,10 +217,13 @@
     document.getElementById('avatar-initials').textContent = user.name.slice(0, 2).toUpperCase();
     document.getElementById('sb-company').textContent = user.name;
     
-    // Fetch user profile for company name (if available)
+    // Fetch user profile for company name & logo
     const pRes = await apiGet('/profiles.php');
-    if (pRes && pRes.success && pRes.data && pRes.data.company) {
-        document.getElementById('sb-company').textContent = pRes.data.company;
+    if (pRes && pRes.success && pRes.data) {
+        if(pRes.data.company) document.getElementById('sb-company').textContent = pRes.data.company;
+        if(pRes.data.logo) {
+            document.getElementById('avatar-container').innerHTML = `<img src="${getImageUrl(pRes.data.logo)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.onerror=null; this.outerHTML='<span id=\\'avatar-initials\\'>${user.name.slice(0, 2).toUpperCase()}</span>';">`;
+        }
     }
 
     // Dashboard Stats

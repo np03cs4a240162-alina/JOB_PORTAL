@@ -11,6 +11,12 @@ const getBase = () => {
 const BASE = getBase(); 
 const API  = BASE + '/api';
 
+// Global state for role-based features
+window.state = {
+    user: null,
+    loading: true
+};
+
 // ── Fetch Wrapper ─────────────────────────────────────────────────────────────
 async function _request(method, endpoint, data = null, isFormData = false) {
     const url = endpoint.startsWith('http') ? endpoint : API + endpoint;
@@ -43,7 +49,13 @@ async function _request(method, endpoint, data = null, isFormData = false) {
         }
 
         const json = await res.json();
-        return res.ok ? json : { success: false, ...json };
+        
+        // Enrich response with status code for specific error handling
+        const result = res.ok ? json : { success: false, ...json };
+        if (typeof result === 'object' && result !== null) {
+            result.status = res.status;
+        }
+        return result;
 
     } catch (e) { 
         console.error('Network Error:', e);
@@ -56,11 +68,23 @@ const apiGet    = ep     => _request('GET',    ep);
 const apiPost   = (ep,d) => _request('POST',   ep, d);
 const apiPut    = (ep,d) => _request('PUT',    ep, d);
 const apiDelete = ep     => _request('DELETE', ep);
+const apiPostFile = (ep, fd) => _request('POST', ep, fd, true);
 
 // ── Auth Logic ────────────────────────────────────────────────────────────────
+let userPromise = null;
 async function getCurrentUser() {
-    const r = await apiGet('/auth.php?action=me');
-    return (r && r.success) ? r.user : null;
+    if (window.state.user) return window.state.user;
+    if (userPromise) return userPromise;
+    
+    userPromise = apiGet('/auth.php?action=me').then(r => {
+        if (r && r.success) {
+            window.state.user = r.user;
+            return r.user;
+        }
+        userPromise = null; // Allow retry on failure
+        return null;
+    });
+    return userPromise;
 }
 
 /**
@@ -127,6 +151,21 @@ function escHtml(str) {
     return d.innerHTML;
 }
 
+/**
+ * Normalizes image paths to prevent 404s from redundant prefixes
+ */
+function getImageUrl(path, type = 'photo') {
+    if (!path) return '';
+    // If it's already a full URL
+    if (path.startsWith('http')) return path;
+    // If it already has uploads/ prefix, just point to the root uploads
+    if (path.includes('uploads/')) {
+        return BASE + '/' + path.replace(/^.*uploads\//, 'uploads/');
+    }
+    // Otherwise, it's a raw filename in the images folder
+    return BASE + '/uploads/images/' + path;
+}
+
 // ── Navbar ────────────────────────────────────────────────────────────────────
 async function initNavbar() {
     const nav = document.getElementById('nav-actions');
@@ -135,11 +174,14 @@ async function initNavbar() {
     const user = await getCurrentUser();
     if (user) {
         const dashboard = BASE + `/${user.role}/dashboard.html`;
+        const savedJobs = user.role === 'seeker' ? `<a href="${BASE}/seeker/saved-jobs.html" style="color:white; text-decoration:none; margin-right:10px;"><i class="fas fa-bookmark"></i> Saved</a>` : '';
+        
         nav.innerHTML = `
             <div style="display: flex; align-items: center; gap: 15px;">
-                <span style="color:white; font-size:14px;">Hi, <strong>${escHtml(user.name)}</strong></span>
+                <span style="color:white; font-size:14px; margin-right:5px;">Hi, <strong>${escHtml(user.name)}</strong></span>
+                ${savedJobs}
                 <a href="${dashboard}" style="color:white; text-decoration:none;">Dashboard</a>
-                <button onclick="logout()" style="background:#ff4d4d; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Logout</button>
+                <button onclick="logout()" style="background:#ff4d4d; border:none; color:white; padding:5px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;">Logout</button>
             </div>`;
     } else {
         nav.innerHTML = `

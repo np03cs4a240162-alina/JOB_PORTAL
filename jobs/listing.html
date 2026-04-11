@@ -144,6 +144,7 @@
 <script src="../assets/js/jobs.js"></script>
 <script>
   async function load(kw='', cat='', loc='') {
+    await getCurrentUser(); // Ensure state.user is populated for renderer
     const container = document.getElementById('jobs-container');
     const count     = document.getElementById('result-count');
     container.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#888;">Loading...</p>';

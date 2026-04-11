@@ -118,12 +118,7 @@
       fd.append('image', file);
       
       try {
-          const response = await fetch('../api/upload-image.php', {
-              method: 'POST',
-              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
-              body: fd
-          });
-          const result = await response.json();
+          const result = await apiPostFile('/upload-image.php', fd);
           if(result.success) {
               showAlert('alert-box', 'Logo updated successfully!', 'success');
               const logoUrl = '../uploads/images/' + result.filename;

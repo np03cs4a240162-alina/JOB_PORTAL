@@ -5,56 +5,109 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post a Job - JSTACK</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { background: #f4f7f6; }
+    .form-container { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 120px); padding: 40px 20px; }
+    .form-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 700px; }
+    .form-box h2 { color: #1a56c4; margin-bottom: 30px; font-weight: 700; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 14px; }
+    .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
+    .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: #1a56c4; box-shadow: 0 0 0 4px rgba(26, 86, 196, 0.1); }
+    .btn-submit { background: #1a56c4; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 20px; width: 100%; }
+    .btn-submit:hover { background: #1649a8; transform: translateY(-2px); }
+  </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <a href="dashboard.html" style="color:white;">← Dashboard</a>
+<header class="navbar" style="background: #1a56c4; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px;">
+  <h2 onclick="location.href='../'"><i class="fas fa-cube"></i> JSTACK</h2>
+  <a href="dashboard.html" style="color: white; text-decoration: none; font-size: 14px; font-weight: 500;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 
 <div class="form-container">
-  <div class="form-box" style="max-width:560px;text-align:left;">
-    <h2 style="text-align:center;">Post a New Vacancy</h2>
+  <div class="form-box">
+    <h2>🚀 Post a New Vacancy</h2>
     <div id="alert-box"></div>
 
-    <div class="input-group">
+    <div class="input-group" style="margin-bottom: 20px;">
       <label>Job Title</label>
       <input type="text" id="title" placeholder="e.g. Senior PHP Developer" required>
     </div>
-    <div class="input-group">
-      <label>Company Name</label>
-      <input type="text" id="company" placeholder="Your company name" required>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+    <div class="input-row">
       <div class="input-group">
-        <label>Salary Range</label>
-        <input type="text" id="salary" placeholder="e.g. $800-$1200">
+        <label>Company Name</label>
+        <input type="text" id="company" placeholder="Your company name" required>
       </div>
       <div class="input-group">
-        <label>Category</label>
-        <select id="category">
+        <label>Industry</label>
+        <select id="industry">
           <option value="IT">IT & Software</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Design">UI/UX Design</option>
-          <option value="Finance">Finance</option>
-          <option value="Other">Other</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Education">Education</option>
+          <option value="Banking">Banking & Finance</option>
+          <option value="Marketing">Marketing / Creative</option>
+          <option value="Other">Other Professionals</option>
         </select>
       </div>
     </div>
-    <div class="input-group">
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Job Type</label>
+        <select id="type">
+          <option value="Full Time">Full Time</option>
+          <option value="Part Time">Part Time</option>
+          <option value="Contract">Contract / Project</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Workplace</label>
+        <select id="workplace">
+          <option value="On-site">On-site (Office)</option>
+          <option value="Remote">Remote (WFH)</option>
+          <option value="Hybrid">Hybrid / Flexible</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Salary Range</label>
+        <select id="salary">
+          <option value="Negotiable">Negotiable</option>
+          <option value="Rs. 20,000 - 40,000">Rs. 20k - 40k</option>
+          <option value="Rs. 40,000 - 80,000">Rs. 40k - 80k</option>
+          <option value="Rs. 80,000 - 150,000">Rs. 80k - 150k</option>
+          <option value="Rs. 150,000+">Rs. 150k+</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Application Deadline</label>
+        <input type="date" id="deadline">
+      </div>
+    </div>
+
+    <div class="input-group" style="margin-bottom: 20px;">
       <label>Location</label>
-      <input type="text" id="location" placeholder="e.g. Kathmandu or Remote" required>
+      <input type="text" id="location" placeholder="e.g. Kathmandu, Nepal" required>
     </div>
-    <div class="input-group">
+
+    <div class="input-group" style="margin-bottom: 20px;">
       <label>Job Description</label>
-      <textarea id="description" rows="6" placeholder="Describe responsibilities and requirements..." required></textarea>
+      <textarea id="description" rows="5" placeholder="Specify responsibilities, skills, and requirements..." required></textarea>
     </div>
-    <button id="submit-btn" onclick="handlePost()" style="width:100%;">🚀 Post Vacancy</button>
+
+    <button id="submit-btn" class="btn-submit" onclick="handlePost()">🚀 Post Job Opportunity</button>
   </div>
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer style="padding: 20px; text-align: center; color: #888; font-size: 14px;">
+  <p>© 2026 JSTACK</p>
+</footer>
 
 <script src="../assets/js/main.js"></script>
 <script>
@@ -62,33 +115,45 @@
 
   async function init() {
     currentUser = await checkAuth('employer');
+    
+    // Set default deadline to 14 days from now
+    const d = new Date();
+    d.setDate(d.getDate() + 14);
+    document.getElementById('deadline').value = d.toISOString().split('T')[0];
   }
 
   async function handlePost() {
-    const title = document.getElementById('title').value.trim();
-    const company = document.getElementById('company').value.trim();
-    const location = document.getElementById('location').value.trim();
-    const description = document.getElementById('description').value.trim();
-    if (!title || !company || !location || !description) {
-      showAlert('alert-box', 'Please fill all required fields.', 'error'); return;
+    const formData = {
+      title: document.getElementById('title').value.trim(),
+      company: document.getElementById('company').value.trim(),
+      industry: document.getElementById('industry').value,
+      type: document.getElementById('type').value,
+      workplace: document.getElementById('workplace').value,
+      salary: document.getElementById('salary').value,
+      deadline: document.getElementById('deadline').value,
+      location: document.getElementById('location').value.trim(),
+      description: document.getElementById('description').value.trim(),
+      employer_id: currentUser.id
+    };
+
+    if (!formData.title || !formData.company || !formData.location || !formData.description) {
+      showAlert('alert-box', 'Please fill all required fields marked as required.', 'error');
+      return;
     }
-    setLoading('submit-btn', true, 'Posting...');
-    const res = await apiPost('/jobs.php', {
-      title, company, location, description,
-      salary:   document.getElementById('salary').value.trim(),
-      category: document.getElementById('category').value,
-      employer_id: currentUser.id,
-    });
+
+    setLoading('submit-btn', true, 'Processing...');
+    const res = await apiPost('/jobs.php', formData);
     setLoading('submit-btn', false);
+
     if (res.success) {
-      showAlert('alert-box', 'Job posted! Redirecting...', 'success');
+      showAlert('alert-box', 'Vacancy published successfully!', 'success');
       setTimeout(() => location.href = 'dashboard.html', 1500);
     } else {
-      showAlert('alert-box', res.error || 'Failed to post job.', 'error');
+      showAlert('alert-box', res.error || 'Failed to post vacancy.', 'error');
     }
   }
 
   init();
 </script>
 </body>
-</html>
+</html>

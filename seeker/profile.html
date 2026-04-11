@@ -161,12 +161,7 @@
       fd.append('image', file);
       
       try {
-          const response = await fetch('../api/upload-image.php', {
-              method: 'POST',
-              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
-              body: fd
-          });
-          const result = await response.json();
+          const result = await apiPostFile('/upload-image.php', fd);
           if(result.success) {
               showAlert('alert-box', 'Profile photo updated successfully!', 'success');
               const photoUrl = '../uploads/images/' + result.filename;
@@ -195,7 +190,10 @@
     if (res.success) {
       showAlert('alert-box', 'Profile successfully updated!', 'success');
       document.getElementById('profile-name').textContent = name;
-      document.getElementById('avatar-initial').textContent = name.charAt(0).toUpperCase();
+      const initialsElem = document.getElementById('avatar-initial');
+      if (initialsElem) {
+          initialsElem.textContent = name.charAt(0).toUpperCase();
+      }
     } else {
       showAlert('alert-box', res.error || 'Failed to update profile.', 'error');
     }

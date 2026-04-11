@@ -16,26 +16,50 @@ $user   = requireLogin();
  */
 if ($method === 'GET') {
     $profileData = [];
-    
-    // Fetch basic user info first (Name and Email)
-    $stmtUser = $db->prepare('SELECT name, email FROM users WHERE id = ?');
-    $stmtUser->execute([$user['id']]);
-    $basicInfo = $stmtUser->fetch(PDO::FETCH_ASSOC);
+    $targetId = isset($_GET['id']) ? (int)$_GET['id'] : $user['id'];
 
-    if ($user['role'] === 'seeker') {
-        $stmt = $db->prepare('SELECT phone, skills, experience, bio FROM seeker_profiles WHERE user_id = ?');
-        $stmt->execute([$user['id']]);
+    // Security: Only admins can view others by default, 
+    // BUT employers should be able to view SEEKERS who applied to their jobs.
+    // For simplicity, we allow employers to view any seeker's basic profile 
+    // and seekers to view any employer's basic profile.
+    if ($targetId !== $user['id']) {
+        // Fetch target user's basic info
+        $stmtT = $db->prepare('SELECT id, name, email, role FROM users WHERE id = ?');
+        $stmtT->execute([$targetId]);
+        $targetUser = $stmtT->fetch(PDO::FETCH_ASSOC);
+
+        if (!$targetUser) jsonResponse(['success' => false, 'error' => 'User not found.'], 404);
+
+        // Authorization check
+        if ($user['role'] === 'seeker' && $targetUser['role'] === 'seeker') {
+             jsonResponse(['success' => false, 'error' => 'Permission denied.'], 403);
+        }
+        // If Employer is viewing Seeker, or Seeker is viewing Employer, we allow.
+        
+        $basicInfo = $targetUser;
+        $targetRole = $targetUser['role'];
+    } else {
+        // Fetch self basic info
+        $stmtUser = $db->prepare('SELECT name, email FROM users WHERE id = ?');
+        $stmtUser->execute([$user['id']]);
+        $basicInfo = $stmtUser->fetch(PDO::FETCH_ASSOC);
+        $targetRole = $user['role'];
+    }
+
+    if ($targetRole === 'seeker') {
+        $stmt = $db->prepare('SELECT phone, skills, experience, bio, photo FROM seeker_profiles WHERE user_id = ?');
+        $stmt->execute([$targetId]);
         $p = $stmt->fetch(PDO::FETCH_ASSOC);
         $profileData = array_merge($basicInfo ?? [], $p ?: []);
     } 
-    elseif ($user['role'] === 'employer') {
-        $stmt = $db->prepare('SELECT company, industry, website, about FROM employer_profiles WHERE user_id = ?');
-        $stmt->execute([$user['id']]);
+    elseif ($targetRole === 'employer') {
+        $stmt = $db->prepare('SELECT company, industry, website, about, logo FROM employer_profiles WHERE user_id = ?');
+        $stmt->execute([$targetId]);
         $p = $stmt->fetch(PDO::FETCH_ASSOC);
         $profileData = array_merge($basicInfo ?? [], $p ?: []);
     } 
     else {
-        jsonResponse(['success' => false, 'error' => 'Admins do not have extended profiles.'], 400);
+        jsonResponse(['success' => false, 'error' => 'Extended profile not available for this role.'], 400);
     }
 
     jsonResponse(['success' => true, 'data' => $profileData]);
