@@ -2,10 +2,11 @@
  * ── 1. CONFIGURATION & AUTO-PATHING ──
  */
 const getBase = () => {
-    // Automatically detects folder name (e.g., /smartjobportal)
     const path = window.location.pathname;
     const segments = path.split('/');
-    return window.location.hostname === 'localhost' ? `/${segments[1]}` : '';
+    const isLocal = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+    // If local, return the first segment as the base (e.g., /newjob)
+    return isLocal && segments[1] ? `/${segments[1]}` : '';
 };
 
 const BASE = getBase(); 
