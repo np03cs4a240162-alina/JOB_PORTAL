@@ -13,7 +13,18 @@ $db     = getDB();
  * ── GET: Fetch Trainings ──
  */
 if ($method === 'GET') {
-    // 1. Fetch Employer's own trainings
+    $id = (int)($_GET['id'] ?? 0);
+
+    // 1. Fetch Single Training Details
+    if ($id > 0) {
+        $stmt = $db->prepare('SELECT t.*, u.name AS employer_name FROM trainings t LEFT JOIN users u ON t.employer_id = u.id WHERE t.id = ?');
+        $stmt->execute([$id]);
+        $t = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$t) jsonResponse(['success' => false, 'error' => 'Training not found.'], 404);
+        jsonResponse(['success' => true, 'data' => $t]);
+    }
+
+    // 2. Fetch Employer's own trainings
     if (isset($_GET['mine'])) {
         $user = checkAuth('employer');
         $stmt = $db->prepare('SELECT * FROM trainings WHERE employer_id = ? ORDER BY created_at DESC');
@@ -21,22 +32,43 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
-    // 2. Admin view of all trainings
+    // 3. Admin view of all trainings
     if (isset($_GET['admin_view'])) {
         checkAuth('admin');
         $stmt = $db->query('SELECT t.*, u.name AS employer_name FROM trainings t LEFT JOIN users u ON t.employer_id = u.id ORDER BY t.created_at DESC');
         jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
-    // 3. Public view of active trainings
+    // 4. Public view of active trainings
     $stmt = $db->query("SELECT t.*, u.name AS employer_name FROM trainings t LEFT JOIN users u ON t.employer_id = u.id WHERE t.status = 'active' ORDER BY t.created_at DESC");
     jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
 /**
- * ── POST: Create Training ──
+ * ── POST: Create or Enroll ──
  */
 if ($method === 'POST') {
+    $action = $_GET['action'] ?? '';
+
+    // A. ENROLL IN TRAINING
+    if ($action === 'enroll') {
+        $user = requireLogin();
+        $data = JSON_decode(file_get_contents('php://input'), true);
+        $trainingId = (int)($data['training_id'] ?? 0);
+
+        if (!$trainingId) jsonResponse(['success' => false, 'error' => 'Training ID is required.'], 400);
+
+        try {
+            $stmt = $db->prepare('INSERT INTO training_enrollments (training_id, user_id) VALUES (?, ?)');
+            $stmt->execute([$trainingId, $user['id']]);
+            jsonResponse(['success' => true, 'message' => 'Enrolled successfully!']);
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) jsonResponse(['success' => false, 'error' => 'You are already registered for this training.'], 409);
+            jsonResponse(['success' => false, 'error' => 'Enrollment failed.'], 500);
+        }
+    }
+
+    // B. CREATE TRAINING (Employer Only)
     $user = checkAuth('employer');
     $data = JSON_decode(file_get_contents('php://input'), true);
 
