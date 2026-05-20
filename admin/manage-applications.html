@@ -67,15 +67,56 @@
             color: var(--text-main);
         }
         .search-bar-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
             margin-bottom: 32px;
         }
-        @media (max-width: 576px) {
-            .search-bar-grid {
-                grid-template-columns: 1fr;
-            }
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 10px 24px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-dim);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(244, 124, 72, 0.04);
+        }
+        .filter-tab.active {
+            background: var(--primary-gradient, var(--primary));
+            border-color: transparent;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(244, 124, 72, 0.25);
+        }
+        .filter-tab-count {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 100px;
+            transition: all 0.2s ease;
+        }
+        .filter-tab.active .filter-tab-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+        .filter-tab:not(.active) .filter-tab-count {
+            background: var(--bg-deep);
+            color: var(--text-muted);
         }
     </style>
 </head>
@@ -93,13 +134,13 @@
         </div>
 
         <div class="search-bar-grid">
-            <select id="filter-status" onchange="filterApps()">
-                <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="rejected">Rejected</option>
-            </select>
-            <input type="text" id="filter-search" placeholder="Search applicant names or vacancy titles..." oninput="filterApps()">
+            <div class="filter-tabs" id="status-tabs">
+                <!-- Status filter tabs will be injected here dynamically -->
+            </div>
+            <div style="position: relative; width: 100%;">
+                <i class="fas fa-search" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px;"></i>
+                <input type="text" id="filter-search" placeholder="Search applicant names, emails, or vacancy titles..." oninput="filterApps()" style="width: 100%; padding: 14px 20px 14px 48px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-deep); color: var(--text-main); font-size: 14px; font-weight: 600; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
         </div>
 
         <div id="alert-box"></div>
@@ -138,21 +179,57 @@
 <script src="../assets/js/main.js"></script>
 <script>
     let allApps = [];
+    let currentTabStatus = ''; // Default is 'All'
 
     async function init() {
         await checkAuth('admin');
         const data = await apiGet('/applications.php?admin_view=1');
         allApps = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
-        renderTable(allApps);
+        renderTabs();
+        filterApps();
+    }
+
+    function renderTabs() {
+        const counts = {
+            all: allApps.length,
+            pending: allApps.filter(a => a.status === 'pending').length,
+            accepted: allApps.filter(a => a.status === 'accepted').length,
+            rejected: allApps.filter(a => a.status === 'rejected').length
+        };
+        const tabs = [
+            { id: '', label: 'All', count: counts.all, icon: 'fa-list' },
+            { id: 'pending', label: 'Pending', count: counts.pending, icon: 'fa-clock' },
+            { id: 'accepted', label: 'Accepted', count: counts.accepted, icon: 'fa-circle-check' },
+            { id: 'rejected', label: 'Rejected', count: counts.rejected, icon: 'fa-circle-xmark' }
+        ];
+        const container = document.getElementById('status-tabs');
+        container.innerHTML = tabs.map(t => `
+            <button class="filter-tab ${currentTabStatus === t.id ? 'active' : ''}" onclick="selectTab('${t.id}')">
+                <i class="fa-solid ${t.icon}"></i>
+                <span>${t.label}</span>
+                <span class="filter-tab-count">${t.count}</span>
+            </button>
+        `).join('');
+    }
+
+    function selectTab(status) {
+        currentTabStatus = status;
+        renderTabs();
+        filterApps();
     }
 
     function filterApps() {
-        const status = document.getElementById('filter-status').value;
-        const q      = document.getElementById('filter-search').value.toLowerCase();
-        renderTable(allApps.filter(a =>
-            (!status || a.status === status) &&
-            ((a.seeker_name||'').toLowerCase().includes(q) || (a.job_title||'').toLowerCase().includes(q))
-        ));
+        const q = document.getElementById('filter-search').value.toLowerCase();
+        const filtered = allApps.filter(a => {
+            const matchStatus = !currentTabStatus || a.status === currentTabStatus;
+            const matchSearch = 
+                (a.seeker_name || '').toLowerCase().includes(q) ||
+                (a.seeker_email || '').toLowerCase().includes(q) ||
+                (a.job_title || '').toLowerCase().includes(q) ||
+                (a.employer_name || '').toLowerCase().includes(q);
+            return matchStatus && matchSearch;
+        });
+        renderTable(filtered);
     }
 
     function renderTable(apps) {
@@ -162,17 +239,17 @@
             return; 
         }
         tbody.innerHTML = apps.map(a => `
-        <tr>
+        <tr class="animate-in" style="animation-duration: 0.2s;">
             <td style="font-weight: 800; color: var(--text-main); font-size: 15px;">${escHtml(a.seeker_name)}</td>
-            <td style="color: var(--text-muted); font-weight: 600;">${escHtml(a.seeker_email)}</td>
+            <td style="color: var(--text-muted); font-weight: 600;">${escHtml(a.seeker_email || 'N/A')}</td>
             <td style="color: var(--primary); font-weight: 700;">${escHtml(a.job_title)}</td>
-            <td style="color: var(--text-main); font-weight: 600;">${escHtml(a.employer_name||'N/A')}</td>
+            <td style="color: var(--text-main); font-weight: 600;">${escHtml(a.employer_name || 'N/A')}</td>
             <td style="color: var(--text-dim); font-size: 13px;">${new Date(a.applied_at).toLocaleDateString()}</td>
             <td>
                 <span class="badge ${a.status === 'accepted' ? 'badge-success' : (a.status === 'rejected' ? 'badge-error' : 'badge-warning')}">${a.status.toUpperCase()}</span>
             </td>
             <td>
-                <select onchange="updateStatus(${a.id},this.value)" style="padding: 6px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 13px; font-weight: 600; background: var(--bg-surface); color: var(--text-main);">
+                <select onchange="updateStatus(${a.id}, this.value)" style="padding: 6px 12px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 13px; font-weight: 600; background: var(--bg-surface); color: var(--text-main); cursor: pointer; outline: none; transition: 0.2s;">
                     <option value="pending"  ${a.status==='pending'  ?'selected':''}>Pending</option>
                     <option value="accepted" ${a.status==='accepted' ?'selected':''}>Accept</option>
                     <option value="rejected" ${a.status==='rejected' ?'selected':''}>Reject</option>
@@ -182,9 +259,9 @@
     }
 
     async function updateStatus(id, status) {
-        const res = await apiPut(`/applications.php?id=${id}`, { status });
+        const res = await apiPost('/applications.php?action=update-status', { id: id, status: status });
         if (res.success) { 
-            showAlert('alert-box', `Application updated to ${status}.`, 'success'); 
+            showAlert('alert-box', `Application marked as ${status.toUpperCase()} successfully!`, 'success'); 
             init(); 
         } else {
             showAlert('alert-box', res.error || 'Update failed.', 'error');

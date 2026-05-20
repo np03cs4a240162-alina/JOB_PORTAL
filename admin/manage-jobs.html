@@ -77,6 +77,81 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* Modal Custom Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 32px;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 850;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+            outline: none;
+            line-height: 1;
+        }
+        .modal-close-btn:hover {
+            color: var(--primary);
+        }
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -120,6 +195,117 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT JOB MODAL -->
+<div id="edit-job-modal" class="modal-overlay" onclick="closeModal('edit-job-modal')">
+    <div class="modal-content animate-in" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-briefcase" style="color: var(--primary); margin-right: 8px;"></i> Edit Job Listing Details</h3>
+            <button class="modal-close-btn" onclick="closeModal('edit-job-modal')">&times;</button>
+        </div>
+        <div id="edit-job-alert"></div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-job-id">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-title">Job Title</label>
+                    <input type="text" id="edit-title" placeholder="e.g. Senior Software Engineer" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-company">Company Name</label>
+                    <input type="text" id="edit-company" placeholder="e.g. Cedar Gate Technologies" required>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-salary">Salary Range</label>
+                    <input type="text" id="edit-salary" placeholder="e.g. Rs. 80,000 - 1,20,000">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-category">Job Category</label>
+                    <select id="edit-category">
+                        <option value="IT">Information Technology (IT)</option>
+                        <option value="Design">Creative & Design</option>
+                        <option value="Marketing">Marketing & Sales</option>
+                        <option value="Management">Management & HR</option>
+                        <option value="Finance">Finance & Banking</option>
+                        <option value="Healthcare">Healthcare & Medicine</option>
+                        <option value="Education">Education & Training</option>
+                        <option value="Other">Other / Miscellaneous</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-type">Job Type</label>
+                    <select id="edit-type">
+                        <option value="Full Time">Full Time</option>
+                        <option value="Part Time">Part Time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Freelance">Freelance</option>
+                    </select>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-experience-level">Experience Level</label>
+                    <select id="edit-experience-level">
+                        <option value="entry">Entry Level</option>
+                        <option value="mid">Mid Level</option>
+                        <option value="senior">Senior Level</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-workplace">Workplace Type</label>
+                    <select id="edit-workplace">
+                        <option value="On-site">On-site</option>
+                        <option value="Remote">Remote</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-industry">Industry</label>
+                    <input type="text" id="edit-industry" placeholder="e.g. Fintech, Healthcare">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-location">Location</label>
+                    <input type="text" id="edit-location" placeholder="e.g. Kathmandu, Nepal" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-deadline">Application Deadline</label>
+                    <input type="date" id="edit-deadline">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status">
+                        <option value="active">Active (Accepting applications)</option>
+                        <option value="closed">Closed (Applications paused)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="edit-description">Job Description & Requirements</label>
+                <textarea id="edit-description" rows="5" placeholder="Specify responsibilities, requirements, and job duties..." required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-glass" onclick="closeModal('edit-job-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveJobEdit()">Save Job Details <i class="fas fa-check" style="margin-left: 6px;"></i></button>
         </div>
     </div>
 </div>
@@ -172,10 +358,77 @@
                 <span class="badge ${j.status === 'active' ? 'badge-success' : 'badge-error'}">${j.status.toUpperCase()}</span>
             </td>
             <td style="display: flex; gap: 8px;">
-                <button class="btn btn-glass" onclick="location.href='../jobs/detail.html?id=${j.id}'" style="padding: 6px 12px; font-size: 12px;">View</button>
+                <button class="btn btn-glass" onclick="location.href='../jobs/detail.html?id=${j.id}'" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-eye"></i> View</button>
+                <button class="btn btn-glass" onclick="openEditJobModal(${j.id})" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-edit"></i> Edit</button>
                 <button class="btn btn-glass" onclick="deleteJob(${j.id})" style="padding: 6px 12px; font-size: 12px; border-color: rgba(244,67,54,0.3); color: #f44336;">Delete</button>
             </td>
         </tr>`).join('');
+    }
+
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    async function openEditJobModal(id) {
+        document.getElementById('edit-job-alert').innerHTML = '';
+        const res = await apiGet(`/jobs.php?id=${id}`);
+        if (!res || !res.success || !res.data) {
+            alert(res.error || 'Failed to fetch job listing.');
+            return;
+        }
+
+        const j = res.data;
+        document.getElementById('edit-job-id').value = j.id;
+        document.getElementById('edit-title').value = j.title || '';
+        document.getElementById('edit-company').value = j.company || '';
+        document.getElementById('edit-salary').value = j.salary || '';
+        document.getElementById('edit-category').value = j.category || 'IT';
+        document.getElementById('edit-type').value = j.type || 'Full Time';
+        document.getElementById('edit-experience-level').value = j.experience_level || 'entry';
+        document.getElementById('edit-workplace').value = j.workplace || 'On-site';
+        document.getElementById('edit-industry').value = j.industry || '';
+        document.getElementById('edit-location').value = j.location || '';
+        document.getElementById('edit-deadline').value = j.deadline || '';
+        document.getElementById('edit-status').value = j.status || 'active';
+        document.getElementById('edit-description').value = j.description || '';
+
+        openModal('edit-job-modal');
+    }
+
+    async function saveJobEdit() {
+        const id = document.getElementById('edit-job-id').value;
+        const data = {
+            title: document.getElementById('edit-title').value.trim(),
+            company: document.getElementById('edit-company').value.trim(),
+            salary: document.getElementById('edit-salary').value.trim(),
+            category: document.getElementById('edit-category').value,
+            type: document.getElementById('edit-type').value,
+            experience_level: document.getElementById('edit-experience-level').value,
+            workplace: document.getElementById('edit-workplace').value,
+            industry: document.getElementById('edit-industry').value.trim(),
+            location: document.getElementById('edit-location').value.trim(),
+            deadline: document.getElementById('edit-deadline').value,
+            status: document.getElementById('edit-status').value,
+            description: document.getElementById('edit-description').value.trim()
+        };
+
+        if (!data.title || !data.company || !data.location || !data.description) {
+            showAlert('edit-job-alert', 'Job Title, Company Name, Location, and Description are required.', 'error');
+            return;
+        }
+
+        const res = await apiPut(`/jobs.php?id=${id}`, data);
+        if (res.success) {
+            closeModal('edit-job-modal');
+            showAlert('alert-box', 'Job vacancy updated successfully!', 'success');
+            loadJobs();
+        } else {
+            showAlert('edit-job-alert', res.error || 'Failed to update job.', 'error');
+        }
     }
 
     async function deleteJob(id) {

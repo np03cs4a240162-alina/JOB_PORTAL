@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Secure administrative analytics and system performance reports.">
     <title>System Performance Reports | SmartJob Nepal</title>
-    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,8 +17,69 @@
             min-height: 100vh;
         }
         .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
             padding-top: 120px;
             padding-bottom: 60px;
+        }
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .profile-side-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+            overflow: hidden;
+        }
+        .side-nav {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .side-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .side-nav-link:hover, .side-nav-link.active {
+            background: rgba(244, 124, 72, 0.08);
+            color: var(--primary);
         }
         .dashboard-panel {
             background: var(--bg-surface);
@@ -32,29 +93,34 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
             border-bottom: 1px solid var(--border);
             padding-bottom: 16px;
         }
         .panel-header h3 {
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: -1px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
             color: var(--text-main);
         }
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 16px;
             margin-bottom: 32px;
         }
         .stat-card {
             background: var(--bg-surface);
             border: 1px solid var(--border);
+            border-top: 4px solid var(--primary);
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 24px 16px;
             text-align: center;
             box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
         }
         .table-responsive {
             width: 100%;
@@ -82,6 +148,28 @@
             font-weight: 500;
             color: var(--text-main);
         }
+        .chart-wrapper {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        @media print {
+            .sidebar, .global-nav, .btn, footer {
+                display: none !important;
+            }
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+                padding-top: 20px;
+            }
+            .dashboard-panel {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -89,88 +177,127 @@
 <header class="global-nav"></header>
 
 <div class="container dashboard-layout">
-    <div class="dashboard-panel animate-in">
-        <div class="panel-header">
-            <h3>System Performance Overview</h3>
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <button class="btn btn-glass" onclick="window.print()" style="font-size: 13px; padding: 10px 16px;">
-                    <i class="fas fa-print" style="margin-right: 6px;"></i> Print Report
-                </button>
-                <a href="dashboard.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
-                    <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard
-                </a>
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="profile-side-card">
+            <div class="avatar-container">
+                <span id="sb-initial">A</span>
             </div>
+            <h3 id="sb-name" style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Admin Command</h3>
+            <p style="color: #ef4444; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 24px;">Secure Command</p>
+            <a href="../" class="btn btn-glass" style="width: 100%; padding: 10px; font-size: 13px;">View Live Portal</a>
         </div>
 
-        <p id="report-date" style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin-bottom: 32px;"></p>
+        <nav class="side-nav">
+            <a href="dashboard.html" class="side-nav-link"><i class="fas fa-shield-halved"></i> Dashboard</a>
+            <a href="manage-users.html" class="side-nav-link"><i class="fas fa-users-gear"></i> Manage Users</a>
+            <a href="manage-jobs.html" class="side-nav-link"><i class="fas fa-briefcase"></i> Manage Jobs</a>
+            <a href="manage-trainings.html" class="side-nav-link"><i class="fas fa-graduation-cap"></i> Manage Trainings</a>
+            <a href="manage-applications.html" class="side-nav-link"><i class="fas fa-file-invoice"></i> Applications</a>
+            <a href="reports.html" class="side-nav-link active"><i class="fas fa-chart-line"></i> System Reports</a>
+            <a href="history.php" class="side-nav-link"><i class="fas fa-history"></i> Audit History</a>
+        </nav>
+    </aside>
 
-        <div class="stat-grid">
-            <div class="stat-card">
-                <p id="t-jobs" style="font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 8px;">--</p>
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Jobs Posted</p>
-            </div>
-            <div class="stat-card">
-                <p id="t-users" style="font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 8px;">--</p>
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Users</p>
-            </div>
-            <div class="stat-card">
-                <p id="t-apps" style="font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 8px;">--</p>
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Applications</p>
-            </div>
-            <div class="stat-card">
-                <p id="t-employers" style="font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 8px;">--</p>
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Employers</p>
-            </div>
-            <div class="stat-card">
-                <p id="t-seekers" style="font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 8px;">--</p>
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Seekers</p>
-            </div>
-            <div class="stat-card">
-                <p id="t-accepted" style="font-size: 28px; font-weight: 900; color: #10b981; line-height: 1; margin-bottom: 8px;">--</p>
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Accepted</p>
-            </div>
+    <!-- MAIN PANEL -->
+    <main class="main-area">
+        <div style="margin-bottom: 36px;">
+            <h1 style="font-size: 32px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 6px;">System Reports</h1>
+            <p style="color: var(--text-muted); font-size: 15px; font-weight: 500;">Secure, real-time analytics and funnel conversion statistics.</p>
         </div>
 
-        <div style="background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 40px;">
-            <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 24px;">Top Rated Corporate Partners</h3>
-            <div style="height: 350px; position: relative;">
-                <canvas id="companyChart"></canvas>
+        <div class="dashboard-panel animate-in">
+            <div class="panel-header">
+                <h3>Analytics Overview</h3>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn btn-glass" onclick="window.print()" style="font-size: 13px; padding: 10px 16px;">
+                        <i class="fas fa-print" style="margin-right: 6px;"></i> Print Report
+                    </button>
+                </div>
+            </div>
+
+            <p id="report-date" style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin-bottom: 32px;"></p>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <p id="t-jobs" style="font-size: 28px; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 8px;">--</p>
+                    <p style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Jobs Posted</p>
+                </div>
+                <div class="stat-card" style="border-top-color: #6366f1;">
+                    <p id="t-users" style="font-size: 28px; font-weight: 900; color: #6366f1; line-height: 1; margin-bottom: 8px;">--</p>
+                    <p style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Total Users</p>
+                </div>
+                <div class="stat-card" style="border-top-color: #f59e0b;">
+                    <p id="t-apps" style="font-size: 28px; font-weight: 900; color: #f59e0b; line-height: 1; margin-bottom: 8px;">--</p>
+                    <p style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Applications</p>
+                </div>
+                <div class="stat-card" style="border-top-color: #8b5cf6;">
+                    <p id="t-employers" style="font-size: 28px; font-weight: 900; color: #8b5cf6; line-height: 1; margin-bottom: 8px;">--</p>
+                    <p style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Employers</p>
+                </div>
+                <div class="stat-card" style="border-top-color: #ec4899;">
+                    <p id="t-seekers" style="font-size: 28px; font-weight: 900; color: #ec4899; line-height: 1; margin-bottom: 8px;">--</p>
+                    <p style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Seekers</p>
+                </div>
+                <div class="stat-card" style="border-top-color: #10b981;">
+                    <p id="t-accepted" style="font-size: 28px; font-weight: 900; color: #10b981; line-height: 1; margin-bottom: 8px;">--</p>
+                    <p style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Accepted</p>
+                </div>
+            </div>
+
+            <!-- CHART WRAPPER -->
+            <div class="chart-wrapper">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                    <div>
+                        <h4 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Top Rated Corporate Partners</h4>
+                        <p style="font-size: 12px; color: var(--text-dim); font-weight: 600;">Mean rating scores grouped by company submissions (1-5 Scale)</p>
+                    </div>
+                    <span style="font-size: 18px; color: var(--primary);"><i class="fa-solid fa-ranking-star"></i></span>
+                </div>
+                <div style="height: 380px; position: relative;">
+                    <canvas id="companyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- REPORT FUNNEL TABLE -->
+            <div class="table-responsive">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Count Details</th>
+                            <th>Pipeline Status</th>
+                            <th>Conversion Audit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-dim);">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <div class="table-responsive">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Count</th>
-                        <th>Status</th>
-                        <th>Performance</th>
-                    </tr>
-                </thead>
-                <tbody id="report-table">
-                    <tr>
-                        <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-dim);">
-                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    </main>
 </div>
 
-<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
-    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
-        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
-    </div>
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px; text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+    <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
 </footer>
 
 <script src="../assets/js/main.js"></script>
 <script>
     async function init() {
-        await checkAuth('admin');
-        document.getElementById('report-date').textContent = 'Report Generation Date: ' + new Date().toLocaleString();
+        const user = await checkAuth('admin');
+        if (user) {
+            document.getElementById('sb-name').textContent = user.name;
+            document.getElementById('sb-initial').textContent = user.name.charAt(0).toUpperCase();
+        }
+        
+        document.getElementById('report-date').textContent = 'Generated on: ' + new Date().toLocaleString();
         
         const res = await apiGet('/dashboard-stats.php');
         if (!res.success) return;
@@ -185,74 +312,117 @@
         
         const rate = s.total_applications > 0 ? ((s.accepted_applications/s.total_applications)*100).toFixed(1) : '0.0';
         document.getElementById('report-table').innerHTML = `
-        <tr>
+        <tr class="animate-in" style="animation-duration: 0.15s;">
             <td style="font-weight: 800; color: var(--text-main);">User Base Metrics</td>
-            <td style="font-weight: 600; color: var(--text-main);">${s.total_users} active accounts</td>
+            <td style="font-weight: 600; color: var(--text-main);"><i class="fas fa-users" style="color:#6366f1; margin-right:8px; width:16px;"></i> ${s.total_users} active accounts</td>
             <td><span class="badge badge-success">STABLE</span></td>
             <td style="font-weight: 600; color: var(--text-muted);">Healthy growth</td>
         </tr>
-        <tr>
+        <tr class="animate-in" style="animation-duration: 0.2s;">
             <td style="font-weight: 800; color: var(--text-main);">Job Listings Vault</td>
-            <td style="font-weight: 600; color: var(--text-main);">${s.total_jobs} total openings</td>
+            <td style="font-weight: 600; color: var(--text-main);"><i class="fas fa-briefcase" style="color:var(--primary); margin-right:8px; width:16px;"></i> ${s.total_jobs} total openings</td>
             <td><span class="badge badge-success">ACTIVE</span></td>
             <td style="font-weight: 600; color: var(--text-muted);">${s.active_jobs} live openings</td>
         </tr>
-        <tr>
+        <tr class="animate-in" style="animation-duration: 0.25s;">
             <td style="font-weight: 800; color: var(--text-main);">Application Funnel</td>
-            <td style="font-weight: 600; color: var(--text-main);">${s.total_applications} total submissions</td>
+            <td style="font-weight: 600; color: var(--text-main);"><i class="fas fa-file-invoice" style="color:#f59e0b; margin-right:8px; width:16px;"></i> ${s.total_applications} total submissions</td>
             <td><span class="badge badge-warning">PROCESSING</span></td>
             <td style="font-weight: 600; color: var(--text-muted);">${s.pending_applications} pending audit</td>
         </tr>
-        <tr>
+        <tr class="animate-in" style="animation-duration: 0.3s;">
             <td style="font-weight: 800; color: var(--text-main);">Funnel Conversion Rate</td>
-            <td style="font-weight: 600; color: var(--text-main);">${rate}% interview conversion</td>
+            <td style="font-weight: 600; color: var(--text-main);"><i class="fas fa-percent" style="color:#10b981; margin-right:8px; width:16px;"></i> ${rate}% interview conversion</td>
             <td><span class="badge ${parseFloat(rate) >= 15 ? 'badge-success' : 'badge-warning'}">${parseFloat(rate) >= 15 ? 'EXCELLENT' : 'OPTIMIZING'}</span></td>
             <td style="font-weight: 600; color: var(--text-muted);">${parseFloat(rate) >= 15 ? 'Exceeding target' : 'Funnel optimization in progress'}</td>
         </tr>`;
 
         if (res.company_stats && res.company_stats.length > 0) {
             renderCompanyChart(res.company_stats);
+        } else {
+            document.querySelector('.chart-wrapper').style.display = 'none';
         }
     }
 
     function renderCompanyChart(data) {
-        const ctx = document.getElementById('companyChart').getContext('2d');
-        const isDark = document.body.classList.contains('dark-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        const textColor = isDark ? '#f8fafc' : '#0f172a';
-        const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+        const canvas = document.getElementById('companyChart');
+        const ctx = canvas.getContext('2d');
+        
+        // Dynamic theme checking
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDark ? '#cbd5e1' : '#475569';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.05)';
+        
+        // Beautiful luminous vertical gradient for the bars
+        const gradient = ctx.createLinearGradient(0, 0, 0, 380);
+        gradient.addColorStop(0, 'rgba(244, 124, 72, 1)');      // Vibrant primary orange
+        gradient.addColorStop(0.5, 'rgba(244, 124, 72, 0.6)');    // Luminous middle glow
+        gradient.addColorStop(1, 'rgba(244, 124, 72, 0.1)');     // Soft overlay bottom fade
 
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: data.map(item => item.company),
                 datasets: [{
-                    label: 'Corporate Rating Score (1-5 Scale)',
+                    label: 'Mean Rating Score',
                     data: data.map(item => item.avg_rating),
-                    backgroundColor: '#f47c48',
+                    backgroundColor: gradient,
                     borderColor: '#f47c48',
-                    borderWidth: 1,
-                    borderRadius: 8
+                    borderWidth: 2,
+                    borderRadius: 12,
+                    borderSkipped: false,
+                    hoverBackgroundColor: 'rgba(244, 124, 72, 0.95)',
+                    hoverBorderColor: '#ff905b',
+                    hoverBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        titleColor: isDark ? '#f8fafc' : '#0f172a',
+                        titleFont: { size: 14, weight: '800', family: "'Inter', sans-serif" },
+                        bodyColor: isDark ? '#e2e8f0' : '#334155',
+                        bodyFont: { size: 13, weight: '600', family: "'Inter', sans-serif" },
+                        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                        borderWidth: 1,
+                        padding: 14,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        shadowColor: 'rgba(0,0,0,0.1)',
+                        shadowBlur: 10,
+                        callbacks: {
+                            label: function(context) {
+                                const idx = context.dataIndex;
+                                const votes = data[idx].review_count;
+                                return `Rating: ${context.parsed.y} ★  (${votes} reviews)`;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
-                        ticks: { color: textColor }
+                        ticks: { 
+                            color: textColor,
+                            font: { size: 12, weight: '700', family: "'Inter', sans-serif" }
+                        },
+                        grid: { display: false }
                     },
                     y: {
                         beginAtZero: true,
                         max: 5,
                         ticks: { 
                             stepSize: 1,
-                            color: textColor
+                            color: textColor,
+                            font: { size: 12, weight: '700', family: "'Inter', sans-serif" },
+                            callback: function(value) { return value + ' ★'; }
                         },
                         grid: {
-                            color: gridColor
+                            color: gridColor,
+                            drawTicks: false
                         }
                     }
                 }

@@ -187,11 +187,21 @@ if ($method === 'PUT' && isset($_GET['id'])) {
 
     $status = in_array($data['status'] ?? '', ['active', 'closed']) ? $data['status'] : 'active';
     
-    $stmt = $db->prepare("UPDATE jobs SET title=?, company=?, salary=?, category=?, location=?, description=?, status=? WHERE id=?");
+    $stmt = $db->prepare("UPDATE jobs SET title=?, company=?, salary=?, category=?, type=?, experience_level=?, workplace=?, industry=?, location=?, description=?, deadline=?, status=? WHERE id=?");
     $stmt->execute([
-        sanitize($data['title'] ?? ''), sanitize($data['company'] ?? ''), sanitize($data['salary'] ?? ''),
-        sanitize($data['category'] ?? ''), sanitize($data['location'] ?? ''), sanitize($data['description'] ?? ''), 
-        $status, $jobId
+        sanitize($data['title'] ?? ''),
+        sanitize($data['company'] ?? ''),
+        sanitize($data['salary'] ?? ''),
+        sanitize($data['category'] ?? ''),
+        sanitize($data['type'] ?? 'Full Time'),
+        sanitize($data['experience_level'] ?? 'entry'),
+        sanitize($data['workplace'] ?? 'On-site'),
+        sanitize($data['industry'] ?? ''),
+        sanitize($data['location'] ?? ''),
+        sanitize($data['description'] ?? ''),
+        !empty($data['deadline']) ? sanitize($data['deadline']) : null,
+        $status,
+        $jobId
     ]);
     
     logActivity($user['id'], $user['name'], $user['role'], 'Updated a Job vacancy', "Job ID: " . $jobId . " | Title: " . sanitize($data['title'] ?? ''));

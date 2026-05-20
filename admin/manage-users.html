@@ -78,6 +78,81 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* Modal Custom Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 32px;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 850;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+            outline: none;
+            line-height: 1;
+        }
+        .modal-close-btn:hover {
+            color: var(--primary);
+        }
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +234,111 @@
     </div>
 </div>
 
+<!-- VIEW USER MODAL -->
+<div id="view-user-modal" class="modal-overlay" onclick="closeModal('view-user-modal')">
+    <div class="modal-content animate-in" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-id-card" style="color: var(--primary); margin-right: 8px;"></i> User Account Details</h3>
+            <button class="modal-close-btn" onclick="closeModal('view-user-modal')">&times;</button>
+        </div>
+        <div class="modal-body" id="view-user-body">
+            <!-- Dynamic User Content -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-glass" onclick="closeModal('view-user-modal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div id="edit-user-modal" class="modal-overlay" onclick="closeModal('edit-user-modal')">
+    <div class="modal-content animate-in" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-pen" style="color: var(--primary); margin-right: 8px;"></i> Edit User Account</h3>
+            <button class="modal-close-btn" onclick="closeModal('edit-user-modal')">&times;</button>
+        </div>
+        <div id="edit-modal-alert"></div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-user-id">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-name">Full Name</label>
+                    <input type="text" id="edit-name" placeholder="Full name" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-email">Email Address</label>
+                    <input type="email" id="edit-email" placeholder="email@example.com" required>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-password">Password (Optional)</label>
+                    <input type="password" id="edit-password" placeholder="Leave blank to keep current">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-role">Role</label>
+                    <select id="edit-role" onchange="toggleEditProfileFields()">
+                        <option value="seeker">Job Seeker</option>
+                        <option value="employer">Employer</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dynamic Profile Fields Container -->
+            <div id="seeker-edit-fields" style="display:none; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 8px;">
+                <h4 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Job Seeker Profile</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label for="edit-seeker-phone">Phone Number</label>
+                        <input type="text" id="edit-seeker-phone" placeholder="e.g. 98xxxxxxxx">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label for="edit-seeker-experience">Experience (Years)</label>
+                        <input type="text" id="edit-seeker-experience" placeholder="e.g. 2">
+                    </div>
+                </div>
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label for="edit-seeker-skills">Skills (Comma separated)</label>
+                    <input type="text" id="edit-seeker-skills" placeholder="e.g. PHP, React, UI/UX">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-seeker-bio">Biography</label>
+                    <textarea id="edit-seeker-bio" rows="3" placeholder="Brief self-introduction..."></textarea>
+                </div>
+            </div>
+
+            <div id="employer-edit-fields" style="display:none; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 8px;">
+                <h4 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Employer / Company Profile</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label for="edit-emp-company">Company Name</label>
+                        <input type="text" id="edit-emp-company" placeholder="e.g. Cedar Gate Technologies">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label for="edit-emp-industry">Industry</label>
+                        <input type="text" id="edit-emp-industry" placeholder="e.g. Information Technology">
+                    </div>
+                </div>
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label for="edit-emp-website">Company Website</label>
+                    <input type="url" id="edit-emp-website" placeholder="e.g. https://example.com">
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-emp-about">About Company</label>
+                    <textarea id="edit-emp-about" rows="3" placeholder="Describe your company..."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-glass" onclick="closeModal('edit-user-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveUserEdit()">Save Changes <i class="fas fa-check" style="margin-left: 6px;"></i></button>
+        </div>
+    </div>
+</div>
+
 <footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
     <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
         <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
@@ -211,7 +391,8 @@
             <td><span class="badge ${roleClass[u.role] || 'badge-info'}">${u.role.toUpperCase()}</span></td>
             <td style="color: var(--text-dim); font-size: 13px;">${new Date(u.created_at).toLocaleDateString()}</td>
             <td style="display:flex; gap: 8px;">
-                <button class="btn btn-glass" onclick="editUser(${u.id},'${escHtml(u.name)}')" style="padding: 6px 12px; font-size: 12px;">Edit</button>
+                <button class="btn btn-glass" onclick="viewUser(${u.id})" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-eye"></i> View</button>
+                <button class="btn btn-glass" onclick="openEditModal(${u.id})" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-edit"></i> Edit</button>
                 ${u.role !== 'admin' ? `<button class="btn btn-glass" onclick="deleteUser(${u.id})" style="padding: 6px 12px; font-size: 12px; border-color: rgba(244,67,54,0.3); color: #f44336;">Delete</button>` : ''}
             </td>
         </tr>`).join('');
@@ -238,12 +419,174 @@
         }
     }
 
-    async function editUser(id, name) {
-        const newName = prompt('Enter new name for ' + name, name);
-        if (!newName) return;
-        const res = await apiPut(`/users.php?id=${id}`, { name: newName });
-        if (res.success) loadUsers();
-        else alert(res.error || 'Update failed.');
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    async function viewUser(id) {
+        const u = await apiGet(`/users.php?id=${id}`);
+        if (!u || u.error) {
+            alert(u.error || 'Failed to fetch user.');
+            return;
+        }
+
+        let profileHtml = '';
+        if (u.role === 'seeker') {
+            const prof = u.profile || {};
+            profileHtml = `
+            <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 10px;">
+                <h4 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Candidate Profile</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div>
+                        <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">Phone</span>
+                        <strong style="font-size:14px; color:var(--text-main);">${escHtml(prof.phone || 'N/A')}</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">Experience</span>
+                        <strong style="font-size:14px; color:var(--text-main);">${escHtml(prof.experience ? prof.experience + ' years' : 'N/A')}</strong>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block; margin-bottom:4px;">Skills</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${prof.skills ? prof.skills.split(',').map(s => `<span class="badge badge-info" style="font-size: 11px; padding: 4px 10px;">${escHtml(s.trim())}</span>`).join('') : '<strong style="font-size:14px; color:var(--text-main);">N/A</strong>'}
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">Biography</span>
+                    <p style="font-size:13px; color:var(--text-muted); line-height: 1.6; margin: 4px 0 0 0;">${escHtml(prof.bio || 'No biography written.')}</p>
+                </div>
+            </div>`;
+        } else if (u.role === 'employer') {
+            const prof = u.profile || {};
+            profileHtml = `
+            <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 10px;">
+                <h4 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Corporate Profile</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div>
+                        <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">Company Name</span>
+                        <strong style="font-size:14px; color:var(--text-main);">${escHtml(prof.company || 'N/A')}</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">Industry</span>
+                        <strong style="font-size:14px; color:var(--text-main);">${escHtml(prof.industry || 'N/A')}</strong>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block; margin-bottom: 4px;">Website</span>
+                    ${prof.website ? `<a href="${escHtml(prof.website)}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 700; font-size:14px;"><i class="fas fa-globe"></i> Visit Website</a>` : '<strong style="font-size:14px; color:var(--text-main);">N/A</strong>'}
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">About Company</span>
+                    <p style="font-size:13px; color:var(--text-muted); line-height: 1.6; margin: 4px 0 0 0;">${escHtml(prof.about || 'No company bio written.')}</p>
+                </div>
+            </div>`;
+        }
+
+        document.getElementById('view-user-body').innerHTML = `
+        <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+            <div class="avatar-container" style="margin: 0; width: 64px; height: 64px; font-size: 24px;">
+                ${u.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+                <h4 style="font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 4px;">${escHtml(u.name)}</h4>
+                <p style="color: var(--text-dim); font-size: 13px; font-weight: 600; margin: 0;">${escHtml(u.email)}</p>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div>
+                <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">System Role</span>
+                <span class="badge ${roleClass[u.role] || 'badge-info'}" style="margin-top: 4px; display:inline-block;">${u.role.toUpperCase()}</span>
+            </div>
+            <div>
+                <span style="font-size: 11px; font-weight:800; color: var(--text-dim); text-transform: uppercase; display:block;">Joined Date</span>
+                <strong style="font-size:14px; color:var(--text-main); display:block; margin-top: 4px;">${new Date(u.created_at).toLocaleString()}</strong>
+            </div>
+        </div>
+        ${profileHtml}
+        `;
+        openModal('view-user-modal');
+    }
+
+    async function openEditModal(id) {
+        document.getElementById('edit-modal-alert').innerHTML = '';
+        const u = await apiGet(`/users.php?id=${id}`);
+        if (!u || u.error) {
+            alert(u.error || 'Failed to fetch user.');
+            return;
+        }
+
+        document.getElementById('edit-user-id').value = u.id;
+        document.getElementById('edit-name').value = u.name;
+        document.getElementById('edit-email').value = u.email;
+        document.getElementById('edit-password').value = '';
+        document.getElementById('edit-role').value = u.role;
+
+        // Populate profile fields
+        const prof = u.profile || {};
+        
+        // Seeker profile
+        document.getElementById('edit-seeker-phone').value = prof.phone || '';
+        document.getElementById('edit-seeker-experience').value = prof.experience || '';
+        document.getElementById('edit-seeker-skills').value = prof.skills || '';
+        document.getElementById('edit-seeker-bio').value = prof.bio || '';
+
+        // Employer profile
+        document.getElementById('edit-emp-company').value = prof.company || '';
+        document.getElementById('edit-emp-industry').value = prof.industry || '';
+        document.getElementById('edit-emp-website').value = prof.website || '';
+        document.getElementById('edit-emp-about').value = prof.about || '';
+
+        toggleEditProfileFields();
+        openModal('edit-user-modal');
+    }
+
+    function toggleEditProfileFields() {
+        const role = document.getElementById('edit-role').value;
+        document.getElementById('seeker-edit-fields').style.display = (role === 'seeker') ? 'block' : 'none';
+        document.getElementById('employer-edit-fields').style.display = (role === 'employer') ? 'block' : 'none';
+    }
+
+    async function saveUserEdit() {
+        const id = document.getElementById('edit-user-id').value;
+        const role = document.getElementById('edit-role').value;
+
+        const data = {
+            name: document.getElementById('edit-name').value.trim(),
+            email: document.getElementById('edit-email').value.trim(),
+            password: document.getElementById('edit-password').value,
+            role: role
+        };
+
+        if (!data.name || !data.email) {
+            showAlert('edit-modal-alert', 'Name and Email are required.', 'error');
+            return;
+        }
+
+        if (role === 'seeker') {
+            data.phone = document.getElementById('edit-seeker-phone').value.trim();
+            data.experience = document.getElementById('edit-seeker-experience').value.trim();
+            data.skills = document.getElementById('edit-seeker-skills').value.trim();
+            data.bio = document.getElementById('edit-seeker-bio').value.trim();
+        } else if (role === 'employer') {
+            data.company = document.getElementById('edit-emp-company').value.trim();
+            data.industry = document.getElementById('edit-emp-industry').value.trim();
+            data.website = document.getElementById('edit-emp-website').value.trim();
+            data.about = document.getElementById('edit-emp-about').value.trim();
+        }
+
+        const res = await apiPut(`/users.php?id=${id}`, data);
+        if (res.success) {
+            closeModal('edit-user-modal');
+            showAlert('table-alert', 'User account updated successfully!', 'success');
+            loadUsers();
+        } else {
+            showAlert('edit-modal-alert', res.error || 'Failed to update user.', 'error');
+        }
     }
 
     async function deleteUser(id) {

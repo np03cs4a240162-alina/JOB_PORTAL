@@ -69,6 +69,13 @@
         "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
         "POST_error": ""
     },
+    "notifications-v2.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
     "notifications.php": {
         "GET_status": 401,
         "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
@@ -127,7 +134,7 @@
     },
     "trainings.php": {
         "GET_status": 200,
-        "GET_body_snippet": "{\"success\":true,\"data\":[{\"id\":1,\"employer_id\":2,\"title\":\"Full-stack Web Development\",\"description\":\"Master React, Node.js, and SQL to build modern applications.\",\"price\":\"Rs. 25,000\",\"duration\":\"3 Months\",\"status\":\"active\",\"created_at\":\"2026-05-17 14:58:35\",\"employer_name\":\"Cedsr\"},{\"id\":2,\"employer",
+        "GET_body_snippet": "{\"success\":true,\"data\":[{\"id\":1,\"employer_id\":2,\"title\":\"Full-stack Web Development\",\"description\":\"Master React, Node.js, and SQL to build modern applications.\",\"price\":\"Rs. 25,00\",\"duration\":\"2 Months\",\"status\":\"active\",\"created_at\":\"2026-05-17 14:58:35\",\"employer_name\":\"Cedsr\"},{\"id\":2,\"employer_",
         "POST_status": 401,
         "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
         "POST_error": ""

@@ -66,6 +66,81 @@
             font-weight: 500;
             color: var(--text-main);
         }
+        /* Modal Custom Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 32px;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 850;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+            outline: none;
+            line-height: 1;
+        }
+        .modal-close-btn:hover {
+            color: var(--primary);
+        }
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +179,52 @@
                 </tbody>
             </table>
         </div>
+</div>
+
+<!-- EDIT TRAINING MODAL -->
+<div id="edit-training-modal" class="modal-overlay" onclick="closeModal('edit-training-modal')">
+    <div class="modal-content animate-in" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-graduation-cap" style="color: var(--primary); margin-right: 8px;"></i> Edit Training & Workshop Details</h3>
+            <button class="modal-close-btn" onclick="closeModal('edit-training-modal')">&times;</button>
+        </div>
+        <div id="edit-training-alert"></div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-training-id">
+            
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="edit-title">Training / Workshop Title</label>
+                <input type="text" id="edit-title" placeholder="e.g. Advanced PHP & Web Architectures" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-price">Fee / Price Tier</label>
+                    <input type="text" id="edit-price" placeholder="e.g. Rs. 5,000 or Free" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="edit-duration">Duration</label>
+                    <input type="text" id="edit-duration" placeholder="e.g. 4 Weeks (Mon-Fri)" required>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="edit-status">Status</label>
+                <select id="edit-status">
+                    <option value="active">Active (Accepting Registrations)</option>
+                    <option value="closed">Closed (Registrations Paused)</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="edit-description">Description & Highlights</label>
+                <textarea id="edit-description" rows="5" placeholder="Outline of syllabus, target audience, and pre-requisites..." required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-glass" onclick="closeModal('edit-training-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveTrainingEdit()">Save Training Details <i class="fas fa-check" style="margin-left: 6px;"></i></button>
+        </div>
     </div>
 </div>
 
@@ -133,10 +254,11 @@
                     <span class="badge ${t.status === 'active' ? 'badge-success' : 'badge-error'}">${t.status}</span>
                 </td>
                 <td>
-                    <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+                    <div style="display:flex; gap:8px; justify-content:center; align-items:center;">
                         <button class="btn btn-glass" onclick="toggleStatus(${t.id}, '${t.status}')" style="padding: 6px 12px; font-size: 12px; color: ${t.status === 'active' ? '#ef4444' : '#10b981'}; border-color: ${t.status === 'active' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'};">
                             ${t.status === 'active' ? 'Close' : 'Activate'}
                         </button>
+                        <button class="btn btn-glass" onclick="openEditTrainingModal(${t.id})" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-edit"></i> Edit</button>
                         <button class="btn btn-glass" onclick="del(${t.id})" style="padding: 6px 12px; font-size: 12px; border-color: rgba(244,67,54,0.3); color: #f44336;">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -146,6 +268,58 @@
             `).join('');
         } else {
             list.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color: var(--text-dim); font-weight: 600;'>No workshops found.</td></tr>";
+        }
+    }
+
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    async function openEditTrainingModal(id) {
+        document.getElementById('edit-training-alert').innerHTML = '';
+        const res = await apiGet(`/trainings.php?id=${id}`);
+        if (!res || !res.success || !res.data) {
+            alert(res.error || 'Failed to fetch training listing.');
+            return;
+        }
+
+        const t = res.data;
+        document.getElementById('edit-training-id').value = t.id;
+        document.getElementById('edit-title').value = t.title || '';
+        document.getElementById('edit-price').value = t.price || '';
+        document.getElementById('edit-duration').value = t.duration || '';
+        document.getElementById('edit-status').value = t.status || 'active';
+        document.getElementById('edit-description').value = t.description || '';
+
+        openModal('edit-training-modal');
+    }
+
+    async function saveTrainingEdit() {
+        const id = document.getElementById('edit-training-id').value;
+        const data = {
+            title: document.getElementById('edit-title').value.trim(),
+            price: document.getElementById('edit-price').value.trim(),
+            duration: document.getElementById('edit-duration').value.trim(),
+            status: document.getElementById('edit-status').value,
+            description: document.getElementById('edit-description').value.trim()
+        };
+
+        if (!data.title || !data.price || !data.duration || !data.description) {
+            showAlert('edit-training-alert', 'All details are required to update the training listing.', 'error');
+            return;
+        }
+
+        const res = await apiPut(`/trainings.php?id=${id}`, data);
+        if (res.success) {
+            closeModal('edit-training-modal');
+            showAlert('alert-box', 'Training details updated successfully!', 'success');
+            load();
+        } else {
+            showAlert('edit-training-alert', res.error || 'Failed to update training.', 'error');
         }
     }
 

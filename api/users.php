@@ -16,6 +16,20 @@ if ($method === 'GET') {
         $stmt->execute([$id]);
         $u = $stmt->fetch();
         if (!$u) jsonResponse(['error' => 'Not found.'], 404);
+        
+        $u['profile'] = null;
+        if ($u['role'] === 'seeker') {
+            $profStmt = $db->prepare('SELECT phone, skills, experience, bio, photo FROM seeker_profiles WHERE user_id=?');
+            $profStmt->execute([$id]);
+            $prof = $profStmt->fetch();
+            if ($prof) $u['profile'] = $prof;
+        } elseif ($u['role'] === 'employer') {
+            $profStmt = $db->prepare('SELECT company, industry, website, about, logo FROM employer_profiles WHERE user_id=?');
+            $profStmt->execute([$id]);
+            $prof = $profStmt->fetch();
+            if ($prof) $u['profile'] = $prof;
+        }
+        
         jsonResponse($u);
     }
     authorizeRole('admin');
@@ -46,11 +60,77 @@ if ($method === 'PUT' && isset($_GET['id'])) {
     requireCsrf();
     $id = (int)$_GET['id'];
     $current = authorizeOwnerOrAdmin('users', $id, 'id');
-    $data = getBody(); $name = sanitize($data['name'] ?? '');
-    if (!$name) jsonResponse(['error' => 'Name required.'], 400);
-    $db->prepare('UPDATE users SET name=? WHERE id=?')->execute([$name, $id]);
+    $data = getBody();
     
-    logActivity($current['id'], $current['name'], $current['role'], 'Updated user profile details', "Target User ID: " . $id . " | New Name: " . $name);
+    $name = sanitize($data['name'] ?? '');
+    $email = sanitize($data['email'] ?? '');
+    $role = sanitize($data['role'] ?? '');
+    $password = $data['password'] ?? '';
+    
+    if (!$name || !$email) jsonResponse(['error' => 'Name and Email are required.'], 400);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) jsonResponse(['error' => 'Invalid email address.'], 400);
+    
+    // Check if email already taken by someone else
+    $chk = $db->prepare('SELECT id FROM users WHERE email=? AND id!=?');
+    $chk->execute([$email, $id]);
+    if ($chk->fetch()) jsonResponse(['error' => 'Email already in use.'], 409);
+    
+    // Fetch user before update to know the role
+    $stmt = $db->prepare('SELECT role FROM users WHERE id=?');
+    $stmt->execute([$id]);
+    $oldUser = $stmt->fetch();
+    if (!$oldUser) jsonResponse(['error' => 'User not found.'], 404);
+    $oldRole = $oldUser['role'];
+    
+    // Update core fields
+    if (!empty($password)) {
+        if (strlen($password) < 6) jsonResponse(['error' => 'Password must be at least 6 characters.'], 400);
+        $passHash = password_hash($password, PASSWORD_DEFAULT);
+        if ($current['role'] === 'admin' && !empty($role)) {
+            $db->prepare('UPDATE users SET name=?, email=?, role=?, password=? WHERE id=?')->execute([$name, $email, $role, $passHash, $id]);
+        } else {
+            $db->prepare('UPDATE users SET name=?, email=?, password=? WHERE id=?')->execute([$name, $email, $passHash, $id]);
+        }
+    } else {
+        if ($current['role'] === 'admin' && !empty($role)) {
+            $db->prepare('UPDATE users SET name=?, email=?, role=? WHERE id=?')->execute([$name, $email, $role, $id]);
+        } else {
+            $db->prepare('UPDATE users SET name=?, email=? WHERE id=?')->execute([$name, $email, $id]);
+        }
+    }
+    
+    $finalRole = ($current['role'] === 'admin' && !empty($role)) ? $role : $oldRole;
+    
+    // If role changed, ensure profile table records are managed
+    if ($finalRole === 'seeker') {
+        $phone = sanitize($data['phone'] ?? '');
+        $skills = sanitize($data['skills'] ?? '');
+        $experience = sanitize($data['experience'] ?? '');
+        $bio = sanitize($data['bio'] ?? '');
+        
+        $pchk = $db->prepare('SELECT id FROM seeker_profiles WHERE user_id=?');
+        $pchk->execute([$id]);
+        if ($pchk->fetch()) {
+            $db->prepare('UPDATE seeker_profiles SET phone=?, skills=?, experience=?, bio=? WHERE user_id=?')->execute([$phone, $skills, $experience, $bio, $id]);
+        } else {
+            $db->prepare('INSERT INTO seeker_profiles (user_id, phone, skills, experience, bio) VALUES (?, ?, ?, ?, ?)')->execute([$id, $phone, $skills, $experience, $bio]);
+        }
+    } elseif ($finalRole === 'employer') {
+        $company = sanitize($data['company'] ?? '');
+        $industry = sanitize($data['industry'] ?? '');
+        $website = sanitize($data['website'] ?? '');
+        $about = sanitize($data['about'] ?? '');
+        
+        $pchk = $db->prepare('SELECT id FROM employer_profiles WHERE user_id=?');
+        $pchk->execute([$id]);
+        if ($pchk->fetch()) {
+            $db->prepare('UPDATE employer_profiles SET company=?, industry=?, website=?, about=? WHERE user_id=?')->execute([$company, $industry, $website, $about, $id]);
+        } else {
+            $db->prepare('INSERT INTO employer_profiles (user_id, company, industry, website, about) VALUES (?, ?, ?, ?, ?)')->execute([$id, $company, $industry, $website, $about]);
+        }
+    }
+    
+    logActivity($current['id'], $current['name'], $current['role'], 'Updated user account details via Admin', "Target User ID: " . $id . " | New Name: " . $name . " | Final Role: " . $finalRole);
     
     jsonResponse(['success' => true]);
 }

@@ -17,8 +17,18 @@ if (!in_array($_SERVER['REQUEST_METHOD'], ['GET','OPTIONS'])) {
 	if (strpos($uri, 'auth.php') !== false) {
 		// skip CSRF check for auth.php endpoints
 	} else {
-		$headers = getallheaders();
-		$token = $headers['X-CSRF-Token'] ?? $headers['x-csrf-token'] ?? '';
+		$token = '';
+		if (function_exists('getallheaders')) {
+			foreach (getallheaders() as $name => $value) {
+				if (strtolower($name) === 'x-csrf-token') {
+					$token = $value;
+					break;
+				}
+			}
+		}
+		if (empty($token)) {
+			$token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+		}
 		if (empty($token) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
 			http_response_code(401);
 			echo json_encode(['error' => 'Invalid or missing CSRF token.']);

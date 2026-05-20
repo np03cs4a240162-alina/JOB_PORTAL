@@ -10,8 +10,8 @@ echo "--- APPLICATIONS TABLE ---\n";
 $stmt = $db->query("SELECT * FROM applications ORDER BY id DESC LIMIT 5");
 print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
 
-echo "--- NOTIFICATIONS SCHEMA ---\n";
+echo "--- MESSAGES SCHEMA ---\n";
 try {
-    $stmt = $db->query("DESCRIBE notifications");
+    $stmt = $db->query("DESCRIBE messages");
     print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
 } catch(Exception $e) { echo $e->getMessage(); }

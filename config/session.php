@@ -74,17 +74,18 @@ function verifyCsrfToken(string $token): bool {
 }
 
 function requireCsrf(): void {
-    $headers = [];
+    $token = '';
     if (function_exists('getallheaders')) {
-        $headers = getallheaders();
-    } else {
-        foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) === 'HTTP_') {
-                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+        foreach (getallheaders() as $name => $value) {
+            if (strtolower($name) === 'x-csrf-token') {
+                $token = $value;
+                break;
             }
         }
     }
-    $token = $headers['X-CSRF-Token'] ?? $headers['x-csrf-token'] ?? '';
+    if (empty($token)) {
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    }
     if (empty($token) || !verifyCsrfToken($token)) {
         jsonResponse(['error' => 'Invalid or missing CSRF token.'], 401);
     }

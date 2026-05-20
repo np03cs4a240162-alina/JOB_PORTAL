@@ -127,7 +127,7 @@ if ($method === 'GET') {
 
     // 3. Admin View
     if ($user['role'] === 'admin') {
-        $stmt = $db->query("SELECT a.*, u.name AS seeker_name, j.title AS job_title, e.name AS employer_name 
+        $stmt = $db->query("SELECT a.*, u.name AS seeker_name, u.email AS seeker_email, j.title AS job_title, e.name AS employer_name 
                             FROM applications a 
                             JOIN users u ON a.seeker_id = u.id 
                             JOIN jobs j ON a.job_id = j.id 

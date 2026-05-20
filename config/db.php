@@ -54,6 +54,18 @@ function getDB(): PDO {
                 $pdo->exec("ALTER TABLE `applications` ADD COLUMN `interview_notes` TEXT DEFAULT NULL");
             } catch (\PDOException $e) { /* Column already exists */ }
 
+            // ── Auto-Migrations for Notifications & Messages Extensions ──
+            try { $pdo->exec("ALTER TABLE `notifications` ADD COLUMN `type` VARCHAR(50) DEFAULT 'general'"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `notifications` ADD COLUMN `priority` ENUM('low', 'normal', 'high') DEFAULT 'normal'"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `notifications` ADD COLUMN `related_id` INT DEFAULT NULL"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `notifications` ADD COLUMN `related_type` VARCHAR(50) DEFAULT NULL"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `notifications` ADD COLUMN `read_at` DATETIME DEFAULT NULL"); } catch (\PDOException $e) {}
+
+            try { $pdo->exec("ALTER TABLE `messages` ADD COLUMN `is_read` TINYINT(1) DEFAULT 0"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `messages` ADD COLUMN `is_archived` TINYINT(1) DEFAULT 0"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `messages` ADD COLUMN `is_spam` TINYINT(1) DEFAULT 0"); } catch (\PDOException $e) {}
+            try { $pdo->exec("ALTER TABLE `messages` ADD COLUMN `file_path` VARCHAR(255) DEFAULT NULL"); } catch (\PDOException $e) {}
+
         } catch (PDOException $e) {
             http_response_code(500);
             header('Content-Type: application/json');

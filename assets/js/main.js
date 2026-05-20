@@ -244,8 +244,20 @@ async function initNavbar() {
         }
         
         actionsHtml = `
-            <div class="nav-actions">
+            <div class="nav-actions" style="display: flex; align-items: center;">
                 ${roleAction}
+                <div style="position:relative; margin-right: 16px; cursor: pointer;" onclick="window.location.href='${BASE}/notifications/notifications.html'">
+                    <div class="btn btn-glass" style="width: 40px; height: 40px; padding: 0; border-radius: 12px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <span id="nav-notif-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:white; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px; border:2px solid var(--bg-deep);">0</span>
+                </div>
+                <div style="position:relative; margin-right: 20px; cursor: pointer;" onclick="window.location.href='${BASE}/messages/inbox.html'">
+                    <div class="btn btn-glass" style="width: 40px; height: 40px; padding: 0; border-radius: 12px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <span id="nav-msg-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#3b82f6; color:white; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px; border:2px solid var(--bg-deep);">0</span>
+                </div>
                 <div class="user-profile-trigger" onclick="toggleNavDropdown(event)">
                     <div class="user-avatar">${initials}</div>
                     <span class="user-name">${escHtml(user.name)}</span>
@@ -329,4 +341,41 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Start Global Polling
+    startGlobalPolling();
 });
+
+// ── Global Polling for Notifications & Messages ──────────────────────────────
+async function pollNotifications() {
+    if (!window.state.user) return;
+    try {
+        const [nRes, mRes] = await Promise.all([
+            apiGet('/notifications.php?action=unread-count'),
+            apiGet('/messages.php?action=unread-count')
+        ]);
+        
+        if (nRes && typeof nRes.unread_count !== 'undefined') {
+            const badge = document.getElementById('nav-notif-badge');
+            if (badge) {
+                badge.textContent = nRes.unread_count;
+                badge.style.display = nRes.unread_count > 0 ? 'inline-block' : 'none';
+            }
+        }
+        
+        if (mRes && typeof mRes.count !== 'undefined') {
+            const badge = document.getElementById('nav-msg-badge');
+            if (badge) {
+                badge.textContent = mRes.count;
+                badge.style.display = mRes.count > 0 ? 'inline-block' : 'none';
+            }
+        }
+    } catch(e) {}
+}
+
+let pollInterval;
+function startGlobalPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    setTimeout(pollNotifications, 1000); // Initial check after 1 sec
+    pollInterval = setInterval(pollNotifications, 5000); // 5 sec interval
+}
