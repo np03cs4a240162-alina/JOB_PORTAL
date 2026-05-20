@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View and manage job candidate applications.">
+    <title>Job Applicants | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .premium-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .premium-table th {
+            padding: 16px 20px;
+            background: var(--bg-deep);
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .premium-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .status-badge {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-pending { background: rgba(255, 179, 0, 0.1); color: #ffb300; }
+        .status-accepted { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+        .status-rejected { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+        .btn-action-outline {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .btn-action-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout">
+    <div class="dashboard-panel animate-in">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 16px;">
+            <h3>Job Applicants</h3>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="display: flex; background: var(--bg-deep); padding: 4px; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <button onclick="setViewMode('list')" id="btn-mode-list" class="btn active" style="padding: 8px 16px; font-size: 13px; border-radius: var(--radius-sm); border: none; cursor: pointer; background: var(--primary); color: white;">List View</button>
+                    <button onclick="setViewMode('kanban')" id="btn-mode-kanban" class="btn" style="padding: 8px 16px; font-size: 13px; border-radius: var(--radius-sm); border: none; cursor: pointer; background: transparent; color: var(--text-main);">Kanban Board</button>
+                </div>
+                <a href="dashboard.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                    <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div id="alert-box"></div>
+
+        <!-- LIST CONTAINER -->
+        <div id="list-view-container" class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Applicant</th>
+                        <th>Email</th>
+                        <th>Job Title</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="applicants-table">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-dim);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                            <p style="margin-top: 10px;">Loading applicants...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- KANBAN CONTAINER -->
+        <div id="kanban-view-container" style="display: none;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 16px;">
+                <!-- Column 1: Screening -->
+                <div class="kanban-column" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'pending')" style="background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; min-height: 500px;">
+                    <h4 style="font-size: 13px; font-weight: 900; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px;">
+                        <span>Screening</span>
+                        <span class="count-badge" id="count-pending" style="background: var(--border); color: var(--text-main); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 20px;">0</span>
+                    </h4>
+                    <div class="kanban-cards" id="cards-pending" style="display: flex; flex-direction: column; gap: 16px;"></div>
+                </div>
+
+                <!-- Column 2: Shortlisted -->
+                <div class="kanban-column" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'accepted')" style="background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; min-height: 500px;">
+                    <h4 style="font-size: 13px; font-weight: 900; text-transform: uppercase; color: var(--primary); border-bottom: 2px solid rgba(244,124,72,0.25); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px;">
+                        <span>Shortlisted</span>
+                        <span class="count-badge" id="count-accepted" style="background: rgba(244,124,72,0.1); color: var(--primary); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 20px;">0</span>
+                    </h4>
+                    <div class="kanban-cards" id="cards-accepted" style="display: flex; flex-direction: column; gap: 16px;"></div>
+                </div>
+
+                <!-- Column 3: Archived -->
+                <div class="kanban-column" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'rejected')" style="background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; min-height: 500px;">
+                    <h4 style="font-size: 13px; font-weight: 900; text-transform: uppercase; color: #ef4444; border-bottom: 2px solid rgba(239,68,68,0.25); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px;">
+                        <span>Archived</span>
+                        <span class="count-badge" id="count-rejected" style="background: rgba(239,68,68,0.1); color: #ef4444; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 20px;">0</span>
+                    </h4>
+                    <div class="kanban-cards" id="cards-rejected" style="display: flex; flex-direction: column; gap: 16px;"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<style>
+    .kanban-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        box-shadow: var(--shadow-sm);
+        cursor: grab;
+        transition: var(--transition);
+    }
+    .kanban-card:active {
+        cursor: grabbing;
+    }
+    .kanban-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+</style>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    let allApplicants = [];
+    let currentViewMode = 'list';
+
+    async function init() {
+        const user = await checkAuth('employer');
+        if (!user) return;
+
+        const res = await apiGet('/applications.php');
+        allApplicants = (res && res.success && res.data) ? res.data : [];
+        
+        renderListView();
+        renderKanbanView();
+    }
+
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        document.getElementById('list-view-container').style.display = mode === 'list' ? 'block' : 'none';
+        document.getElementById('kanban-view-container').style.display = mode === 'kanban' ? 'block' : 'none';
+        
+        const btnList = document.getElementById('btn-mode-list');
+        const btnKanban = document.getElementById('btn-mode-kanban');
+        
+        if (mode === 'list') {
+            btnList.style.background = 'var(--primary)';
+            btnList.style.color = 'white';
+            btnKanban.style.background = 'transparent';
+            btnKanban.style.color = 'var(--text-main)';
+        } else {
+            btnKanban.style.background = 'var(--primary)';
+            btnKanban.style.color = 'white';
+            btnList.style.background = 'transparent';
+            btnList.style.color = 'var(--text-main)';
+        }
+    }
+
+    function renderListView() {
+        const tbody = document.getElementById('applicants-table');
+        if (allApplicants.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; padding: 80px; color: var(--text-dim);">
+                    <div style="font-size: 48px; color: var(--border); margin-bottom: 16px;"><i class="fas fa-user-slash"></i></div>
+                    <div style="font-size: 16px; font-weight: 800; color: var(--text-main);">No applications received yet</div>
+                </td>
+            </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = allApplicants.map(a => {
+            let badgeClass = 'status-pending';
+            if(a.status === 'accepted') badgeClass = 'status-accepted';
+            if(a.status === 'rejected') badgeClass = 'status-rejected';
+
+            return `
+            <tr>
+                <td style="font-weight: 800; color: var(--text-main);">${escHtml(a.seeker_name)}</td>
+                <td style="color: var(--text-muted); font-weight: 600;">${escHtml(a.seeker_email)}</td>
+                <td style="color: var(--primary); font-weight: 700;">${escHtml(a.job_title)}</td>
+                <td style="font-size: 13px; color: var(--text-dim);">${new Date(a.applied_at).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}</td>
+                <td>
+                    <span class="status-badge ${badgeClass}">${escHtml(a.status)}</span>
+                </td>
+                <td>
+                    <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+                        <a href="seeker-profile.html?id=${a.seeker_id}" class="btn-action-outline" title="View Profile">
+                            <i class="fas fa-user-tie"></i> Profile
+                        </a>
+                        <button class="btn-action-outline" onclick="viewResume(${a.seeker_id})" title="View Resume">
+                            <i class="fas fa-file-pdf"></i> Resume
+                        </button>
+                        <div style="width:1px; height:20px; background: var(--border); margin:0 4px;"></div>
+                        ${a.status === 'pending' ? `
+                            <button class="btn btn-primary" onclick="updateStatus(${a.id}, 'accepted')" style="padding: 8px 12px; font-size: 12px;" title="Shortlist">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-glass" onclick="updateStatus(${a.id}, 'rejected')" style="padding: 8px 12px; font-size: 12px; border-color: rgba(244,67,54,0.3); color: #f44336;" title="Reject">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        ` : `<span style="color: var(--text-dim); font-size: 11px; font-weight:800; text-transform:uppercase;">${escHtml(a.status)}</span>`}
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function renderKanbanView() {
+        const statuses = ['pending', 'accepted', 'rejected'];
+        
+        statuses.forEach(status => {
+            const container = document.getElementById(`cards-${status}`);
+            const countBadge = document.getElementById(`count-${status}`);
+            
+            const filtered = allApplicants.filter(a => a.status === status);
+            countBadge.textContent = filtered.length;
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align: center; padding: 32px 10px; border: 1px dashed var(--border); border-radius: var(--radius); color: var(--text-dim); font-size: 13px; font-weight:600;">Drag cards here</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => `
+                <div class="kanban-card" draggable="true" ondragstart="dragCard(event, ${a.id})">
+                    <h5 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">${escHtml(a.seeker_name)}</h5>
+                    <p style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 12px;">${escHtml(a.job_title)}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                        <a href="seeker-profile.html?id=${a.seeker_id}" style="font-size: 11px; font-weight:850; color: var(--text-muted); text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;">
+                            <i class="fas fa-user-tie"></i> Profile
+                        </a>
+                        <button onclick="viewResume(${a.seeker_id})" style="background:transparent; border:none; color:var(--text-dim); font-size:13px; cursor:pointer;" title="View Resume">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        });
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function dragCard(ev, id) {
+        ev.dataTransfer.setData("text", id);
+    }
+
+    async function handleDrop(ev, newStatus) {
+        ev.preventDefault();
+        const id = ev.dataTransfer.getData("text");
+        if (id) {
+            await updateStatus(parseInt(id), newStatus);
+        }
+    }
+
+    async function viewResume(seekerId) {
+        const res = await apiGet(`/upload.php?user_id=${seekerId}`);
+        if (res.success && res.data.length > 0) {
+            const latest = res.data[0];
+            window.open(`${BASE}/${latest.filepath}`, '_blank');
+        } else {
+            showAlert('alert-box', 'This candidate has not uploaded a resume yet.', 'error');
+        }
+    }
+
+    async function updateStatus(id, newStatus) {
+        const res = await apiPost(`/applications.php?action=update-status`, { 
+            id: id, 
+            status: newStatus 
+        });
+
+        if (res.success) {
+            showAlert('alert-box', `Application successfully marked as ${newStatus}!`, 'success');
+            await init();
+        } else {
+            showAlert('alert-box', res.error || 'Failed to update status.', 'error');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

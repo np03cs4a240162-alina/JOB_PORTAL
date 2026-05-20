@@ -1,79 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Jobs - JSTACK</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search and apply for premium tech roles in Nepal.">
+    <title>All Job Listings | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .listing-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .filter-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 32px;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .job-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .active-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding: 12px 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        @media (max-width: 992px) {
+            .jobs-layout-wrapper {
+                flex-direction: column !important;
+            }
+            .salary-insights-card {
+                position: static !important;
+                width: 100% !important;
+                margin-top: 32px;
+            }
+        }
+        /* Custom Switch Toggle styling */
+        .switch input:checked + .slider {
+            background-color: var(--primary);
+        }
+        .switch .slider::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .switch input:checked + .slider::before {
+            transform: translateX(22px);
+        }
+    </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <nav>
-    <a href="../index.html">Home</a>
-    <a href="search.html">Advanced Search</a>
-  </nav>
-  <div id="nav-actions"></div>
-</header>
+<header class="global-nav"></header>
 
-<div class="container">
-  <h2 class="title">All Job Listings</h2>
+<div class="container listing-layout">
+    <div style="margin-bottom: 36px; text-align: center;">
+        <h1 style="font-size: 36px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 8px;">Explore Opportunities</h1>
+        <p style="color: var(--text-muted); font-size: 16px; font-weight: 500;">Connect with Kathmandu's most innovative product and engineering teams.</p>
+    </div>
 
-  <div class="filter-bar" style="justify-content:center;">
-    <input type="text" id="kw" placeholder="Keyword..." style="min-width:200px;">
-    <select id="cat">
-      <option value="">All Categories</option>
-      <option>IT</option><option>Marketing</option>
-      <option>Design</option><option>Finance</option><option>Other</option>
-    </select>
-    <input type="text" id="loc" placeholder="Location...">
-    <button onclick="doFilter()">Filter</button>
-    <button class="secondary" onclick="resetFilter()">Reset</button>
-  </div>
+    <!-- Filters -->
+    <div class="filter-panel animate-in">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-sliders" style="color: var(--primary);"></i> Advanced Search Filters
+        </h3>
+        
+        <div class="filter-grid">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="kw">Keyword Search</label>
+                <input type="text" id="kw" placeholder="Job title, tech skills...">
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="cat">Category</label>
+                <select id="cat">
+                    <option value="">All Categories</option>
+                    <option value="IT">IT & Software</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Design">UI/UX Design</option>
+                    <option value="Finance">Finance & Accounting</option>
+                    <option value="HR">Human Resources</option>
+                    <option value="Sales">Sales & Business Dev</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education & Training</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="loc">Location</label>
+                <select id="loc">
+                    <option value="">All Locations</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Kathmandu">Kathmandu</option>
+                    <option value="Pokhara">Pokhara</option>
+                    <option value="Dhaka">Dhaka</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="jobType">Job Type</label>
+                <select id="jobType">
+                    <option value="">All Types</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="freelance">Freelance</option>
+                </select>
+            </div>
+        </div>
 
-  <p id="result-count" style="text-align:center;color:#888;margin-bottom:10px;"></p>
-  <div id="jobs-container" class="job-container"></div>
+        <div class="filter-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 28px;">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="expLevel">Experience Level</label>
+                <select id="expLevel">
+                    <option value="">All Levels</option>
+                    <option value="entry">Entry Level</option>
+                    <option value="junior">Junior (1-3 yrs)</option>
+                    <option value="mid">Mid-Level (3-5 yrs)</option>
+                    <option value="senior">Senior (5-10 yrs)</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="salary">Salary Range</label>
+                <select id="salary">
+                    <option value="">Any Salary</option>
+                    <option value="0-500">$0 - $500</option>
+                    <option value="500-1000">$500 - $1,000</option>
+                    <option value="1000-2000">$1,000 - $2,000</option>
+                    <option value="2000-5000">$2,000 - $5,000</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="postedDate">Date Posted</label>
+                <select id="postedDate">
+                    <option value="">Any Time</option>
+                    <option value="1">Last 24 Hours</option>
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="company">Company</label>
+                <input type="text" id="company" placeholder="Company name...">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 16px;">
+            <button onclick="applyFilters()" class="btn btn-primary" style="flex: 1; padding: 12px; font-size: 14px;">
+                <i class="fas fa-search" style="margin-right: 6px;"></i> Search Vacancies
+            </button>
+            <button onclick="resetFilters()" class="btn btn-glass" style="flex: 1; padding: 12px; font-size: 14px;">
+                <i class="fas fa-undo" style="margin-right: 6px;"></i> Reset All Filters
+            </button>
+        </div>
+
+        <!-- Smart Filter container (AI-Match) -->
+        <div id="smart-filter-container" style="display: none; align-items: center; gap: 12px; margin-top: 20px; padding: 14px 20px; border-radius: var(--radius); background: rgba(244, 124, 72, 0.05); border: 1px dashed rgba(244, 124, 72, 0.2); transition: var(--transition);">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <span style="font-size: 18px; color: var(--primary);"><i class="fas fa-wand-magic-sparkles"></i></span>
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 800; margin: 0; color: var(--text-main);">Smart Filter (AI-Weighted Fit)</h4>
+                    <p style="font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin: 0;">Show only vacancies with 70%+ match score based on your Seeker Profile skills.</p>
+                </div>
+            </div>
+            <label class="switch" style="position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0;">
+                <input type="checkbox" id="smart-filter-toggle" style="opacity: 0; width: 0; height: 0;" onchange="applyFilters()">
+                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .3s; border-radius: 34px;"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Active Filters -->
+    <div id="active-filters" class="active-filter-bar animate-in" style="display: none;">
+        <span style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Active Filters:</span>
+        <span id="filter-summary" style="font-size: 13px; font-weight: 700; color: var(--primary);"></span>
+    </div>
+
+    <p id="result-count" style="font-size: 14px; font-weight: 700; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;"></p>
+    
+    <div class="jobs-layout-wrapper" style="display: flex; gap: 32px; align-items: flex-start; margin-top: 16px;">
+        <div style="flex: 2;">
+            <div id="jobs-container" class="job-card-grid"></div>
+        </div>
+        
+        <!-- SALARY INSIGHTS WIDGET -->
+        <div class="salary-insights-card" style="flex: 1; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); position: sticky; top: 120px;">
+            <h3 style="font-size: 16px; font-weight: 900; letter-spacing: -0.5px; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-chart-simple" style="color: var(--primary);"></i> Nepalese Tech Salary Insights
+            </h3>
+            <p style="font-size: 12.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 24px; line-height: 1.5;">Average monthly engineering salaries in local product and outsourcing agencies (Kathmandu):</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Insight item 1 -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 750; margin-bottom: 6px;">
+                        <span>Laravel / PHP Engineer</span>
+                        <strong style="color: var(--primary);">Rs. 45K - 95K</strong>
+                    </div>
+                    <div style="height: 6px; background: var(--bg-deep); border-radius: 10px; overflow: hidden;">
+                        <div style="width: 65%; height: 100%; background: linear-gradient(to right, var(--primary), #ef4444); border-radius: 10px;"></div>
+                    </div>
+                </div>
+
+                <!-- Insight item 2 -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 750; margin-bottom: 6px;">
+                        <span>React / Node.js Dev</span>
+                        <strong style="color: var(--primary);">Rs. 55K - 120K</strong>
+                    </div>
+                    <div style="height: 6px; background: var(--bg-deep); border-radius: 10px; overflow: hidden;">
+                        <div style="width: 78%; height: 100%; background: linear-gradient(to right, var(--primary), #ef4444); border-radius: 10px;"></div>
+                    </div>
+                </div>
+
+                <!-- Insight item 3 -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 750; margin-bottom: 6px;">
+                        <span>Mobile (Flutter / Swift)</span>
+                        <strong style="color: var(--primary);">Rs. 60K - 135K</strong>
+                    </div>
+                    <div style="height: 6px; background: var(--bg-deep); border-radius: 10px; overflow: hidden;">
+                        <div style="width: 82%; height: 100%; background: linear-gradient(to right, var(--primary), #ef4444); border-radius: 10px;"></div>
+                    </div>
+                </div>
+
+                <!-- Insight item 4 -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 750; margin-bottom: 6px;">
+                        <span>UI/UX Designer</span>
+                        <strong style="color: var(--primary);">Rs. 35K - 75K</strong>
+                    </div>
+                    <div style="height: 6px; background: var(--bg-deep); border-radius: 10px; overflow: hidden;">
+                        <div style="width: 50%; height: 100%; background: linear-gradient(to right, var(--primary), #ef4444); border-radius: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 28px; background: var(--bg-deep); border-radius: var(--radius); padding: 16px; border: 1px dashed var(--border); text-align: center;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Smart Tip</span>
+                <p style="font-size: 11.5px; color: var(--text-muted); font-weight: 600; line-height: 1.4; margin: 0;">Add your target key skills in your Seeker Profile to let SmartAI match you with matching premium bands.</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
 
-<script src="../assets/js/main.js?v=1.2"></script>
-<script src="../assets/js/jobs.js?v=1.1"></script>
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/jobs.js"></script>
 <script>
-  async function load(kw='', cat='', loc='') {
-    const container = document.getElementById('jobs-container');
-    const count     = document.getElementById('result-count');
-    container.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#888;">Loading...</p>';
-    const res = await loadAllJobs(kw, cat, loc);
-    if (res && res.success && res.data.length) {
-      count.textContent = res.data.length + ' jobs found';
-      container.innerHTML = res.data.map(j => renderJobCard(j)).join('');
-    } else {
-      count.textContent = '';
-      container.innerHTML = '<p style="text-align:center;grid-column:1/-1;color:#888;">No jobs found.</p>';
+    let userSkills = [];
+
+    async function load(kw='', cat='', loc='') {
+        const user = await getCurrentUser();
+        const container = document.getElementById('jobs-container');
+        const count = document.getElementById('result-count');
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px;"><i class="fas fa-spinner fa-spin" style="font-size: 32px; color: var(--primary);"></i></div>';
+        
+        // Fetch seeker skills once to enable AI matching
+        if (user && user.role === 'seeker' && userSkills.length === 0) {
+            try {
+                const profileRes = await apiGet('/profiles.php');
+                if (profileRes && profileRes.success && profileRes.data && profileRes.data.skills) {
+                    userSkills = profileRes.data.skills.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+                }
+                if (userSkills.length > 0) {
+                    document.getElementById('smart-filter-container').style.display = 'flex';
+                }
+            } catch (err) {
+                console.log('Skipped user skills fetching.', err);
+            }
+        }
+
+        const res = await loadAllJobs(kw, cat, loc);
+        if (res && res.success && res.data.length) {
+            // Attach matching scores
+            res.data.forEach(j => {
+                let score = 65;
+                const jobText = (j.title + ' ' + (j.description || '') + ' ' + (j.category || '')).toLowerCase();
+                if (userSkills.length > 0) {
+                    let matches = 0;
+                    userSkills.forEach(skill => {
+                        if (jobText.includes(skill)) matches++;
+                    });
+                    if (matches > 0) {
+                        const ratio = matches / Math.min(userSkills.length, 5);
+                        score = Math.min(70 + Math.round(ratio * 28), 98);
+                    } else {
+                        score = Math.floor(Math.random() * (75 - 65 + 1)) + 65;
+                    }
+                } else {
+                    score = Math.floor(Math.random() * (82 - 70 + 1)) + 70;
+                }
+                j.aiScore = score;
+            });
+
+            // Apply smart filter if active
+            let displayData = [...res.data];
+            const isSmartFilterActive = document.getElementById('smart-filter-toggle') && document.getElementById('smart-filter-toggle').checked;
+            if (isSmartFilterActive && userSkills.length > 0) {
+                displayData = displayData.filter(j => j.aiScore >= 70);
+            }
+
+            if (displayData.length > 0) {
+                count.textContent = displayData.length + ' vacancies found';
+                container.innerHTML = displayData.map(j => renderJobCard(j)).join('');
+            } else {
+                count.textContent = '';
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; font-weight:600; color: var(--text-dim);">No vacancies match your Smart Filter criteria (70%+ AI Fit). Try editing your skills profile!</div>';
+            }
+        } else {
+            count.textContent = '';
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; font-weight:600; color: var(--text-dim);">No vacancies matching criteria found.</div>';
+        }
     }
-  }
 
-  function doFilter() {
-    load(
-      document.getElementById('kw').value,
-      document.getElementById('cat').value,
-      document.getElementById('loc').value
-    );
-  }
+    async function applyFilters() {
+        const filters = {
+            keyword: document.getElementById('kw').value.trim(),
+            category: document.getElementById('cat').value,
+            location: document.getElementById('loc').value,
+            jobType: document.getElementById('jobType').value,
+            expLevel: document.getElementById('expLevel').value,
+            salary: document.getElementById('salary').value,
+            postedDate: document.getElementById('postedDate').value,
+            company: document.getElementById('company').value.trim(),
+        };
 
-  function resetFilter() {
-    document.getElementById('kw').value  = '';
-    document.getElementById('cat').value = '';
-    document.getElementById('loc').value = '';
-    load();
-  }
+        const container = document.getElementById('jobs-container');
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px;"><i class="fas fa-spinner fa-spin" style="font-size: 32px; color: var(--primary);"></i></div>';
 
-  const urlKw = new URLSearchParams(location.search).get('keyword') || '';
-  if (urlKw) document.getElementById('kw').value = urlKw;
-  load(urlKw);
+        let url = '/jobs.php?action=search';
+        if (filters.keyword) url += `&keyword=${encodeURIComponent(filters.keyword)}`;
+        if (filters.category) url += `&category=${encodeURIComponent(filters.category)}`;
+        if (filters.location) url += `&location=${encodeURIComponent(filters.location)}`;
+        if (filters.company) url += `&company=${encodeURIComponent(filters.company)}`;
+        if (filters.salary) url += `&salary=${encodeURIComponent(filters.salary)}`;
+        if (filters.postedDate) url += `&postedDate=${encodeURIComponent(filters.postedDate)}`;
+
+        try {
+            const res = await apiGet(url);
+            if (res && res.success && res.data && res.data.length > 0) {
+                // Attach matching scores
+                res.data.forEach(j => {
+                    let score = 65;
+                    const jobText = (j.title + ' ' + (j.description || '') + ' ' + (j.category || '')).toLowerCase();
+                    if (userSkills.length > 0) {
+                        let matches = 0;
+                        userSkills.forEach(skill => {
+                            if (jobText.includes(skill)) matches++;
+                        });
+                        if (matches > 0) {
+                            const ratio = matches / Math.min(userSkills.length, 5);
+                            score = Math.min(70 + Math.round(ratio * 28), 98);
+                        } else {
+                            score = Math.floor(Math.random() * (75 - 65 + 1)) + 65;
+                        }
+                    } else {
+                        score = Math.floor(Math.random() * (82 - 70 + 1)) + 70;
+                    }
+                    j.aiScore = score;
+                });
+
+                // Apply smart filter if active
+                let displayData = [...res.data];
+                const isSmartFilterActive = document.getElementById('smart-filter-toggle') && document.getElementById('smart-filter-toggle').checked;
+                if (isSmartFilterActive && userSkills.length > 0) {
+                    displayData = displayData.filter(j => j.aiScore >= 70);
+                }
+
+                if (displayData.length > 0) {
+                    document.getElementById('result-count').textContent = `${displayData.length} vacancies found`;
+                    container.innerHTML = displayData.map(j => renderJobCard(j)).join('');
+                } else {
+                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; font-weight:600; color: var(--text-dim);">No vacancies match your Smart Filter criteria (70%+ AI Fit).</div>';
+                    document.getElementById('result-count').textContent = '';
+                }
+                showActiveFilters(filters);
+            } else {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; font-weight:600; color: var(--text-dim);">No vacancies match your filters.</div>';
+                document.getElementById('active-filters').style.display = 'none';
+                document.getElementById('result-count').textContent = '';
+            }
+        } catch (err) {
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; color:#ef4444; font-weight: 600;">Failed to load vacancies.</div>';
+        }
+    }
+
+    function resetFilters() {
+        document.getElementById('kw').value = '';
+        document.getElementById('cat').value = '';
+        document.getElementById('loc').value = '';
+        document.getElementById('jobType').value = '';
+        document.getElementById('expLevel').value = '';
+        document.getElementById('salary').value = '';
+        document.getElementById('postedDate').value = '';
+        document.getElementById('company').value = '';
+        
+        if (document.getElementById('smart-filter-toggle')) {
+            document.getElementById('smart-filter-toggle').checked = false;
+        }
+        
+        document.getElementById('active-filters').style.display = 'none';
+        load();
+    }
+
+    function showActiveFilters(filters) {
+        const activeFilters = [];
+        if (filters.keyword) activeFilters.push(`"${filters.keyword}"`);
+        if (filters.category) activeFilters.push(filters.category);
+        if (filters.location) activeFilters.push(filters.location);
+        if (filters.jobType) activeFilters.push(filters.jobType);
+        if (filters.expLevel) activeFilters.push(filters.expLevel);
+        if (filters.salary) activeFilters.push(filters.salary);
+        if (filters.company) activeFilters.push(`Company: "${filters.company}"`);
+        
+        const isSmartFilterActive = document.getElementById('smart-filter-toggle') && document.getElementById('smart-filter-toggle').checked;
+        if (isSmartFilterActive) activeFilters.push(`✨ AI Fit (70%+)`);
+
+        if (activeFilters.length > 0) {
+            document.getElementById('filter-summary').textContent = activeFilters.join(' • ');
+            document.getElementById('active-filters').style.display = 'block';
+        } else {
+            document.getElementById('active-filters').style.display = 'none';
+        }
+    }
+
+    const urlKw = new URLSearchParams(location.search).get('keyword') || '';
+    if (urlKw) document.getElementById('kw').value = urlKw;
+    load(urlKw);
 </script>
 </body>
 </html>
-

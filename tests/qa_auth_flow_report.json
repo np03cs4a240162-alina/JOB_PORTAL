@@ -1,0 +1,11 @@
+{
+    "result": "no_dev_otp",
+    "send": {
+        "code": 200,
+        "raw": "{\"success\":true,\"message\":\"Verification code sent to qa_test_1779248088@example.com\"}",
+        "json": {
+            "success": true,
+            "message": "Verification code sent to qa_test_1779248088@example.com"
+        }
+    }
+}

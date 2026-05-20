@@ -1,101 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Search - JSTACK</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <style>
-    .search-panel{background:white;padding:30px;border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,.08);max-width:800px;margin:30px auto;}
-    .search-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-    .autocomplete-wrapper{position:relative;}
-
-      background:white;border:1px solid #ddd;border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:1000;padding:0;margin-top:4px;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Perform global search across job openings, employers, or candidate profiles.">
+    <title>Global Search | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .search-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .search-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 32px;
+        }
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+        }
+        @media (max-width: 576px) {
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .tab-btn.active {
+            background: rgba(244, 124, 72, 0.08);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .result-section {
+            display: none;
+        }
+        .result-section.active {
+            display: block;
+        }
+        .entity-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 16px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+        .entity-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        .entity-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+        }
+    </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <a href="../index.html">← Home</a>
-  <div id="nav-actions"></div>
-</header>
+<header class="global-nav"></header>
 
-<div class="container">
-  <h2 class="title">Advanced Job Search</h2>
-
-  <div class="search-panel">
-    <div class="search-grid">
-      <div class="input-group autocomplete-wrapper">
-        <label>Keyword / Title</label>
-        <input type="text" id="keyword" placeholder="e.g. PHP Developer">
-        <ul id="autocomplete-list" style="display:none;list-style:none;"></ul>
-      </div>
-      <div class="input-group">
-        <label>Category</label>
-        <select id="category">
-          <option value="">All Categories</option>
-          <option>IT</option><option>Marketing</option>
-          <option>Design</option><option>Finance</option><option>Other</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Location</label>
-        <input type="text" id="location" placeholder="e.g. Kathmandu">
-      </div>
-      <div class="input-group" style="display:flex;align-items:flex-end;gap:10px;">
-        <button onclick="doSearch()" style="flex:1;">🔍 Search</button>
-        <button onclick="resetSearch()" class="secondary" style="flex:1;">Reset</button>
-      </div>
+<div class="container search-layout">
+    <div style="margin-bottom: 36px; text-align: center;">
+        <h1 style="font-size: 36px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 8px;">Global Market Search</h1>
+        <p style="color: var(--text-muted); font-size: 16px; font-weight: 500;">Search for jobs, companies, or verified applicant credentials instantly.</p>
     </div>
-  </div>
 
-  <p id="search-status" style="text-align:center;margin:10px 0;"></p>
-  <div id="jobs-container" class="job-container"></div>
+    <div class="search-panel animate-in">
+        <div class="search-grid">
+            <div class="input-group" style="margin: 0;">
+                <input type="text" id="keyword" placeholder="Enter keywords (e.g. Node.js, Fintech, Kathmandu)...">
+            </div>
+            <button onclick="doGlobalSearch()" class="btn btn-primary" style="padding: 12px 28px;">
+                <i class="fas fa-search" style="margin-right: 8px;"></i> Search
+            </button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('jobs')">Jobs (<span id="count-jobs">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('companies')">Companies (<span id="count-comps">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('applicants')">Applicants (<span id="count-apps">0</span>)</button>
+    </div>
+    
+    <p id="search-status" style="text-align: center; color: var(--text-dim); font-weight: 600; font-size: 14px; margin-bottom: 32px;">Type a keyword to begin.</p>
+
+    <!-- Jobs Section -->
+    <div id="tab-jobs" class="result-section active">
+        <div id="jobs-container" class="job-card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;"></div>
+    </div>
+    
+    <!-- Companies Section -->
+    <div id="tab-companies" class="result-section">
+        <div id="companies-container" style="max-width: 720px; margin: 0 auto;"></div>
+    </div>
+    
+    <!-- Applicants Section -->
+    <div id="tab-applicants" class="result-section">
+        <div id="applicants-container" style="max-width: 720px; margin: 0 auto;"></div>
+    </div>
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
 
-<script src="../assets/js/main.js?v=1.2"></script>
-<script src="../assets/js/jobs.js?v=1.1"></script>
+<script src="../assets/js/main.js"></script>
 <script>
-  async function doSearch() {
-    document.getElementById('search-status').textContent = 'Searching...';
-    document.getElementById('jobs-container').innerHTML  = '';
-    const res = await loadAllJobs(
-      document.getElementById('keyword').value,
-      document.getElementById('category').value,
-      document.getElementById('location').value
-    );
-    const status    = document.getElementById('search-status');
-    const container = document.getElementById('jobs-container');
-    if (res && res.success && res.data.length) {
-      status.textContent    = res.message;
-      status.style.color    = 'green';
-      container.innerHTML   = res.data.map(j => renderJobCard(j)).join('');
-    } else {
-      status.textContent  = 'No jobs found matching your criteria.';
-      status.style.color  = '#e53935';
+    let latestData = { jobs: [], companies: [], applicants: [] };
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.result-section').forEach(s => s.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
     }
-  }
 
-  function resetSearch() {
-    ['keyword','location'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('category').value = '';
-    document.getElementById('search-status').textContent = '';
-    document.getElementById('jobs-container').innerHTML  = '';
-    doSearch();
-  }
+    async function doGlobalSearch() {
+        const kw = document.getElementById('keyword').value.trim();
+        if(!kw) return;
+        
+        document.getElementById('search-status').innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Querying database...';
+        
+        try {
+            const res = await fetch(`../api/global-search.php?keyword=${encodeURIComponent(kw)}`);
+            const result = await res.json();
+            
+            if(result.success) {
+                latestData = result.data;
+                document.getElementById('search-status').textContent = '';
+                
+                document.getElementById('count-jobs').textContent = latestData.jobs.length;
+                document.getElementById('count-comps').textContent = latestData.companies.length;
+                document.getElementById('count-apps').textContent = latestData.applicants.length;
+                
+                // Jobs
+                const jc = document.getElementById('jobs-container');
+                if(latestData.jobs.length) {
+                    jc.innerHTML = latestData.jobs.map(j => `
+                        <div class="job-card animate-in" onclick="location.href='detail.html?id=${j.id}'" style="cursor: pointer;">
+                            <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">${escHtml(j.title)}</h3>
+                            <p style="color: var(--primary); font-weight: 700; font-size: 14px; margin-bottom: 6px;"><i class="fas fa-building" style="margin-right: 6px;"></i> ${escHtml(j.company)}</p>
+                            <p style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin-bottom: 16px;"><i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i> ${escHtml(j.location)}</p>
+                            <span class="badge badge-info">${escHtml(j.job_type)}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    jc.innerHTML = '<p style="text-align:center; color: var(--text-dim); font-weight: 600; padding: 40px; grid-column: 1/-1;">No jobs found.</p>';
+                }
+                
+                // Companies
+                const cc = document.getElementById('companies-container');
+                if(latestData.companies.length) {
+                    cc.innerHTML = latestData.companies.map(c => `
+                        <div class="entity-card animate-in">
+                            <img src="${c.logo ? '../uploads/images/'+c.logo : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';">
+                            <div class="info">
+                                <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${escHtml(c.company || c.name)}</h3>
+                                <p style="color: var(--text-muted); font-size: 13px; font-weight: 600;">${escHtml(c.industry || 'Corporate Partner')}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    cc.innerHTML = '<p style="text-align:center; color: var(--text-dim); font-weight: 600; padding: 40px;">No corporate partners found.</p>';
+                }
+                
+                // Applicants
+                const ac = document.getElementById('applicants-container');
+                if(latestData.applicants.length) {
+                    ac.innerHTML = latestData.applicants.map(a => `
+                        <div class="entity-card animate-in">
+                            <img src="${a.photo ? '../uploads/images/'+a.photo : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';">
+                            <div class="info">
+                                <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">${escHtml(a.name)}</h3>
+                                <p style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin-bottom: 4px;"><strong>Skills:</strong> ${escHtml(a.skills || 'Not specified')}</p>
+                                <p style="color: var(--text-dim); font-size: 12px; font-weight: 500;"><strong>Experience:</strong> ${escHtml(a.experience || 'Not specified')}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    ac.innerHTML = '<p style="text-align:center; color: var(--text-dim); font-weight: 600; padding: 40px;">No candidates found.</p>';
+                }
+                
+            } else {
+                document.getElementById('search-status').textContent = 'Search execution failed.';
+            }
+        } catch(err) {
+            document.getElementById('search-status').textContent = 'Network or backend search error.';
+        }
+    }
 
-  const params = new URLSearchParams(location.search);
-  if (params.get('keyword')) document.getElementById('keyword').value = params.get('keyword');
-
-  setupAutocomplete('keyword', 'autocomplete-list');
-  doSearch();
+    const params = new URLSearchParams(location.search);
+    if (params.get('keyword')) {
+        document.getElementById('keyword').value = params.get('keyword');
+        doGlobalSearch();
+    }
 </script>
 </body>
 </html>
-
-

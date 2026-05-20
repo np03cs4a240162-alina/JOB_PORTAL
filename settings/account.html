@@ -1,66 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account Settings - JSTACK</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Update your personal information and profile settings.">
+    <title>Account Settings | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .settings-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .settings-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 20px;
+            font-weight: 850;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+    </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <a href="../index.html" style="color:white;">← Home</a>
-</header>
+<header class="global-nav"></header>
 
-<div class="profile-card">
-  <h3>Account Settings</h3>
-  <div id="alert-box"></div>
-  <div class="input-group"><label>Full Name</label><input type="text" id="name" required></div>
-  <div class="input-group"><label>Email</label><input type="email" id="email" required></div>
-  <button onclick="handleSave()" style="width:100%;">Update Account</button>
+<div class="container settings-layout" style="max-width: 600px;">
+    <div class="settings-panel animate-in">
+        <div class="panel-header">
+            <h3>Account Settings</h3>
+            <a href="javascript:history.back()" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Back
+            </a>
+        </div>
 
-  <hr style="margin:20px 0;">
-  <button class="secondary" onclick="location.href='change-password.html'" style="width:100%;">🔒 Change Password</button>
+        <div id="alert-box"></div>
 
-  <hr style="margin:20px 0;">
-  <div style="background:#fff5f5;border:1px solid #f8d7da;border-radius:8px;padding:16px;">
-    <h4 style="color:#721c24;margin-bottom:8px;">⚠️ Danger Zone</h4>
-    <p style="font-size:13px;color:#555;margin-bottom:12px;">Deleting your account is permanent and cannot be undone.</p>
-    <button class="danger" onclick="deleteAccount()" style="width:100%;">🗑️ Delete My Account</button>
-  </div>
+        <div class="input-group">
+            <label for="acc-name">Full Name</label>
+            <input type="text" id="acc-name" placeholder="E.g. Roshan Adhikari">
+        </div>
+        
+        <div class="input-group">
+            <label for="acc-email">Email Address</label>
+            <input type="email" id="acc-email" placeholder="E.g. roshan@example.com">
+        </div>
+
+        <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+            <button onclick="handleUpdate()" class="btn btn-primary" style="flex: 1; padding: 12px; font-size: 14px;">
+                Update Settings
+            </button>
+            <button onclick="window.location.href='change-password.html'" class="btn btn-glass" style="flex: 1; padding: 12px; font-size: 14px;">
+                Change Password <i class="fas fa-lock" style="margin-left: 8px;"></i>
+            </button>
+        </div>
+    </div>
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
 
-<script src="../assets/js/main.js?v=1.2"></script>
+<script src="../assets/js/main.js"></script>
 <script>
-  let currentUser = null;
+    let currentUser = null;
 
-  async function init() {
-    currentUser = await requireLogin();
-    document.getElementById('name').value  = currentUser.name;
-    document.getElementById('email').value = currentUser.email;
-  }
+    async function init() {
+        currentUser = await checkAuth();
+        if(!currentUser) return;
 
-  async function handleSave() {
-    const res = await apiPut(`${API}/users.php?id=${currentUser.id}`, {
-      name:  document.getElementById('name').value.trim(),
-      email: document.getElementById('email').value.trim(),
-    });
-    showAlert('alert-box', res.success ? 'Account updated!' : (res.error||'Update failed.'), res.success?'success':'error');
-  }
+        document.getElementById('acc-name').value = currentUser.name;
+        document.getElementById('acc-email').value = currentUser.email;
+    }
 
-  async function deleteAccount() {
-    if (!confirm('This will permanently delete your account and all data. Continue?')) return;
-    if (!confirm('Final confirmation — this cannot be undone.')) return;
-    const res = await apiDelete(`${API}/users.php?id=${currentUser.id}`);
-    if (res && res.success) { alert('Account deleted.'); window.location.href = BASE + '/index.html'; }
-    else showAlert('alert-box', res.error || 'Delete failed.', 'error');
-  }
+    async function handleUpdate() {
+        const name = document.getElementById('acc-name').value.trim();
+        const email = document.getElementById('acc-email').value.trim();
 
-  init();
+        if(!name || !email) return showAlert('alert-box', 'Name and email are required.', 'error');
+
+        const res = await apiPatch('/profiles.php', { name, email });
+        if(res.success) {
+            showAlert('alert-box', 'Account updated successfully!', 'success');
+            if(window.state && window.state.user) {
+                window.state.user.name = name;
+                window.state.user.email = email;
+            }
+        } else {
+            showAlert('alert-box', res.error || 'Update failed.', 'error');
+        }
+    }
+
+    init();
 </script>
 </body>
 </html>
-

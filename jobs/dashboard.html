@@ -1,108 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - JSTACK</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure administrative command center.">
+    <title>Admin Command Center | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .profile-side-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+            overflow: hidden;
+        }
+        .side-nav {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .side-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .side-nav-link:hover, .side-nav-link.active {
+            background: rgba(244, 124, 72, 0.08);
+            color: var(--primary);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(244, 124, 72, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .bento-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+    </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK <span style="font-size:13px;opacity:.7;">Admin</span></h2>
-  <nav>
-    <a href="manage-users.html">Users</a>
-    <a href="manage-jobs.html">Jobs</a>
-    <a href="manage-applications.html">Applications</a>
-    <a href="reports.html">Reports</a>
-  </nav>
-  <div>
-    <span id="admin-name" style="color:white;font-size:14px;margin-right:12px;"></span>
-    <a href="#" onclick="logout()" style="color:#ffd700;">Logout</a>
-  </div>
-</header>
+<header class="global-nav"></header>
 
 <div class="container">
-  <h2 class="title">Admin Control Center</h2>
+    <div class="dashboard-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="profile-side-card">
+                <div class="avatar-container">
+                    <span id="sb-initial">A</span>
+                </div>
+                <h3 id="sb-name" style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Admin Command</h3>
+                <p style="color: #ef4444; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 24px;">Secure Command</p>
+                <a href="../" class="btn btn-glass" style="width: 100%; padding: 10px; font-size: 13px;">View Live Portal</a>
+            </div>
 
-  <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:30px;">
-    <div class="card" style="cursor:default;">
-      <p class="stat-value blue" id="s-users">--</p>
-      <p class="stat-label">Total Users</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <p class="stat-value blue" id="s-jobs">--</p>
-      <p class="stat-label">Total Jobs</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <p class="stat-value blue" id="s-apps">--</p>
-      <p class="stat-label">Applications</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <p class="stat-value green" id="s-accepted">--</p>
-      <p class="stat-label">Accepted</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <p class="stat-value blue" id="s-employers">--</p>
-      <p class="stat-label">Employers</p>
-    </div>
-    <div class="card" style="cursor:default;">
-      <p class="stat-value blue" id="s-seekers">--</p>
-      <p class="stat-label">Seekers</p>
-    </div>
-  </div>
+            <nav class="side-nav">
+                <a href="dashboard.html" class="side-nav-link active"><i class="fas fa-shield-halved"></i> Dashboard</a>
+                <a href="../admin/manage-users.html" class="side-nav-link"><i class="fas fa-users-gear"></i> Manage Users</a>
+                <a href="../admin/manage-jobs.html" class="side-nav-link"><i class="fas fa-briefcase"></i> Manage Jobs</a>
+                <a href="../admin/manage-trainings.html" class="side-nav-link"><i class="fas fa-graduation-cap"></i> Manage Trainings</a>
+                <a href="../admin/manage-applications.html" class="side-nav-link"><i class="fas fa-file-invoice"></i> Applications</a>
+                <a href="../admin/reports.html" class="side-nav-link"><i class="fas fa-chart-line"></i> System Reports</a>
+            </nav>
+        </aside>
 
-  <div class="dashboard-grid">
-    <div class="card" onclick="location.href='manage-jobs.html'">📋 Manage Jobs</div>
-    <div class="card" onclick="location.href='manage-users.html'">👥 Manage Users</div>
-    <div class="card" onclick="location.href='manage-applications.html'">📄 Applications</div>
-    <div class="card" onclick="location.href='reports.html'">📊 Reports</div>
-  </div>
+        <!-- MAIN AREA -->
+        <main class="main-area">
+            <div style="margin-bottom: 36px;">
+                <h1 style="font-size: 32px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 6px;">Command Center</h1>
+                <p style="color: var(--text-muted); font-size: 15px; font-weight: 500;">Secure, global-scale management of Nepalese tech market pipelines.</p>
+            </div>
 
-  <h3 style="margin:30px 0 16px;color:#0a66c2;">Recent Users</h3>
-  <div class="table-container" style="width:100%;">
-    <table>
-      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
-      <tbody id="recent-users"><tr><td colspan="4">Loading...</td></tr></tbody>
-    </table>
-  </div>
+            <!-- Stats strip -->
+            <div class="stat-grid">
+                <div class="stat-card animate-in">
+                    <div>
+                        <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Total Users</div>
+                        <h2 id="t-users" style="font-size: 28px; font-weight: 900; color: var(--text-main); line-height: 1;">--</h2>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-card animate-in">
+                    <div>
+                        <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Job Postings</div>
+                        <h2 id="t-jobs" style="font-size: 28px; font-weight: 900; color: var(--text-main); line-height: 1;">--</h2>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-briefcase"></i></div>
+                </div>
+                <div class="stat-card animate-in">
+                    <div>
+                        <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Applications</div>
+                        <h2 id="t-apps" style="font-size: 28px; font-weight: 900; color: var(--text-main); line-height: 1;">--</h2>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fas fa-file-lines"></i></div>
+                </div>
+            </div>
+
+            <!-- Quick Access Bento Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px;">
+                <a href="../admin/manage-users.html" class="bento-card animate-in">
+                    <div style="font-size: 24px; color: var(--primary);"><i class="fas fa-users-gear"></i></div>
+                    <h3 style="font-size: 18px; font-weight: 800;">User Accounts</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500; line-height: 1.5;">Audit candidate profiles, companies, verification status and security groups.</p>
+                </a>
+                <a href="../admin/manage-jobs.html" class="bento-card animate-in">
+                    <div style="font-size: 24px; color: #10b981;"><i class="fas fa-briefcase"></i></div>
+                    <h3 style="font-size: 18px; font-weight: 800;">Job Vault</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500; line-height: 1.5;">Track vacancy lifecycles, industry categories, and employer activity stats.</p>
+                </a>
+                <a href="../admin/reports.html" class="bento-card animate-in">
+                    <div style="font-size: 24px; color: #6366f1;"><i class="fas fa-chart-line"></i></div>
+                    <h3 style="font-size: 18px; font-weight: 800;">System Analytics</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); font-weight: 500; line-height: 1.5;">View average company ratings, application success metrics, and live charts.</p>
+                </a>
+            </div>
+        </main>
+        
+    </div>
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
 
-<script src="../assets/js/main.js?v=1.2"></script>
+<script src="../assets/js/main.js"></script>
 <script>
-  async function init() {
-    const user = await requireRole('admin');
-    if (!user) return;
-    document.getElementById('admin-name').textContent = '👤 ' + escHtml(user.name);
+    async function init() {
+        const user = await checkAuth('admin');
+        if (!user) return;
+        
+        document.getElementById('sb-name').textContent = user.name;
+        document.getElementById('sb-initial').textContent = user.name.charAt(0).toUpperCase();
 
-    const res = await apiGet(`${API}/dashboard-stats.php`);
-    if (res.success) {
-      const s = res.stats;
-      document.getElementById('s-users').textContent     = s.total_users;
-      document.getElementById('s-jobs').textContent      = s.total_jobs;
-      document.getElementById('s-apps').textContent      = s.total_applications;
-      document.getElementById('s-accepted').textContent  = s.accepted_applications;
-      document.getElementById('s-employers').textContent = s.total_employers;
-      document.getElementById('s-seekers').textContent   = s.total_seekers;
-
-      const tbody = document.getElementById('recent-users');
-      if (res.recent_users && res.recent_users.length) {
-        tbody.innerHTML = res.recent_users.map(u => `
-          <tr>
-            <td>${escHtml(u.name)}</td>
-            <td>${escHtml(u.email)}</td>
-            <td><span class="badge badge-info">${u.role.toUpperCase()}</span></td>
-            <td>${new Date(u.created_at).toLocaleDateString()}</td>
-          </tr>`).join('');
-      } else {
-        tbody.innerHTML = '<tr><td colspan="4">No users yet.</td></tr>';
-      }
+        const statsRes = await apiGet('/dashboard-stats.php');
+        if (statsRes && statsRes.success) {
+            const s = statsRes.stats;
+            document.getElementById('t-users').textContent = s.total_users || 0;
+            document.getElementById('t-jobs').textContent = s.total_jobs || 0;
+            document.getElementById('t-apps').textContent = s.total_applications || 0;
+        }
     }
-  }
-  init();
+    
+    init();
 </script>
 </body>
 </html>
-

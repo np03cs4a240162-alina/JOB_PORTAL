@@ -1,0 +1,156 @@
+{
+    "activity-logs.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "ai-job-generator.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "ai-parser.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "applications.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "auth.php": {
+        "GET_status": 404,
+        "GET_body_snippet": "{\"error\":\"Requested action not found.\"}",
+        "POST_status": 404,
+        "POST_body_snippet": "{\"error\":\"Requested action not found.\"}",
+        "POST_error": ""
+    },
+    "dashboard-stats.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "global-search.php": {
+        "GET_status": 200,
+        "GET_body_snippet": "{\"success\":true,\"data\":{\"jobs\":[],\"companies\":[],\"applicants\":[]}}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "jobs.php": {
+        "GET_status": 200,
+        "GET_body_snippet": "{\"success\":true,\"data\":[{\"id\":14,\"title\":\"QA Created Job 1779248152\",\"company\":\"QA Company\",\"salary\":\"$1000\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"Remote\",\"location\":\"Remote\",\"description\":\"Created by QA script\",\"deadline\":null,\"employer_id\":22,\"status\":\"active\",",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "jobs_crud.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "messages.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "notifications.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "password.php": {
+        "GET_status": 405,
+        "GET_body_snippet": "{\"error\":\"POST only.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "profiles.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "rbac.php": {
+        "GET_status": 200,
+        "GET_body_snippet": "",
+        "POST_status": 200,
+        "POST_body_snippet": "",
+        "POST_error": ""
+    },
+    "reviews.php": {
+        "GET_status": 200,
+        "GET_body_snippet": "{\"reviews\":[{\"id\":2,\"user_id\":16,\"company\":\"mit\",\"rating\":4,\"review\":\"\\\/qlagalgnm anf\\\/laknf kanfAKfsa\",\"created_at\":\"2026-05-18 23:03:22\",\"author\":\"Ram\"},{\"id\":1,\"user_id\":19,\"company\":\"QA Auditor Labs\",\"rating\":5,\"review\":\"Absolutely amazing workplace with advanced tooling and great engineering st",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "reviews_crud.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "saved.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "sms-notifier.php": {
+        "GET_status": 200,
+        "GET_body_snippet": "",
+        "POST_status": 200,
+        "POST_body_snippet": "",
+        "POST_error": ""
+    },
+    "trainings.php": {
+        "GET_status": 200,
+        "GET_body_snippet": "{\"success\":true,\"data\":[{\"id\":1,\"employer_id\":2,\"title\":\"Full-stack Web Development\",\"description\":\"Master React, Node.js, and SQL to build modern applications.\",\"price\":\"Rs. 25,000\",\"duration\":\"3 Months\",\"status\":\"active\",\"created_at\":\"2026-05-17 14:58:35\",\"employer_name\":\"Cedsr\"},{\"id\":2,\"employer",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "upload-image.php": {
+        "GET_status": 405,
+        "GET_body_snippet": "{\"success\":false,\"error\":\"POST only allow.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "upload.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    },
+    "users.php": {
+        "GET_status": 401,
+        "GET_body_snippet": "{\"error\":\"Unauthorized. Please login.\"}",
+        "POST_status": 401,
+        "POST_body_snippet": "{\"error\":\"Invalid or missing CSRF token.\"}",
+        "POST_error": ""
+    }
+}

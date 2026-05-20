@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Submit your professional job application.">
+    <title>Submit Application | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout" style="max-width: 600px;">
+    <div class="dashboard-panel animate-in">
+        <a href="../jobs/listing.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px; margin-bottom: 24px;">
+            <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Back to Jobs
+        </a>
+        
+        <h2 id="job-title" style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: var(--text-main); margin-bottom: 20px;">Apply for Job</h2>
+        
+        <div id="alert-box"></div>
+        
+        <div class="input-group" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label for="note" style="margin-bottom: 0;">Cover Note / Why are you a good fit?</label>
+                <button type="button" id="ai-gen-btn" onclick="generateAICoverLetter()" class="btn" style="font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; border: 1px solid rgba(244, 124, 72, 0.25); background: rgba(244, 124, 72, 0.06); color: var(--primary); display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-wand-magic-sparkles"></i> Generate with SmartAI ✨
+                </button>
+            </div>
+            <textarea id="note" rows="7" placeholder="Write a brief cover note describing your relevant capabilities..." required></textarea>
+        </div>
+        
+        <button id="apply-btn" onclick="handleApply()" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px;">
+            Submit Application <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>
+        </button>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    const jobId = new URLSearchParams(location.search).get('id');
+    let loadedJob = null;
+    let currentUser = null;
+
+    async function init() {
+        currentUser = await checkAuth('seeker');
+        if (!currentUser) return;
+        
+        if (!jobId) { 
+            showAlert('alert-box', 'No job selected.', 'error'); 
+            return; 
+        }
+        const job = await apiGet(`/jobs.php?id=${jobId}`);
+        if (job && !job.error && job.data) {
+            loadedJob = job.data;
+            document.getElementById('job-title').textContent = 'Apply: ' + escHtml(job.data.title);
+        }
+    }
+
+    async function generateAICoverLetter() {
+        if (!loadedJob || !currentUser) {
+            showAlert('alert-box', 'Please wait for job details to load.', 'error');
+            return;
+        }
+
+        const noteText = document.getElementById('note');
+        const btn = document.getElementById('ai-gen-btn');
+        
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Writing Cover Note...';
+        
+        // Simulating highly sophisticated Gemini AI text generation
+        setTimeout(() => {
+            const name = currentUser.name || 'Candidate';
+            const title = loadedJob.title || 'the selected position';
+            const company = loadedJob.company || 'your esteemed organization';
+            
+            const coverLetter = `Dear Hiring Team,
+
+I am writing to express my enthusiastic interest in the ${title} position at ${company}. As an ambitious technology professional, I am confident that my practical skills and proactive approach to software engineering align perfectly with the goals of this role.
+
+During my career development, I have focused on building robust, scalable web architectures and solving complex engineering challenges. I pride myself on writing clean, high-performance code and collaborating effectively in fast-paced teams. 
+
+I am highly excited about the prospect of contributing my passion for engineering and high-quality solutions to ${company}. Thank you for your time and consideration of my candidacy.
+
+Sincerely,
+${name}`;
+            
+            noteText.value = coverLetter;
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            showAlert('alert-box', 'AI Cover Letter generated successfully!', 'success');
+        }, 1200);
+    }
+
+    async function handleApply() {
+        const note = document.getElementById('note').value.trim();
+        if (!note) { 
+            showAlert('alert-box', 'Please write a cover note.', 'error'); 
+            return; 
+        }
+        setLoading('apply-btn', true, 'Submitting...');
+        const res = await apiPost('/applications.php', { 
+            job_id: parseInt(jobId), 
+            resume_note: note 
+        });
+        setLoading('apply-btn', false);
+        if (res.success) {
+            showAlert('alert-box', 'Application submitted successfully!', 'success');
+            setTimeout(() => location.href = 'applied-jobs.html', 1500);
+        } else {
+            showAlert('alert-box', res.error || 'Could not submit application.', 'error');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

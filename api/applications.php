@@ -2,48 +2,64 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-require_once __DIR__ . '/../config/cors.php';
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../config/session.php';
+require_once '../config/cors.php';
+require_once '../config/db.php';
+require_once '../config/session.php';
+require_once 'rbac.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db     = getDB();
 
-
+/**
+ * ── POST: Apply for a Job OR Update Status ──
+ */
 if ($method === 'POST') {
     $data = getBody();
+    requireCsrf();
     $action = $_GET['action'] ?? '';
 
+    // ACTION: Apply for a job (Job Seeker)
     if ($action === 'apply' || empty($action)) {
-        $user  = requireRole('seeker');
+        $user  = authorizeRole('seeker');
         $jobId = (int)($data['job_id'] ?? 0);
         $note  = isset($data['resume_note']) ? sanitize($data['resume_note']) : '';
 
-        $resumeId = (int)($data['resume_id'] ?? 0); 
-
         if (!$jobId) jsonResponse(['success' => false, 'error' => 'Job ID required.'], 400);
 
+        // 1. Check if job exists and is active
         $stmt = $db->prepare("SELECT id, employer_id, title FROM jobs WHERE id = ? AND status = 'active'");
         $stmt->execute([$jobId]);
         $job = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$job) jsonResponse(['success' => false, 'error' => 'This job is no longer accepting applications.'], 404);
 
+        // 2. Prevent double application
         $stmt = $db->prepare('SELECT id FROM applications WHERE job_id = ? AND seeker_id = ?');
         $stmt->execute([$jobId, $user['id']]);
         if ($stmt->fetch()) jsonResponse(['success' => false, 'error' => 'You have already applied for this position.'], 409);
 
-        $sql = "INSERT INTO applications (job_id, seeker_id, resume_note, status) VALUES (?, ?, ?, 'pending')";
-        $db->prepare($sql)->execute([$jobId, $user['id'], $note]);
+        // 3. Insert Application
+        try {
+            $sql = "INSERT INTO applications (job_id, seeker_id, resume_note, status) VALUES (?, ?, ?, 'pending')";
+            $db->prepare($sql)->execute([$jobId, $user['id'], $note]);
 
-        $notifMsg = "New applicant for '{$job['title']}' from " . $user['name'];
-        $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
-           ->execute([$job['employer_id'], $notifMsg]);
+            // 4. Notify Employer
+            $notifMsg = "New applicant for '{$job['title']}' from " . $user['name'];
+            $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
+               ->execute([$job['employer_id'], $notifMsg]);
+
+            logActivity($user['id'], $user['name'], $user['role'], 'Applied for a Job', "Job: " . $job['title']);
+        } catch (PDOException $e) {
+            file_put_contents('db_error.txt', $e->getMessage());
+            jsonResponse(['success' => false, 'error' => 'Database error occurred while applying: ' . $e->getMessage()], 500);
+        }
 
         jsonResponse(['success' => true, 'message' => 'Application submitted successfully!']);
     }
 
+    // ACTION: Update Status (Employer/Admin)
     if ($action === 'update-status') {
-        $user   = requireLogin();
+        $appId  = (int)($data['id'] ?? 0);
+        $user   = authorizeEmployerOrAdminForApplication($appId);
         $appId  = (int)($data['id'] ?? 0);
         $status = strtolower($data['status'] ?? '');
 
@@ -51,46 +67,54 @@ if ($method === 'POST') {
             jsonResponse(['success' => false, 'error' => 'Invalid status provided.'], 400);
         }
 
-        $stmt = $db->prepare("SELECT a.seeker_id, j.title, j.employer_id FROM applications a JOIN jobs j ON a.job_id = j.id WHERE a.id = ?");
+        // Verify existence and permission
+        $stmt = $db->prepare("SELECT a.seeker_id, u.name AS seeker_name, sp.phone AS seeker_phone, j.title, j.company, j.employer_id FROM applications a JOIN jobs j ON a.job_id = j.id JOIN users u ON a.seeker_id = u.id LEFT JOIN seeker_profiles sp ON u.id = sp.user_id WHERE a.id = ?");
         $stmt->execute([$appId]);
         $app = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$app) jsonResponse(['success' => false, 'error' => 'Application record not found.'], 404);
 
-        if ($user['role'] !== 'admin' && $app['employer_id'] != $user['id']) {
-            jsonResponse(['success' => false, 'error' => 'Unauthorized action.'], 403);
-        }
-
+        // Update Application Status
         $db->prepare('UPDATE applications SET status = ? WHERE id = ?')->execute([$status, $appId]);
 
+        // Specific Notifications based on status
         $statusLabel = ($status === 'accepted') ? "shortlisted/accepted" : "rejected";
         $msg = "Update: Your application for '{$app['title']}' has been {$statusLabel}.";
         
         $db->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)")
            ->execute([$app['seeker_id'], $msg]);
 
+        // Trigger Sparrow SMS Simulation
+        require_once 'sms-notifier.php';
+        SmsNotifier::sendStatusAlert($app['seeker_phone'], $app['seeker_name'], $app['title'], $app['company'], $status);
+
+        logActivity($user['id'], $user['name'], $user['role'], 'Updated candidate Application status', "Job: " . $app['title'] . " | Status: " . $status);
+
         jsonResponse(['success' => true, 'message' => "Application marked as " . ucfirst($status)]);
     }
 }
 
-
+/**
+ * ── GET: List Applications ──
+ */
 if ($method === 'GET') {
     $user = requireLogin();
 
+    // 1. Employer View (Includes Resume info)
     if ($user['role'] === 'employer') {
-        $sql = "SELECT a.id, a.status, a.applied_at, a.resume_note,
-                       u.name AS seeker_name, u.email AS seeker_email,
-                       j.title AS job_title
-                FROM applications a
-                JOIN users u ON a.seeker_id = u.id
-                JOIN jobs j ON a.job_id = j.id
-                WHERE j.employer_id = ?
+        $sql = "SELECT a.*, u.name AS seeker_name, u.email AS seeker_email, 
+                       j.title AS job_title 
+                FROM applications a 
+                JOIN users u ON a.seeker_id = u.id 
+                JOIN jobs j ON a.job_id = j.id 
+                WHERE j.employer_id = ? 
                 ORDER BY a.applied_at DESC";
         $stmt = $db->prepare($sql);
         $stmt->execute([$user['id']]);
         jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
+    // 2. Seeker View
     if ($user['role'] === 'seeker') {
         $stmt = $db->prepare("SELECT a.*, j.title AS job_title, j.company, j.location 
                               FROM applications a 
@@ -101,6 +125,7 @@ if ($method === 'GET') {
         jsonResponse(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 
+    // 3. Admin View
     if ($user['role'] === 'admin') {
         $stmt = $db->query("SELECT a.*, u.name AS seeker_name, j.title AS job_title, e.name AS employer_name 
                             FROM applications a 
@@ -113,4 +138,3 @@ if ($method === 'GET') {
 }
 
 jsonResponse(['success' => false, 'error' => 'Forbidden method.'], 405);
-

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure administrative training courses management vault.">
+    <title>Manage Workshops & Trainings | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .premium-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .premium-table th {
+            padding: 16px 20px;
+            background: var(--bg-deep);
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .premium-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout">
+    <div class="dashboard-panel animate-in">
+        <div class="panel-header">
+            <h3>Manage Workshops & Trainings</h3>
+            <a href="dashboard.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard
+            </a>
+        </div>
+
+        <div id="alert-box"></div>
+
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Provider (Employer)</th>
+                        <th>Fee Tier</th>
+                        <th>Status</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="trainings-list">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-dim);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                            <p style="margin-top: 10px;">Loading training listings...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    async function load() {
+        await checkAuth('admin');
+        const res = await apiGet('/trainings.php?admin_view=1');
+        const list = document.getElementById('trainings-list');
+        
+        if (res.success && res.data && res.data.length > 0) {
+            list.innerHTML = res.data.map(t => `
+            <tr>
+                <td>
+                    <strong style="color: var(--text-main); font-size: 15px;">${escHtml(t.title)}</strong><br>
+                    <small style="color: var(--text-muted); font-weight: 600;">${escHtml(t.duration)}</small>
+                </td>
+                <td style="color: var(--text-main); font-weight: 600;">${escHtml(t.employer_name)}</td>
+                <td style="color: var(--primary); font-weight: 700;">${escHtml(t.price)}</td>
+                <td>
+                    <span class="badge ${t.status === 'active' ? 'badge-success' : 'badge-error'}">${t.status}</span>
+                </td>
+                <td>
+                    <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+                        <button class="btn btn-glass" onclick="toggleStatus(${t.id}, '${t.status}')" style="padding: 6px 12px; font-size: 12px; color: ${t.status === 'active' ? '#ef4444' : '#10b981'}; border-color: ${t.status === 'active' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'};">
+                            ${t.status === 'active' ? 'Close' : 'Activate'}
+                        </button>
+                        <button class="btn btn-glass" onclick="del(${t.id})" style="padding: 6px 12px; font-size: 12px; border-color: rgba(244,67,54,0.3); color: #f44336;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `).join('');
+        } else {
+            list.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color: var(--text-dim); font-weight: 600;'>No workshops found.</td></tr>";
+        }
+    }
+
+    async function toggleStatus(id, current) {
+        const status = current === 'active' ? 'closed' : 'active';
+        await apiPut(`/trainings.php?id=${id}`, { status });
+        load();
+    }
+
+    async function del(id) {
+        if(confirm("Permanently delete this training?")) {
+            await apiDelete(`/trainings.php?id=${id}`);
+            load();
+        }
+    }
+
+    load();
+</script>
+</body>
+</html>

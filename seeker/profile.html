@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Update your professional credentials and key skills.">
+    <title>Professional Profile Setup | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .profile-side-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, #ff5722 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(244, 124, 72, 0.2);
+            overflow: hidden;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+        .avatar-wrapper-dashed {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            border: 2px dashed var(--border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-deep);
+        }
+        .avatar-wrapper-dashed img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container">
+    <div class="dashboard-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="profile-side-card">
+                <div class="avatar-container" id="avatar-container">
+                    <span id="avatar-initial">...</span>
+                </div>
+                <h3 id="profile-name" style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Loading...</h3>
+                <p id="profile-email" style="color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 24px;">applicant@example.com</p>
+                <a href="dashboard.html" class="btn btn-glass" style="width: 100%; padding: 10px; font-size: 13px;"><i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard</a>
+            </div>
+            
+            <div class="profile-side-card" style="padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+                    <span>Applied Jobs</span>
+                    <strong id="stat-applied" style="color: var(--primary);">0</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: var(--text-muted);">
+                    <span>Saved Jobs</span>
+                    <strong id="stat-saved" style="color: var(--primary);">0</strong>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="main-area">
+            <div class="dashboard-panel">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0;">Edit Professional Profile Setup</h3>
+                    <button onclick="handleAutoFill()" id="auto-fill-btn" class="btn" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; padding: 6px 16px; font-size: 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s;">
+                        <i class="fas fa-magic" style="color: #f47c48;"></i> Auto-Fill from CV
+                    </button>
+                </div>
+
+                <div id="alert-box"></div>
+                
+                <!-- Avatar Upload Section -->
+                <div style="text-align: center; margin-bottom: 36px;">
+                    <div class="avatar-wrapper-dashed">
+                        <img id="profile-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" onerror="this.onerror=null; this.style.display='none';">
+                        <i class="far fa-user-circle" style="font-size: 48px; color: var(--text-dim); position: absolute; z-index: 1;"></i>
+                    </div>
+                    <input type="file" id="photo-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <button onclick="document.getElementById('photo-upload').click()" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                        <i class="fas fa-camera" style="margin-right: 8px;"></i> Change Portrait Photo
+                    </button>
+                </div>
+
+                <!-- Fields -->
+                <div class="input-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" placeholder="e.g. John Doe">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" placeholder="+977 98XXXXXXXX">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label for="experience">Years of Experience</label>
+                        <input type="text" id="experience" placeholder="e.g. 3 years">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="skills">Key Skills (Comma separated)</label>
+                    <input type="text" id="skills" placeholder="PHP, MySQL, JavaScript, UI/UX">
+                </div>
+
+                <div class="input-group" style="margin-bottom: 32px;">
+                    <label for="bio">Professional Bio</label>
+                    <textarea id="bio" rows="6" placeholder="Describe your experience, stack focus, and achievements..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 16px; margin-top: 12px;">
+                    <button onclick="handleSave()" class="btn btn-primary" style="flex: 1.2; padding: 14px; font-size: 15px;">
+                        Save Profile Changes <i class="fas fa-circle-check" style="margin-left: 8px;"></i>
+                    </button>
+                    <button onclick="copyPortfolioLink()" class="btn btn-glass" style="flex: 0.8; padding: 14px; font-size: 14px; border-color: rgba(244,124,72,0.25); color: var(--primary); background: rgba(244,124,72,0.04);">
+                        <i class="fas fa-share-nodes" style="margin-right: 8px;"></i> Share Portfolio
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    let candidateId = null;
+
+    async function init() {
+        const user = await checkAuth('seeker');
+        if (!user) return;
+        
+        candidateId = user.id;
+        document.getElementById('profile-name').textContent = user.name;
+        document.getElementById('profile-email').textContent = user.email || 'user@example.com';
+        document.getElementById('avatar-initial').textContent = user.name.charAt(0).toUpperCase();
+        
+        const res = await apiGet('/profiles.php');
+        if (res && res.success && res.data) {
+            const p = res.data;
+            document.getElementById('fullname').value = p.name || '';
+            document.getElementById('phone').value = p.phone || '';
+            document.getElementById('skills').value = p.skills || '';
+            document.getElementById('experience').value = p.experience || '';
+            document.getElementById('bio').value = p.bio || '';
+            
+            if(p.photo) {
+                const photoUrl = getImageUrl(p.photo);
+                document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl}" alt="Profile" onerror="this.onerror=null; this.outerHTML='<span id=\\'avatar-initial\\'>${user.name.charAt(0).toUpperCase()}</span>';">`;
+                const preview = document.getElementById('profile-photo-preview');
+                preview.src = photoUrl;
+                preview.style.display = 'block';
+            }
+        }
+
+        const statsRes = await apiGet('/dashboard-stats.php');
+        if (statsRes && statsRes.success) {
+            document.getElementById('stat-applied').textContent = statsRes.stats.total_applications || 0;
+            document.getElementById('stat-saved').textContent = statsRes.stats.saved_jobs || 0;
+        }
+    }
+
+    async function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        const fd = new FormData();
+        fd.append('image', file);
+        
+        try {
+            const result = await apiPostFile('/upload-image.php', fd);
+            if(result.success) {
+                showAlert('alert-box', 'Profile picture updated successfully!', 'success');
+                const photoUrl = getImageUrl(result.filename);
+                document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl}" alt="Profile">`;
+                const preview = document.getElementById('profile-photo-preview');
+                preview.src = photoUrl;
+                preview.style.display = 'block';
+            } else {
+                showAlert('alert-box', result.error || 'Failed to upload image.', 'error');
+            }
+        } catch (err) {
+            showAlert('alert-box', 'An error occurred during upload.', 'error');
+        }
+    }
+
+    async function handleSave() {
+        const name = document.getElementById('fullname').value.trim();
+        if (!name) return showAlert('alert-box', 'Full name is required.', 'error');
+
+        const res = await apiPost('/profiles.php?action=update', {
+            name: name,
+            phone: document.getElementById('phone').value.trim(),
+            skills: document.getElementById('skills').value.trim(),
+            experience: document.getElementById('experience').value.trim(),
+            bio: document.getElementById('bio').value.trim(),
+        });
+
+        if (res.success) {
+            showAlert('alert-box', 'Profile successfully saved!', 'success');
+            document.getElementById('profile-name').textContent = name;
+            const initials = document.getElementById('avatar-initial');
+            if (initials) {
+                initials.textContent = name.charAt(0).toUpperCase();
+            }
+        } else {
+            showAlert('alert-box', res.error || 'Failed to update profile.', 'error');
+        }
+    }
+
+    async function handleAutoFill() {
+        const btn = document.getElementById('auto-fill-btn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
+        btn.disabled = true;
+
+        try {
+            const res = await apiGet('/profiles.php');
+            if (res && res.success && res.data) {
+                const p = res.data;
+                // If they have parsed data from a CV, fill the fields!
+                if (p.parsed_skills || p.parsed_experience) {
+                    if (p.parsed_skills) {
+                        document.getElementById('skills').value = p.parsed_skills;
+                        document.getElementById('skills').style.border = '1px solid var(--primary)';
+                    }
+                    if (p.parsed_experience) {
+                        document.getElementById('experience').value = p.parsed_experience;
+                        document.getElementById('experience').style.border = '1px solid var(--primary)';
+                    }
+                    if (p.bio === '' && p.parsed_experience) {
+                        document.getElementById('bio').value = `I am a professional with experience as a ${p.parsed_experience}. I hold a ${p.parsed_education}. My core tech stack includes ${p.parsed_skills}.`;
+                        document.getElementById('bio').style.border = '1px solid var(--primary)';
+                    }
+                    showAlert('alert-box', 'Form instantly populated based on your CV!', 'success');
+                } else {
+                    showAlert('alert-box', 'No CV found. Please upload and parse your CV first in the Resume Hub.', 'error');
+                }
+            }
+        } catch (e) {
+            showAlert('alert-box', 'Failed to auto-fill.', 'error');
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    }
+
+    function copyPortfolioLink() {
+        if (!candidateId) {
+            showAlert('alert-box', 'User identity not loaded yet.', 'error');
+            return;
+        }
+        
+        const link = `${window.location.origin}${BASE}/seeker/portfolio.php?id=${candidateId}`;
+        navigator.clipboard.writeText(link).then(() => {
+            showAlert('alert-box', 'Portfolio link copied to clipboard successfully!', 'success');
+        }).catch(() => {
+            showAlert('alert-box', 'Failed to copy link automatically. Portfolio link: ' + link, 'error');
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>

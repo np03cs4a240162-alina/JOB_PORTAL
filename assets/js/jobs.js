@@ -1,15 +1,16 @@
-
+// ── Job Fetching ──────────────────────────────────────────────────────────────
 async function loadAllJobs(keyword='', category='', location='') {
-    let url = `${API}/jobs.php?action=search`;
+    let url = '/jobs.php?action=search';
     if (keyword)  url += `&keyword=${encodeURIComponent(keyword)}`;
     if (category && category !== 'All') url += `&category=${encodeURIComponent(category)}`;
     if (location) url += `&location=${encodeURIComponent(location)}`;
     
     const res = await apiGet(url);
-
+    // Standardize return to ensure 'data' is always an array for .map()
     return res.success ? res : { success: false, data: [] };
 }
 
+// ── Ajax Autocomplete ─────────────────────────────────────────────────────────
 async function setupAutocomplete(inputId, listId) {
     const input = document.getElementById(inputId);
     const list  = document.getElementById(listId);
@@ -20,7 +21,8 @@ async function setupAutocomplete(inputId, listId) {
         list.innerHTML = '';
         if (q.length < 2) { list.style.display = 'none'; return; }
 
-        const res = await apiGet(`${API}/jobs.php?action=autocomplete&q=${encodeURIComponent(q)}`);
+        // Updated: Backend now returns {success: true, data: [...]}
+        const res = await apiGet(`/jobs.php?action=autocomplete&q=${encodeURIComponent(q)}`);
         
         if (res.success && Array.isArray(res.data) && res.data.length) {
             list.style.display = 'block';
@@ -44,10 +46,13 @@ async function setupAutocomplete(inputId, listId) {
     });
 }
 
-
+// ── Applications ──────────────────────────────────────────────────────────────
+/**
+ * Submits a job application with an optional resume ID
+ */
 async function applyToJob(jobId, resumeId = 0, resumeNote = '') {
-
-    return apiPost(`${API}/applications.php?action=apply`, { 
+    // Matches the updated backend 'action=apply' logic
+    return apiPost('/applications.php?action=apply', { 
         job_id: jobId, 
         resume_id: resumeId,
         resume_note: resumeNote 
@@ -55,63 +60,89 @@ async function applyToJob(jobId, resumeId = 0, resumeNote = '') {
 }
 
 async function getMyApplications() { 
-    return apiGet(`${API}/applications.php`); // Backend handles role-based filtering
+    return apiGet('/applications.php'); // Backend handles role-based filtering
 }
 
 async function updateApplicationStatus(appId, status) { 
-
-    return apiPost(`${API}/applications.php?action=update-status`, { 
+    // Matches 'action=update-status' in the updated backend
+    return apiPost('/applications.php?action=update-status', { 
         id: appId, 
         status: status 
     });
 }
 
-async function saveJobAction(jobId, btn) {
-    let isSeeker = false;
-    if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'seeker') isSeeker = true;
-    if (typeof state !== 'undefined' && state && state.user && state.user.role === 'seeker') isSeeker = true;
+// ── Saved Jobs ────────────────────────────────────────────────────────────────
+async function toggleSaveJob(jobId, currentSaved = false) {
+    const user = await getCurrentUser();
+    if (!user || user.role !== 'seeker') {
+        alert('Please login as a seeker to save jobs.');
+        return { success: false, error: 'Auth required' };
+    }
 
-    if (!isSeeker) {
+    if (currentSaved) {
+        // Unsave logic (DELETE)
+        return apiDelete(`/saved.php?job_id=${jobId}`);
+    } else {
+        // Save logic (POST)
+        return apiPost('/saved.php', { job_id: jobId });
+    }
+}
+
+async function saveJobAction(jobId, btn) {
+    const user = await getCurrentUser();
+    if (!user || user.role !== 'seeker') {
         showAlert('alert-box', 'Please login as a seeker to save jobs.', 'error');
         return;
     }
 
     btn.disabled = true;
-    const res = await apiPost(`${API}/saved.php`, { job_id: jobId });
+    const res = await apiPost('/saved.php', { job_id: jobId });
     
-    if (res.success) {
+    if (res.success || res.status === 409) {
         btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-        btn.classList.add('btn-saved'); // Better than inline styles
+        btn.classList.add('btn-saved');
+        if (typeof showAlert === 'function' && res.success) {
+            showAlert('alert-box', 'Job saved successfully!', 'success');
+        }
     } else {
         btn.disabled = false;
-
-        if (res.status === 409) btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-        else alert(res.error || "Failed to save job.");
+        alert(res.error || "Failed to save job.");
     }
 }
 
+// ── Render Card ───────────────────────────────────────────────────────────────
 function renderJobCard(job) {
     const closed  = job.status === 'closed';
     const company = escHtml(job.employer_name || job.company || 'JSTACK');
-    let isSeeker = false;
-    if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'seeker') isSeeker = true;
-    if (typeof state !== 'undefined' && state && state.user && state.user.role === 'seeker') isSeeker = true;
+    const isSeeker = window.state.user && window.state.user.role === 'seeker';
     
     const saveBtn = isSeeker ? 
         `<button class="btn-icon-only" title="Save Job" onclick="saveJobAction(${job.id}, this)">
             <i class="far fa-bookmark"></i>
          </button>` : '';
 
+    // Calculate or display AI-Match badge if score is attached
+    let aiMatchBadge = '';
+    if (job.aiScore) {
+        aiMatchBadge = `
+            <span class="badge" style="background: rgba(244, 124, 72, 0.08); color: var(--primary); border: 1px solid rgba(244, 124, 72, 0.15); font-size: 10px; padding: 4px 10px; margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fas fa-wand-magic-sparkles" style="font-size: 10px;"></i> ${job.aiScore}% Match
+            </span>`;
+    }
+    
     return `
-    <div class="job-card">
+    <div class="job-card" style="position: relative;">
         <div class="job-card-header">
-            <h3>${escHtml(job.title)}</h3>
+            <h3 style="display: flex; align-items: center; flex-wrap: wrap;">
+                ${escHtml(job.title)}
+                ${aiMatchBadge}
+            </h3>
             ${saveBtn}
         </div>
         <p class="job-company"><strong>${company}</strong> — ${escHtml(job.location || 'Remote')}</p>
         <p class="job-salary">${escHtml(job.salary || 'Negotiable')}</p>
         <div class="job-tags">
-            <span class="tag">${escHtml(job.category || 'Other')}</span>
+            <span class="tag" style="background: var(--bg-hover); color: var(--text-muted); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px;">${escHtml(job.category || 'Other')}</span>
             <span class="job-date">${new Date(job.created_at).toLocaleDateString()}</span>
         </div>
         <div class="job-actions">
@@ -121,4 +152,3 @@ function renderJobCard(job) {
         </div>
     </div>`;
 }
-

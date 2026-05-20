@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View and track your submitted job applications.">
+    <title>My Applications | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .premium-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .premium-table th {
+            padding: 16px 20px;
+            background: var(--bg-deep);
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .premium-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .premium-table tr:last-child td {
+            border-bottom: none;
+        }
+        .status-badge {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-pending { background: rgba(255, 179, 0, 0.1); color: #ffb300; }
+        .status-accepted { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+        .status-rejected { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout">
+    <div class="dashboard-panel animate-in">
+        <div class="panel-header">
+            <h3>My Applications</h3>
+            <a href="../jobs/listing.html" class="btn btn-primary" style="font-size: 13px; padding: 10px 20px;">
+                Browse More Jobs <i class="fas fa-search" style="margin-left: 6px;"></i>
+            </a>
+        </div>
+
+        <div id="alert-box"></div>
+
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Location</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="apps-table">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 60px; color: var(--text-dim);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                            <p style="margin-top: 10px; font-weight: 600;">Loading your applications...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    async function init() {
+        const user = await checkAuth('seeker');
+        if (!user) return;
+
+        const res = await apiGet('/applications.php');
+        const tbody = document.getElementById('apps-table');
+        
+        if (!res.success || !res.data || res.data.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 80px; color: var(--text-dim);">
+                    <div style="font-size: 48px; color: var(--border); margin-bottom: 16px;"><i class="fas fa-folder-open"></i></div>
+                    <div style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">No applications found</div>
+                    <p style="font-size: 14px; margin-bottom: 20px;">Explore and apply to jobs matching your skill profile.</p>
+                    <a href="../jobs/listing.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 20px;">Browse jobs now</a>
+                </td>
+            </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = res.data.map(a => {
+            const statusInfo = {
+                pending:  { class: 'status-pending', icon: 'fa-clock' },
+                accepted: { class: 'status-accepted', icon: 'fa-check-circle' },
+                rejected: { class: 'status-rejected', icon: 'fa-times-circle' }
+            }[a.status] || { class: '', icon: 'fa-info-circle' };
+
+            return `
+            <tr>
+                <td style="font-weight: 800; color: var(--text-main);">${escHtml(a.job_title)}</td>
+                <td style="color: var(--text-main); font-weight: 600;">${escHtml(a.company)}</td>
+                <td style="color: var(--text-muted);"><i class="fas fa-map-marker-alt" style="font-size: 12px; margin-right: 6px;"></i> ${escHtml(a.location || 'Remote')}</td>
+                <td style="font-size: 13px; color: var(--text-dim);">${new Date(a.applied_at).toLocaleDateString()}</td>
+                <td>
+                    <span class="status-badge ${statusInfo.class}">
+                        <i class="fas ${statusInfo.icon}"></i> ${a.status}
+                    </span>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    init();
+</script>
+</body>
+</html>

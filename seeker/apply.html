@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Submit your professional job application.">
+    <title>Apply for Job | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout" style="max-width: 680px;">
+    <div class="dashboard-panel animate-in">
+        <a href="../jobs/listing.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px; margin-bottom: 28px; display: inline-flex;">
+            <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back to Listings
+        </a>
+
+        <div style="margin-bottom: 28px;">
+            <h2 id="job-title" style="font-size: 24px; font-weight: 900; letter-spacing: -0.5px; color: var(--text-main); margin-bottom: 8px;">Loading Job details...</h2>
+            <p id="job-meta" style="color: var(--text-muted); font-size: 14px; font-weight: 600; display: flex; gap: 16px;"></p>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 28px;">
+        
+        <div id="alert-box"></div>
+
+        <div id="apply-form">
+            <div class="input-group" style="margin-bottom: 28px;">
+                <label for="note"><i class="far fa-note-sticky" style="margin-right: 6px; color: var(--text-dim);"></i> Cover Note / Professional Suitability Summary</label>
+                <textarea id="note" rows="8" 
+                  placeholder="Describe your fit for this role. What specific skills and achievements make you stand out?" 
+                  required></textarea>
+            </div>
+
+            <button id="apply-btn" onclick="handleApply()" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px;">
+                Submit Professional Application <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    const jobId = new URLSearchParams(location.search).get('id');
+
+    async function init() {
+        const user = await checkAuth('seeker');
+        if (!user) return;
+
+        if (!jobId) {
+            showAlert('alert-box', 'Invalid request. No job specified.', 'error');
+            document.getElementById('apply-form').style.display = 'none';
+            return;
+        }
+
+        const res = await apiGet(`/jobs.php?id=${jobId}`);
+        
+        if (res && res.success && res.data) {
+            const job = res.data;
+            document.getElementById('job-title').textContent = `Apply: ${escHtml(job.title)}`;
+            document.getElementById('job-meta').innerHTML = `
+                <span><i class="fas fa-building" style="margin-right: 6px; color: var(--primary);"></i> ${escHtml(job.company)}</span>
+                <span><i class="fas fa-map-marker-alt" style="margin-right: 6px; color: var(--primary);"></i> ${escHtml(job.location)}</span>
+            `;
+        } else {
+            showAlert('alert-box', 'Job not found or is closed.', 'error');
+            document.getElementById('apply-form').style.display = 'none';
+            document.getElementById('job-title').textContent = 'Job Unavailable';
+        }
+    }
+
+    async function handleApply() {
+        const note = document.getElementById('note').value.trim();
+
+        if (!note || note.length < 20) {
+            showAlert('alert-box', 'Please share a complete note (min 20 characters) explaining your profile.', 'error');
+            return;
+        }
+
+        setLoading('apply-btn', true, 'Submitting application...');
+
+        const res = await apiPost('/applications.php?action=apply', { 
+            job_id: parseInt(jobId), 
+            resume_note: note 
+        });
+
+        setLoading('apply-btn', false);
+
+        if (res.success) {
+            showAlert('alert-box', '<strong>Application Sent!</strong> Your professional candidate profile has been shared.', 'success');
+            document.getElementById('apply-form').style.opacity = '0.4';
+            document.getElementById('apply-btn').disabled = true;
+
+            setTimeout(() => {
+                location.href = 'applied-jobs.html';
+            }, 2000);
+        } else {
+            showAlert('alert-box', res.error || 'Failed to submit application.', 'error');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

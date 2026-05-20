@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Publish modern workshops and skill training programs.">
+    <title>Host Training Opportunity | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout" style="max-width: 640px;">
+    <div class="dashboard-panel animate-in">
+        <div class="panel-header">
+            <h3><i class="fas fa-graduation-cap" style="color: var(--primary); margin-right: 10px;"></i> Host New Training</h3>
+            <a href="dashboard.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard
+            </a>
+        </div>
+        
+        <p style="color: var(--text-muted); font-size: 14px; font-weight: 600; margin-bottom: 28px;">
+            Offer elite development courses, webinars, or coding bootcamps to our seeker network.
+        </p>
+        
+        <div id="alert-box"></div>
+
+        <div class="input-group">
+            <label for="title">Training Title</label>
+            <input type="text" id="title" placeholder="e.g. Advanced Graphic Design Workshop" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="price">Enrollment Fee (Rs.)</label>
+                <input type="text" id="price" placeholder="e.g. 5000 or Free" required>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="duration">Duration</label>
+                <input type="text" id="duration" placeholder="e.g. 4 Weeks" required>
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-bottom: 32px;">
+            <label for="description">Description & Course Highlights</label>
+            <textarea id="description" rows="6" placeholder="Detail the course curriculum, prerequisites, schedule, and certification details..." required></textarea>
+        </div>
+
+        <button id="post-btn" onclick="handlePost()" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 15px;">
+            Post Training Opportunity <i class="fas fa-bullhorn" style="margin-left: 8px;"></i>
+        </button>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    async function handlePost() {
+        const data = {
+            title: document.getElementById('title').value.trim(),
+            price: document.getElementById('price').value.trim(),
+            duration: document.getElementById('duration').value.trim(),
+            description: document.getElementById('description').value.trim()
+        };
+
+        if(!data.title || !data.description) {
+            showAlert('alert-box', 'Title and Description are required fields.', 'error');
+            return;
+        }
+
+        setLoading('post-btn', true, 'Publishing course...');
+        const res = await apiPost('/trainings.php', data);
+        setLoading('post-btn', false);
+
+        if(res.success) {
+            showAlert('alert-box', 'Training posted successfully! Redirecting...', 'success');
+            setTimeout(() => {
+                location.href = 'dashboard.html';
+            }, 1500);
+        } else {
+            showAlert('alert-box', res.error || 'Failed to post training.', 'error');
+        }
+    }
+
+    checkAuth('employer');
+</script>
+</body>
+</html>

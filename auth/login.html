@@ -3,138 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - JSTACK</title>
+    <meta name="description" content="Access your SmartJob account. Welcome back.">
+    <title>Sign In | SmartJob Nepal</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         body {
-            background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            background: linear-gradient(135deg, var(--bg-deep) 0%, #f1f5f9 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
-
-        .login-wrapper {
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, var(--bg-deep) 0%, #0b0f19 100%);
+        }
+        .auth-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
-            animation: fadeIn 0.8s var(--ease-out);
-        }
-
-        .login-card {
-            background: var(--bg-card);
-            width: 100%;
-            max-width: 440px;
-            padding: 48px;
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-premium);
-            border: 1px solid var(--border-light);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 5px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-        }
-
-        .login-header { text-align: center; margin-bottom: 35px; }
-        .login-header h1 { font-size: 28px; font-weight: 900; color: var(--text-dark); letter-spacing: -1px; margin-bottom: 8px; }
-        .login-header p { color: var(--text-light); font-size: 15px; }
-
-        .form-group { margin-bottom: 24px; position: relative; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-mid); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .input-icon-wrapper { position: relative; }
-        .input-icon-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); transition: var(--transition); }
-        .input-icon-wrapper input { width: 100%; padding: 14px 16px 14px 45px; border: 1px solid var(--border); border-radius: var(--radius-md); font-weight: 500; transition: var(--transition); background: var(--bg-soft); }
-        .input-icon-wrapper input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px var(--primary-light); }
-        .input-icon-wrapper input:focus + i { color: var(--primary); }
-
-        .pass-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-light); cursor: pointer; padding: 0; box-shadow: none; }
-        .pass-toggle:hover { color: var(--primary); }
-
-        .btn-login { width: 100%; padding: 15px; font-size: 16px; font-weight: 700; margin-top: 10px; }
-
-        .login-footer { margin-top: 30px; text-align: center; font-size: 14px; color: var(--text-mid); border-top: 1px solid var(--border-light); padding-top: 25px; }
-        .login-footer a { font-weight: 700; color: var(--primary); }
-
-        @media (max-width: 480px) {
-            .login-card { padding: 30px 24px; }
+            padding: 120px 20px 60px;
         }
     </style>
 </head>
 <body>
 
-<header class="navbar" style="background: transparent; border: none; box-shadow: none;">
-    <div class="nav-container">
-        <h2>JSTACK</h2>
-        <a href="../index.html" style="font-weight: 700; font-size: 14px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;"><i class="fas fa-home"></i> Home</a>
-    </div>
-</header>
+<header class="global-nav"></header>
 
-<div class="login-wrapper">
-    <div class="login-card">
-        <div class="login-header">
-            <h1>Welcome Back</h1>
-            <p>Access your dashboard and manage your career</p>
+<div class="auth-wrapper">
+    <div class="form-box animate-in">
+        <div style="margin-bottom: 32px;">
+            <div style="font-size: 32px; font-weight: 950; letter-spacing: -2px; color: var(--text-main); margin-bottom: 8px;">
+                Smart<span style="color: var(--primary);">Job</span>
+            </div>
+            <h2 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px;">Welcome Back</h2>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 500;">Sign in to unlock Nepal's smartest career opportunities.</p>
         </div>
 
         <div id="alert-box"></div>
 
-        <form id="loginForm" onsubmit="return false;">
-            <div class="form-group">
-                <label>Email Address</label>
-                <div class="input-icon-wrapper">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" placeholder="name@company.com" required autocomplete="username">
+        <!-- Tabs for Switching Sign In Method -->
+        <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+            <button id="tab-password" type="button" onclick="switchLoginMethod('password')" class="btn" style="flex: 1; padding: 10px; font-size: 14px; font-weight: 700; border-radius: var(--radius); background: var(--primary); color: white; border: none; transition: 0.2s; cursor: pointer; justify-content: center;">
+                <i class="fas fa-key" style="margin-right: 6px;"></i> Password
+            </button>
+            <button id="tab-otp" type="button" onclick="switchLoginMethod('otp')" class="btn btn-glass" style="flex: 1; padding: 10px; font-size: 14px; font-weight: 700; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text-muted); transition: 0.2s; cursor: pointer; justify-content: center;">
+                <i class="fas fa-envelope" style="margin-right: 6px;"></i> Secure OTP
+            </button>
+        </div>
+
+        <!-- Method 1: Password Login Container -->
+        <div id="login-password-container">
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="email"><i class="far fa-envelope" style="margin-right: 6px; color: var(--text-dim);"></i> Email Address</label>
+                    <input type="email" id="email" placeholder="you@example.com" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 24px;">
+                    <label for="password"><i class="far fa-lock" style="margin-right: 6px; color: var(--text-dim);"></i> Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" id="login-btn" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; border-radius: var(--radius); justify-content: center;">
+                    Sign In <i class="fas fa-arrow-right-to-bracket" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Method 2: Secure OTP Login Container -->
+        <div id="login-otp-container" style="display: none;">
+            <!-- Step 1: Send OTP -->
+            <div id="login-otp-step1">
+                <form onsubmit="handleLoginOtpSend(event)">
+                    <div class="input-group" style="margin-bottom: 24px;">
+                        <label for="email-otp"><i class="far fa-envelope" style="margin-right: 6px; color: var(--text-dim);"></i> Email Address</label>
+                        <input type="email" id="email-otp" placeholder="you@example.com" required>
+                    </div>
+                    <button type="submit" id="login-otp-send-btn" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; border-radius: var(--radius); justify-content: center;">
+                        Send Verification Code <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>
+                    </button>
+                </form>
+            </div>
+            <!-- Step 2: Verify OTP -->
+            <div id="login-otp-step2" style="display: none;">
+                <p style="color: var(--text-muted); font-size: 14px; font-weight: 600; margin-bottom: 20px; line-height: 1.6;">
+                    Enter the secure 6-digit verification code sent to your email:
+                </p>
+                <form onsubmit="handleLoginOtpVerify(event)">
+                    <div class="input-group" style="margin-bottom: 20px;">
+                        <label for="otp-code" style="text-align: center; display: block;"><i class="far fa-key" style="margin-right: 6px; color: var(--text-dim);"></i> Verification Code (OTP)</label>
+                        <input type="text" id="otp-code" placeholder="••••••" maxlength="6"
+                               style="font-size: 28px; letter-spacing: 12px; text-align: center; font-weight: 800;" required>
+                    </div>
+                    <button type="submit" id="login-otp-verify-btn" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; border-radius: var(--radius); margin-bottom: 12px; justify-content: center;">
+                        Verify & Sign In <i class="fas fa-circle-check" style="margin-left: 8px;"></i>
+                    </button>
+                </form>
+                <div style="margin-bottom: 12px;">
+                    <button id="resend-login-otp-btn" onclick="handleResendLoginOtp(event)" class="btn btn-glass" style="width: 100%; padding: 12px; font-size: 14px; border-radius: var(--radius); justify-content: center; width: 100%;" disabled>
+                        <i class="fas fa-rotate-right" style="margin-right: 8px;"></i> Resend Code <span id="login-cooldown-timer">(30s)</span>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <label style="margin:0;">Password</label>
-                    <a href="forgot-password.html" style="font-size: 12px; font-weight: 700; color: var(--primary);">Forgot?</a>
-                </div>
-                <div class="input-icon-wrapper">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
-                    <button type="button" class="pass-toggle" onclick="togglePass(this)"><i class="fas fa-eye"></i></button>
-                </div>
-            </div>
+        <script>
+            function switchLoginMethod(method) {
+                const tabPassword = document.getElementById('tab-password');
+                const tabOtp = document.getElementById('tab-otp');
+                const containerPassword = document.getElementById('login-password-container');
+                const containerOtp = document.getElementById('login-otp-container');
+                
+                if (method === 'password') {
+                    // Set active style for Password Tab
+                    tabPassword.style.background = 'var(--primary)';
+                    tabPassword.style.color = 'white';
+                    tabPassword.style.border = 'none';
+                    
+                    // Reset OTP Tab
+                    tabOtp.style.background = 'transparent';
+                    tabOtp.style.color = 'var(--text-muted)';
+                    tabOtp.style.border = '1px solid var(--border)';
+                    
+                    // Toggle Views
+                    containerPassword.style.display = 'block';
+                    containerOtp.style.display = 'none';
+                } else {
+                    // Reset Password Tab
+                    tabPassword.style.background = 'transparent';
+                    tabPassword.style.color = 'var(--text-muted)';
+                    tabPassword.style.border = '1px solid var(--border)';
+                    
+                    // Set active style for OTP Tab
+                    tabOtp.style.background = 'var(--primary)';
+                    tabOtp.style.color = 'white';
+                    tabOtp.style.border = 'none';
+                    
+                    // Toggle Views
+                    containerPassword.style.display = 'none';
+                    containerOtp.style.display = 'block';
+                }
+            }
+        </script>
 
-            <button type="button" id="login-btn" onclick="handleLogin()" class="btn-login">Sign In <i class="fas fa-arrow-right"></i></button>
-        </form>
-
-        <div class="login-footer">
-            Don't have an account? <a href="register.html">Create free account</a>
+        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; font-weight: 600;">
+            <a href="forgot-password.html" style="color: var(--primary); transition: 0.2s;">Forgot password?</a>
+            <span style="color: var(--text-muted);">New to SmartJob? <a href="register.html" style="color: var(--primary); transition: 0.2s;">Create a free account</a></span>
         </div>
     </div>
 </div>
 
-<script src="../assets/js/main.js?v=1.2"></script>
+<footer class="premium-footer" style="padding: 40px 0; margin-top: auto; background: transparent; border-top: 1px solid var(--border);">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 13px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
 <script src="../assets/js/auth.js"></script>
-<script>
-    function togglePass(btn) {
-        const input = document.getElementById('password');
-        const icon = btn.querySelector('i');
-        const show = input.type === 'password';
-        
-        input.type = show ? 'text' : 'password';
-        icon.className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
-    }
-
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin();
-        });
-    });
-</script>
 </body>
-
+</html>

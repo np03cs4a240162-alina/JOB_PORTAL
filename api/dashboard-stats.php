@@ -1,66 +1,67 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-require_once '../config/session.php';
+require_once '../config/cors.php';
 require_once '../config/db.php';
+require_once '../config/session.php';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') jsonResponse(['error' => 'GET only.'], 405);
 $user = requireLogin();
-$id   = $user['id'];
-$role = $user['role'];
+$db   = getDB();
 
-try {
-    $db = getDB();
+if ($user['role'] === 'admin') {
+    // 1. Fetch General System Stats
+    $row = $db->query("SELECT
+        (SELECT COUNT(*) FROM users) AS total_users,
+        (SELECT COUNT(*) FROM users WHERE role='employer') AS total_employers,
+        (SELECT COUNT(*) FROM users WHERE role='seeker') AS total_seekers,
+        (SELECT COUNT(*) FROM jobs) AS total_jobs,
+        (SELECT COUNT(*) FROM jobs WHERE status='active') AS active_jobs,
+        (SELECT COUNT(*) FROM applications) AS total_applications,
+        (SELECT COUNT(*) FROM applications WHERE status='accepted') AS accepted_applications,
+        (SELECT COUNT(*) FROM applications WHERE status='pending') AS pending_applications,
+        (SELECT COUNT(*) FROM applications WHERE status='rejected') AS rejected_applications,
+        (SELECT COUNT(*) FROM reviews) AS total_reviews
+    ")->fetch();
+
+    // 2. NEW: Fetch Average Ratings per Company for the Dashboard Chart
+    // This groups reviews by company and calculates the mean rating
+    $companyStats = $db->query("SELECT 
+            company, 
+            ROUND(AVG(rating), 1) as avg_rating, 
+            COUNT(*) as review_count 
+        FROM reviews 
+        GROUP BY company 
+        ORDER BY avg_rating DESC 
+        LIMIT 10"
+    )->fetchAll();
+
+    $recentJobs  = $db->query("SELECT j.id,j.title,j.company,j.status,j.created_at,u.name AS employer_name FROM jobs j LEFT JOIN users u ON j.employer_id=u.id ORDER BY j.created_at DESC LIMIT 5")->fetchAll();
+    $recentUsers = $db->query("SELECT id,name,email,role,created_at FROM users ORDER BY created_at DESC LIMIT 5")->fetchAll();
     
-    $stats = [];
-    $recentUsers = null;
-
-    if ($role === 'admin') {
-        $stats['total_users']           = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-        $stats['active_jobs']           = (int)$db->query("SELECT COUNT(*) FROM jobs WHERE status = 'active'")->fetchColumn();
-        $stats['total_applications']    = (int)$db->query("SELECT COUNT(*) FROM applications")->fetchColumn();
-        $stats['total_employers']       = (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'employer'")->fetchColumn();
-        $stats['total_seekers']         = (int)$db->query("SELECT COUNT(*) FROM users WHERE role = 'seeker'")->fetchColumn();
-        $stats['accepted_applications'] = (int)$db->query("SELECT COUNT(*) FROM applications WHERE status = 'accepted'")->fetchColumn();
-        $recentUsers = $db->query("SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 5")->fetchAll();
-    } 
-    elseif ($role === 'employer') {
-        $stats['total_jobs']           = (int)$db->prepare("SELECT COUNT(*) FROM jobs WHERE employer_id = ?")->execute([$id]) ? $db->prepare("SELECT COUNT(*) FROM jobs WHERE employer_id = ?")->execute([$id]) : 0; 
-
-        $stmtJobs = $db->prepare("SELECT COUNT(*) FROM jobs WHERE employer_id = ?");
-        $stmtJobs->execute([$id]);
-        $stats['total_jobs'] = (int)$stmtJobs->fetchColumn();
-
-        $stmtApps = $db->prepare("SELECT COUNT(*) FROM applications a JOIN jobs j ON a.job_id = j.id WHERE j.employer_id = ?");
-        $stmtApps->execute([$id]);
-        $stats['total_applications'] = (int)$stmtApps->fetchColumn();
-
-        $stmtAcc = $db->prepare("SELECT COUNT(*) FROM applications a JOIN jobs j ON a.job_id = j.id WHERE j.employer_id = ? AND a.status = 'accepted'");
-        $stmtAcc->execute([$id]);
-        $stats['accepted'] = (int)$stmtAcc->fetchColumn();
-
-        $stmtPend = $db->prepare("SELECT COUNT(*) FROM applications a JOIN jobs j ON a.job_id = j.id WHERE j.employer_id = ? AND a.status = 'pending'");
-        $stmtPend->execute([$id]);
-        $stats['pending'] = (int)$stmtPend->fetchColumn();
-    }
-    elseif ($role === 'seeker') {
-        $stmt1 = $db->prepare("SELECT COUNT(*) FROM applications WHERE seeker_id = ?");
-        $stmt1->execute([$id]);
-        $stats['applied'] = (int)$stmt1->fetchColumn();
-
-        $stmt2 = $db->prepare("SELECT COUNT(*) FROM saved_jobs WHERE user_id = ?");
-        $stmt2->execute([$id]);
-        $stats['saved'] = (int)$stmt2->fetchColumn();
-    }
-
-    echo json_encode([
-        'success'      => true,
-        'role'         => $role,
-        'stats'        => $stats,
+    // Return the new company_stats along with existing data
+    jsonResponse([
+        'success' => true, 
+        'stats' => array_map('intval', $row), 
+        'company_stats' => $companyStats, // Data for your Chart.js
+        'recent_jobs' => $recentJobs, 
         'recent_users' => $recentUsers
     ]);
-
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
+// Logic for Employer and Seeker roles remains unchanged
+if ($user['role'] === 'employer') {
+    $stmt = $db->prepare("SELECT COUNT(DISTINCT j.id) AS total_jobs, COUNT(DISTINCT a.id) AS total_applications, SUM(a.status='accepted') AS accepted, SUM(a.status='pending') AS pending, SUM(a.status='rejected') AS rejected FROM jobs j LEFT JOIN applications a ON j.id=a.job_id WHERE j.employer_id=?");
+    $stmt->execute([$user['id']]);
+    jsonResponse(['success'=>true, 'stats'=>array_map('intval',$stmt->fetch())]);
+}
 
+if ($user['role'] === 'seeker') {
+    $stmt = $db->prepare("SELECT COUNT(*) AS total_applications, SUM(status='accepted') AS accepted, SUM(status='pending') AS pending, SUM(status='rejected') AS rejected FROM applications WHERE seeker_id=?");
+    $stmt->execute([$user['id']]);
+    $row = $stmt->fetch();
+    $saved = $db->prepare('SELECT COUNT(*) FROM saved_jobs WHERE user_id=?');
+    $saved->execute([$user['id']]);
+    $row['saved_jobs'] = (int)$saved->fetchColumn();
+    jsonResponse(['success'=>true, 'stats'=>array_map('intval',$row)]);
+}
+
+jsonResponse(['error' => 'Role not recognized.'], 403);

@@ -2,6 +2,8 @@
 require_once '../config/cors.php';
 require_once '../config/db.php';
 require_once '../config/session.php';
+require_once 'rbac.php';
+require_once '../config/otp.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonResponse(['error' => 'POST only.'], 405);
 $data   = getBody();
@@ -26,11 +28,18 @@ if ($action === 'change') {
 if ($action === 'reset') {
     $email = sanitize($data['email']        ?? '');
     $new   = $data['new_password']          ?? '';
-    if (!$email || !$new) jsonResponse(['error' => 'Email and new password required.'], 400);
+    $otp = trim($data['otp'] ?? '');
+
+    // Require OTP verification for public password resets. Use the forgot-otp flow to obtain the code.
+    if (!$email || !$new || !$otp) jsonResponse(['error' => 'Email, new password and OTP code are required. Use the forgot-password flow.'], 400);
+
+    // Validate OTP
+    $res = verifyOtp($email, $otp, 'reset');
+    if (!$res['success']) jsonResponse(['error' => $res['error']], 400);
+
     $stmt = $db->prepare('SELECT id FROM users WHERE email=?'); $stmt->execute([$email]);
     if (!$stmt->fetch()) jsonResponse(['error' => 'Email not found.'], 404);
     $db->prepare('UPDATE users SET password=? WHERE email=?')->execute([password_hash($new, PASSWORD_DEFAULT), $email]);
     jsonResponse(['success' => true, 'message' => 'Password reset.']);
 }
 jsonResponse(['error' => 'Invalid action.'], 400);
-

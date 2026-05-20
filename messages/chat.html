@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure live candidate and employer collaboration chat.">
+    <title>Chat | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .chat-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .chat-container-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-messages-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: var(--bg-deep);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        /* Custom Webkit Scrollbar for Chat */
+        .chat-messages-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-messages-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-messages-area::-webkit-scrollbar-thumb {
+            background-color: var(--border);
+            border-radius: 20px;
+        }
+        .chat-input-bar {
+            padding: 20px 24px;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .msg-bubble-wrap {
+            display: flex;
+            flex-direction: column;
+            max-width: 75%;
+        }
+        .msg-bubble {
+            padding: 14px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 500;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .msg-bubble.sent {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff5722 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-bubble.received {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container chat-layout" style="max-width: 720px;">
+    <div class="chat-container-card animate-in">
+        <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
+                <h3 id="chat-title" style="font-size: 16px; font-weight: 800; color: var(--text-main);">Chat Workspace</h3>
+            </div>
+            <a href="inbox.html" class="btn btn-glass" style="font-size: 13px; padding: 8px 14px;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Inbox
+            </a>
+        </div>
+
+        <div class="chat-messages-area" id="chat-messages">
+            <div style="text-align: center; padding: 40px; color: var(--text-dim);">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+            </div>
+        </div>
+
+        <div class="chat-input-bar">
+            <input type="text" id="msg-input" placeholder="Type message..." style="flex: 1; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; font-size: 14px; background: var(--bg-deep); color: var(--text-main);">
+            <button onclick="sendMsg()" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+                Send <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    let currentUser = null;
+    const partnerId = parseInt(new URLSearchParams(location.search).get('with'));
+
+    async function init() {
+        currentUser = await requireLogin();
+        if(!currentUser) return;
+        
+        const partner = await apiGet(`/users.php?id=${partnerId}`);
+        document.getElementById('chat-title').textContent = escHtml(partner.name || 'Chat Workspace');
+        
+        loadMessages();
+        setInterval(loadMessages, 5000);
+    }
+
+    async function loadMessages() {
+        const msgs = await apiGet(`/messages.php?with=${partnerId}`);
+        const box  = document.getElementById('chat-messages');
+        
+        if (!msgs || !Array.isArray(msgs) || !msgs.length) {
+            box.innerHTML = '<div style="text-align:center; color: var(--text-dim); font-weight:600; padding:20px;">No messages yet. Say hello!</div>'; 
+            return;
+        }
+        
+        box.innerHTML = msgs.map(m => {
+            const mine = m.from_user == currentUser.id;
+            return `
+                <div style="display:flex; flex-direction:column; align-items:${mine ? 'flex-end' : 'flex-start'}; margin-bottom:4px;" id="msg-${m.id}">
+                    <div class="msg-bubble-wrap">
+                        <div class="msg-bubble ${mine ? 'sent' : 'received'}">
+                            ${escHtml(m.message)}
+                            <div style="font-size: 10px; opacity: 0.7; margin-top: 6px; font-weight:600; text-align: right;">
+                                ${new Date(m.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                        </div>
+                        ${mine ? `
+                        <div style="text-align: right; margin-top: 4px;">
+                            <button style="font-size:11px; background:none; border:none; color:#ef4444; font-weight:700; cursor:pointer;" onclick="deleteMsg(${m.id})">
+                                <i class="far fa-trash-can"></i> Delete
+                            </button>
+                        </div>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+        
+        box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendMsg() {
+        const input = document.getElementById('msg-input');
+        const text  = input.value.trim();
+        if (!text) return;
+        const res = await apiPost('/messages.php', { to_user: partnerId, message: text });
+        if (res.success) { 
+            input.value = ''; 
+            loadMessages(); 
+        } else {
+            alert(res.error || 'Failed to send message.');
+        }
+    }
+
+    async function deleteMsg(id) {
+        if (!confirm('Permanently delete this message?')) return;
+        const res = await apiDelete(`/messages.php?id=${id}`);
+        if (res.success) document.getElementById(`msg-${id}`)?.remove();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('msg-input').addEventListener('keypress', e => { 
+            if (e.key === 'Enter') sendMsg(); 
+        });
+    });
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure administrative pipelines audit board.">
+    <title>Manage Job Applications | SmartJob Nepal</title>
+    <link class="stylesheet" rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .premium-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .premium-table th {
+            padding: 16px 20px;
+            background: var(--bg-deep);
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .premium-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .search-bar-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 576px) {
+            .search-bar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout">
+    <div class="dashboard-panel animate-in">
+        <div class="panel-header">
+            <h3>Manage Job Applications</h3>
+            <a href="dashboard.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard
+            </a>
+        </div>
+
+        <div class="search-bar-grid">
+            <select id="filter-status" onchange="filterApps()">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            <input type="text" id="filter-search" placeholder="Search applicant names or vacancy titles..." oninput="filterApps()">
+        </div>
+
+        <div id="alert-box"></div>
+
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Applicant</th>
+                        <th>Job Title</th>
+                        <th>Employer</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="apps-table">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-dim);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    let allApps = [];
+
+    async function init() {
+        await checkAuth('admin');
+        const data = await apiGet('/applications.php?admin_view=1');
+        allApps = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+        renderTable(allApps);
+    }
+
+    function filterApps() {
+        const status = document.getElementById('filter-status').value;
+        const q = document.getElementById('filter-search').value.toLowerCase();
+        renderTable(allApps.filter(a => 
+            (!status || a.status === status) && 
+            ((a.seeker_name||'').toLowerCase().includes(q) || (a.job_title||'').toLowerCase().includes(q))
+        ));
+    }
+
+    function renderTable(apps) {
+        const tbody = document.getElementById('apps-table');
+        if (!apps.length) { 
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color: var(--text-dim); font-weight: 600;">No applications found.</td></tr>'; 
+            return; 
+        }
+        
+        tbody.innerHTML = apps.map(a => `
+        <tr>
+            <td style="font-weight: 800; color: var(--text-main); font-size: 15px;">
+                <strong>${escHtml(a.seeker_name || 'Unknown')}</strong><br>
+                <small style="color: var(--text-muted); font-weight: 500;">${escHtml(a.seeker_email || '')}</small>
+            </td>
+            <td style="color: var(--primary); font-weight: 700;">${escHtml(a.job_title)}</td>
+            <td style="color: var(--text-main); font-weight: 600;">${escHtml(a.employer_name || 'N/A')}</td>
+            <td style="color: var(--text-dim); font-size: 13px;">${new Date(a.applied_at).toLocaleDateString()}</td>
+            <td>
+                <span class="badge ${a.status === 'accepted' ? 'badge-success' : (a.status === 'rejected' ? 'badge-error' : 'badge-warning')}">${a.status.toUpperCase()}</span>
+            </td>
+            <td>
+                <select onchange="updateStatus(${a.id}, this.value)" style="padding: 6px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 13px; font-weight: 600; background: var(--bg-surface); color: var(--text-main);">
+                    <option value="pending" ${a.status==='pending' ? 'selected' : ''}>Pending</option>
+                    <option value="accepted" ${a.status==='accepted' ? 'selected' : ''}>Accept</option>
+                    <option value="rejected" ${a.status==='rejected' ? 'selected' : ''}>Reject</option>
+                </select>
+            </td>
+        </tr>`).join('');
+    }
+
+    async function updateStatus(id, status) {
+        const res = await apiPut(`/applications.php?id=${id}`, { status });
+        if (res.success) {
+            showAlert('alert-box', `Status updated successfully to ${status}.`, 'success');
+            init();
+        } else {
+            showAlert('alert-box', res.error || 'Update failed.', 'error');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

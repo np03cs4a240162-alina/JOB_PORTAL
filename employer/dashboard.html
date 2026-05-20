@@ -1,15 +1,339 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0; url=dashboard.php">
-    <script type="text/javascript">
-        window.location.href = "dashboard.php"
-    </script>
-    <title>Dashboard Redirecting...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage your premium job offerings and candidate pipelines.">
+    <title>Employer Workspace | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .profile-side-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, #ff5722 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(244, 124, 72, 0.2);
+            overflow: hidden;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .side-nav {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .side-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .side-nav-link:hover, .side-nav-link.active {
+            background: rgba(244, 124, 72, 0.08);
+            color: var(--primary);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(244, 124, 72, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 32px;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .premium-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .premium-table th {
+            padding: 16px 20px;
+            background: var(--bg-deep);
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .premium-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+    </style>
 </head>
 <body>
-    If you are not redirected automatically, follow this <a href="dashboard.php">link to dashboard.php</a>.
+
+<header class="global-nav"></header>
+
+<div class="container">
+    <div class="dashboard-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="profile-side-card">
+                <div class="avatar-container" id="sb-avatar-container">
+                    <span id="sb-initial">...</span>
+                </div>
+                <h3 id="sb-name" style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Loading...</h3>
+                <p id="sb-industry" style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin-bottom: 24px;">Employer</p>
+                <a href="profile.html" class="btn btn-glass" style="width: 100%; padding: 10px; font-size: 13px;">Manage Company Profile</a>
+            </div>
+
+            <nav class="side-nav">
+                <a href="dashboard.html" class="side-nav-link active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="post-job.html" class="side-nav-link"><i class="fas fa-plus-circle"></i> Post Job</a>
+                <a href="edit-job.html" class="side-nav-link"><i class="fas fa-briefcase"></i> Manage Jobs</a>
+                <a href="applicants.html" class="side-nav-link"><i class="fas fa-users-viewfinder"></i> Applicants</a>
+                <a href="post-training.html" class="side-nav-link"><i class="fas fa-plus-circle"></i> Post Training</a>
+                <a href="manage-trainings.html" class="side-nav-link"><i class="fas fa-graduation-cap"></i> Manage Trainings</a>
+                <a href="../messages/inbox.html" class="side-nav-link"><i class="fas fa-comment-dots"></i> Message Center</a>
+                <a href="../settings/account.html" class="side-nav-link"><i class="fas fa-cog"></i> Settings</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="main-area">
+            <div style="margin-bottom: 36px;">
+                <h1 style="font-size: 32px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 6px;">Employer Hub</h1>
+                <p style="color: var(--text-muted); font-size: 15px; font-weight: 500;">Scale your team with elite AI-curated talent pipelines.</p>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Active Listings</div>
+                        <h2 id="sb-jobs" style="font-size: 36px; font-weight: 900; color: var(--text-main); line-height: 1;">0</h2>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Applications</div>
+                        <h2 id="sb-apps" style="font-size: 36px; font-weight: 900; color: var(--text-main); line-height: 1;">0</h2>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(255, 179, 0, 0.1); color: #ffb300;"><i class="fas fa-users"></i></div>
+                </div>
+            </div>
+
+            <!-- Recent Listings -->
+            <div class="dashboard-panel">
+                <div class="panel-header">
+                    <h3>Active Job Listings</h3>
+                    <a href="edit-job.html" class="btn btn-primary" style="font-size: 13px; padding: 10px 20px;">
+                        Manage Pipelines <i class="fas fa-briefcase" style="margin-left: 6px;"></i>
+                    </a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Salary Bracket</th>
+                                <th>Workplace Setting</th>
+                                <th>Applications</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-listings-tbody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-dim);">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity History Log -->
+            <div class="dashboard-panel">
+                <div class="panel-header">
+                    <h3>Employer Activity History Log</h3>
+                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dim);"><i class="fas fa-history" style="margin-right: 4px;"></i> Live updates</span>
+                </div>
+                <div id="activity-log-container" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="text-align: center; color: var(--text-dim); padding: 20px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 20px; color: var(--primary);"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    async function init() {
+        const user = await checkAuth('employer');
+        if (!user) return;
+        
+        document.getElementById('sb-name').textContent = user.name;
+        document.getElementById('sb-initial').textContent = user.name.charAt(0).toUpperCase();
+
+        const dataRes = await apiGet('/profiles.php');
+        if (dataRes && dataRes.success && dataRes.data) {
+            const data = dataRes.data;
+            if(data.industry) document.getElementById('sb-industry').textContent = data.industry;
+            if(data.logo) {
+                const logoUrl = getImageUrl(data.logo);
+                document.getElementById('sb-avatar-container').innerHTML = `<img src="${logoUrl}" alt="Company Logo" onerror="this.onerror=null; this.outerHTML='<span id=\\'sb-initial\\'>${user.name.charAt(0).toUpperCase()}</span>';">`;
+            }
+        }
+
+        const statsRes = await apiGet('/dashboard-stats.php');
+        if (statsRes && statsRes.success) {
+            document.getElementById('sb-jobs').textContent = statsRes.stats.total_jobs || 0;
+            document.getElementById('sb-apps').textContent = statsRes.stats.total_applications || 0;
+        }
+
+        const jobsRes = await apiGet('/jobs.php?mine=1');
+        const tbody = document.getElementById('recent-listings-tbody');
+        if (jobsRes && jobsRes.success && jobsRes.data.length > 0) {
+            tbody.innerHTML = jobsRes.data.slice(0, 5).map(job => `
+                <tr>
+                    <td style="font-weight: 800; color: var(--text-main);">${escHtml(job.title)}</td>
+                    <td style="font-weight: 600; color: var(--text-main);">${escHtml(job.salary || 'Negotiable')}</td>
+                    <td style="color: var(--text-muted);"><i class="fas fa-laptop-house" style="margin-right: 6px; font-size: 12px;"></i> ${escHtml(job.location || 'Remote')}</td>
+                    <td style="font-weight: 700; color: var(--primary);">${job.application_count || 0}</td>
+                    <td>
+                        <span class="badge ${job.status === 'active' ? 'badge-success' : 'badge-error'}">${job.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; font-weight: 600; color: var(--text-dim);">No active listings found.</td></tr>';
+        }
+
+        // Fetch and render employer activity logs
+        const logsRes = await apiGet('/activity-logs.php');
+        const logsContainer = document.getElementById('activity-log-container');
+        if (logsRes && logsRes.success && logsRes.data.length > 0) {
+            logsContainer.innerHTML = logsRes.data.map(log => `
+                <div style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-deep);">
+                    <div style="font-size: 16px; color: var(--primary); padding-top: 2px;"><i class="fas fa-history"></i></div>
+                    <div style="flex: 1;">
+                        <h5 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${escHtml(log.action)}</h5>
+                        <p style="font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px;">${escHtml(log.details || '')}</p>
+                        <span style="font-size: 11px; color: var(--text-dim); font-weight: 600;"><i class="far fa-clock" style="margin-right: 4px;"></i> ${new Date(log.created_at).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            logsContainer.innerHTML = '<p style="text-align:center; color: var(--text-dim); padding:20px; font-weight: 600;">No recent activity logs.</p>';
+        }
+    }
+    
+    init();
+</script>
 </body>
 </html>
-
-

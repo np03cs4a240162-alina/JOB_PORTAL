@@ -1,0 +1,282 @@
+{
+    "seeker_login": {
+        "code": 200,
+        "raw": "{\"success\":true,\"user\":{\"id\":21,\"name\":\"QA Seeker\",\"email\":\"qa_seeker@example.com\",\"role\":\"seeker\",\"is_verified\":0,\"verification_token\":null,\"created_at\":\"2026-05-20 09:20:22\",\"skills\":null,\"education\":null,\"experience\":null,\"account_status\":\"active\"},\"csrf_token\":\"fd2bcac7946218e22a7c6a9988ce7b77b1657519a8bb71a1305efdb8766102c4\"}",
+        "json": {
+            "success": true,
+            "user": {
+                "id": 21,
+                "name": "QA Seeker",
+                "email": "qa_seeker@example.com",
+                "role": "seeker",
+                "is_verified": 0,
+                "verification_token": null,
+                "created_at": "2026-05-20 09:20:22",
+                "skills": null,
+                "education": null,
+                "experience": null,
+                "account_status": "active"
+            },
+            "csrf_token": "fd2bcac7946218e22a7c6a9988ce7b77b1657519a8bb71a1305efdb8766102c4"
+        }
+    },
+    "jobs_list": {
+        "code": 200,
+        "raw": "{\"success\":true,\"data\":[{\"id\":14,\"title\":\"QA Created Job 1779248152\",\"company\":\"QA Company\",\"salary\":\"$1000\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"Remote\",\"location\":\"Remote\",\"description\":\"Created by QA script\",\"deadline\":null,\"employer_id\":22,\"status\":\"active\",\"created_at\":\"2026-05-20 09:20:52\",\"industry\":\"Software\",\"employer_name\":\"QA Employer\"},{\"id\":13,\"title\":\"UI\\\/ux designer\",\"company\":\"Cedar gate\",\"salary\":\"$800\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"Naxal\",\"description\":\"Exp:1 year\",\"deadline\":null,\"employer_id\":10,\"status\":\"active\",\"created_at\":\"2026-04-11 23:55:57\",\"industry\":null,\"employer_name\":\"alish\"},{\"id\":11,\"title\":\"Senior Designer\",\"company\":\"Cedar\",\"salary\":\"800\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"Hadigaun\",\"description\":\"Experience:5 years\",\"deadline\":null,\"employer_id\":7,\"status\":\"active\",\"created_at\":\"2026-04-05 08:56:40\",\"industry\":null,\"employer_name\":\"Cedar Gate Tech\"},{\"id\":10,\"title\":\"Wordpress Developer\",\"company\":\"Cedar Gate Tech\",\"salary\":\"1000\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"Banepa\",\"description\":\"Experience:2 years\",\"deadline\":null,\"employer_id\":7,\"status\":\"active\",\"created_at\":\"2026-04-05 01:32:01\",\"industry\":null,\"employer_name\":\"Cedar Gate Tech\"},{\"id\":9,\"title\":\"Junior Designer\",\"company\":\"Cedar\",\"salary\":\"100\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"Sanepa\",\"description\":\"junior designer experience:1 year\",\"deadline\":null,\"employer_id\":4,\"status\":\"active\",\"created_at\":\"2026-04-05 01:15:27\",\"industry\":null,\"employer_name\":\"yatrik\"},{\"id\":8,\"title\":\"Graphics Designer\",\"company\":\"Yatrik\",\"salary\":\"200\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"Putalisadak\",\"description\":\"Experience:Mid-Level\",\"deadline\":null,\"employer_id\":4,\"status\":\"active\",\"created_at\":\"2026-04-05 01:09:16\",\"industry\":null,\"employer_name\":\"yatrik\"},{\"id\":7,\"title\":\"SEO Specialist\",\"company\":\"Wevolve\",\"salary\":\"400\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"Naxal\",\"description\":\"Experience:2 years\",\"deadline\":null,\"employer_id\":4,\"status\":\"active\",\"created_at\":\"2026-04-05 00:44:20\",\"industry\":null,\"employer_name\":\"yatrik\"},{\"id\":6,\"title\":\"designer\",\"company\":\"cedar\",\"salary\":\"800\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"sanepa\",\"description\":\"2 year experience\",\"deadline\":null,\"employer_id\":4,\"status\":\"active\",\"created_at\":\"2026-04-04 22:06:10\",\"industry\":null,\"employer_name\":\"yatrik\"},{\"id\":5,\"title\":\"frontend dev\",\"company\":\"cedargate\",\"salary\":\"1200\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"sanepa\",\"description\":\"experienced\",\"deadline\":null,\"employer_id\":4,\"status\":\"active\",\"created_at\":\"2026-03-29 08:30:36\",\"industry\":null,\"employer_name\":\"yatrik\"},{\"id\":4,\"title\":\"backend senior level\",\"company\":\"yatrik\",\"salary\":\"1200\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"remote\",\"description\":\"6 years experience\",\"deadline\":null,\"employer_id\":4,\"status\":\"active\",\"created_at\":\"2026-03-28 19:38:33\",\"industry\":null,\"employer_name\":\"yatrik\"},{\"id\":1,\"title\":\"hjghjg\",\"company\":\"hjghjgjhg\",\"salary\":\"56565\",\"category\":\"IT\",\"type\":\"Full Time\",\"experience_level\":\"entry\",\"workplace\":\"On-site\",\"location\":\"hjghjghjvhvhjfyfyf\",\"description\":\"hgfghf\",\"deadline\":null,\"employer_id\":2,\"status\":\"active\",\"created_at\":\"2026-03-28 19:02:10\",\"industry\":null,\"employer_name\":\"Cedsr\"}]}",
+        "json": {
+            "success": true,
+            "data": [
+                {
+                    "id": 14,
+                    "title": "QA Created Job 1779248152",
+                    "company": "QA Company",
+                    "salary": "$1000",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "Remote",
+                    "location": "Remote",
+                    "description": "Created by QA script",
+                    "deadline": null,
+                    "employer_id": 22,
+                    "status": "active",
+                    "created_at": "2026-05-20 09:20:52",
+                    "industry": "Software",
+                    "employer_name": "QA Employer"
+                },
+                {
+                    "id": 13,
+                    "title": "UI\/ux designer",
+                    "company": "Cedar gate",
+                    "salary": "$800",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "Naxal",
+                    "description": "Exp:1 year",
+                    "deadline": null,
+                    "employer_id": 10,
+                    "status": "active",
+                    "created_at": "2026-04-11 23:55:57",
+                    "industry": null,
+                    "employer_name": "alish"
+                },
+                {
+                    "id": 11,
+                    "title": "Senior Designer",
+                    "company": "Cedar",
+                    "salary": "800",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "Hadigaun",
+                    "description": "Experience:5 years",
+                    "deadline": null,
+                    "employer_id": 7,
+                    "status": "active",
+                    "created_at": "2026-04-05 08:56:40",
+                    "industry": null,
+                    "employer_name": "Cedar Gate Tech"
+                },
+                {
+                    "id": 10,
+                    "title": "Wordpress Developer",
+                    "company": "Cedar Gate Tech",
+                    "salary": "1000",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "Banepa",
+                    "description": "Experience:2 years",
+                    "deadline": null,
+                    "employer_id": 7,
+                    "status": "active",
+                    "created_at": "2026-04-05 01:32:01",
+                    "industry": null,
+                    "employer_name": "Cedar Gate Tech"
+                },
+                {
+                    "id": 9,
+                    "title": "Junior Designer",
+                    "company": "Cedar",
+                    "salary": "100",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "Sanepa",
+                    "description": "junior designer experience:1 year",
+                    "deadline": null,
+                    "employer_id": 4,
+                    "status": "active",
+                    "created_at": "2026-04-05 01:15:27",
+                    "industry": null,
+                    "employer_name": "yatrik"
+                },
+                {
+                    "id": 8,
+                    "title": "Graphics Designer",
+                    "company": "Yatrik",
+                    "salary": "200",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "Putalisadak",
+                    "description": "Experience:Mid-Level",
+                    "deadline": null,
+                    "employer_id": 4,
+                    "status": "active",
+                    "created_at": "2026-04-05 01:09:16",
+                    "industry": null,
+                    "employer_name": "yatrik"
+                },
+                {
+                    "id": 7,
+                    "title": "SEO Specialist",
+                    "company": "Wevolve",
+                    "salary": "400",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "Naxal",
+                    "description": "Experience:2 years",
+                    "deadline": null,
+                    "employer_id": 4,
+                    "status": "active",
+                    "created_at": "2026-04-05 00:44:20",
+                    "industry": null,
+                    "employer_name": "yatrik"
+                },
+                {
+                    "id": 6,
+                    "title": "designer",
+                    "company": "cedar",
+                    "salary": "800",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "sanepa",
+                    "description": "2 year experience",
+                    "deadline": null,
+                    "employer_id": 4,
+                    "status": "active",
+                    "created_at": "2026-04-04 22:06:10",
+                    "industry": null,
+                    "employer_name": "yatrik"
+                },
+                {
+                    "id": 5,
+                    "title": "frontend dev",
+                    "company": "cedargate",
+                    "salary": "1200",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "sanepa",
+                    "description": "experienced",
+                    "deadline": null,
+                    "employer_id": 4,
+                    "status": "active",
+                    "created_at": "2026-03-29 08:30:36",
+                    "industry": null,
+                    "employer_name": "yatrik"
+                },
+                {
+                    "id": 4,
+                    "title": "backend senior level",
+                    "company": "yatrik",
+                    "salary": "1200",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "remote",
+                    "description": "6 years experience",
+                    "deadline": null,
+                    "employer_id": 4,
+                    "status": "active",
+                    "created_at": "2026-03-28 19:38:33",
+                    "industry": null,
+                    "employer_name": "yatrik"
+                },
+                {
+                    "id": 1,
+                    "title": "hjghjg",
+                    "company": "hjghjgjhg",
+                    "salary": "56565",
+                    "category": "IT",
+                    "type": "Full Time",
+                    "experience_level": "entry",
+                    "workplace": "On-site",
+                    "location": "hjghjghjvhvhjfyfyf",
+                    "description": "hgfghf",
+                    "deadline": null,
+                    "employer_id": 2,
+                    "status": "active",
+                    "created_at": "2026-03-28 19:02:10",
+                    "industry": null,
+                    "employer_name": "Cedsr"
+                }
+            ]
+        }
+    },
+    "save_job": {
+        "code": 200,
+        "raw": "{\"success\":true}",
+        "json": {
+            "success": true
+        }
+    },
+    "apply_job": {
+        "code": 200,
+        "raw": "{\"success\":true,\"message\":\"Application submitted successfully!\"}",
+        "json": {
+            "success": true,
+            "message": "Application submitted successfully!"
+        }
+    },
+    "employer_login": {
+        "code": 200,
+        "raw": "{\"success\":true,\"user\":{\"id\":22,\"name\":\"QA Employer\",\"email\":\"qa_employer@example.com\",\"role\":\"employer\",\"is_verified\":0,\"verification_token\":null,\"created_at\":\"2026-05-20 09:20:22\",\"skills\":null,\"education\":null,\"experience\":null,\"account_status\":\"active\"},\"csrf_token\":\"7e0c4529dafce8f47dae5b7a4f5373262ff545c3e1da266dad25c09a5b3d4951\"}",
+        "json": {
+            "success": true,
+            "user": {
+                "id": 22,
+                "name": "QA Employer",
+                "email": "qa_employer@example.com",
+                "role": "employer",
+                "is_verified": 0,
+                "verification_token": null,
+                "created_at": "2026-05-20 09:20:22",
+                "skills": null,
+                "education": null,
+                "experience": null,
+                "account_status": "active"
+            },
+            "csrf_token": "7e0c4529dafce8f47dae5b7a4f5373262ff545c3e1da266dad25c09a5b3d4951"
+        }
+    },
+    "create_job": {
+        "code": 200,
+        "raw": "{\"success\":true,\"id\":15}",
+        "json": {
+            "success": true,
+            "id": 15
+        }
+    },
+    "deleted_job": {
+        "code": 200,
+        "raw": "{\"success\":true,\"message\":\"Job deleted successfully.\"}",
+        "json": {
+            "success": true,
+            "message": "Job deleted successfully."
+        }
+    }
+}

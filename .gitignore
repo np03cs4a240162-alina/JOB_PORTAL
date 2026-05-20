@@ -1,0 +1,8 @@
+uploads/
+scratch/
+*.txt
+*.log
+.DS_Store
+node_modules/
+config/credentials.json
+.env

@@ -1,92 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Detail - JSTACK</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View absolute details of this corporate vacancy.">
+    <title>Job Detail | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .detail-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .detail-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        .info-pill-container {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 28px 0;
+            padding: 20px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .info-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .info-pill i {
+            color: var(--primary);
+        }
+        .desc-text {
+            line-height: 1.8;
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 500;
+            white-space: pre-line;
+        }
+    </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h2>JSTACK</h2>
-  <a href="listing.html">← All Jobs</a>
-  <div id="nav-actions"></div>
-</header>
+<header class="global-nav"></header>
 
-<div class="container" style="max-width:800px;">
-  <div id="job-detail" style="background:white;padding:30px;border-radius:12px;
-       box-shadow:0 4px 12px rgba(0,0,0,.08);margin-top:20px;">
-    <p style="text-align:center;color:#888;">Loading job...</p>
-  </div>
-  <div id="alert-box" style="margin-top:16px;"></div>
+<div class="container detail-layout" style="max-width: 840px;">
+    <div style="margin-bottom: 24px;">
+        <a href="listing.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+            <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> All Vacancies
+        </a>
+    </div>
+
+    <div id="job-detail" class="detail-card animate-in">
+        <div style="text-align: center; padding: 60px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: var(--primary);"></i>
+            <p style="margin-top: 12px; font-weight: 600; color: var(--text-muted);">Fetching details...</p>
+        </div>
+    </div>
+    
+    <div id="alert-box" style="margin-top: 24px;"></div>
 </div>
 
-<footer><p>© 2026 JSTACK</p></footer>
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
 
-<script src="../assets/js/main.js?v=1.2"></script>
-<script src="../assets/js/jobs.js?v=1.1"></script>
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/jobs.js"></script>
 <script>
-  const jobId = new URLSearchParams(location.search).get('id');
+    const jobId = new URLSearchParams(location.search).get('id');
 
-  async function loadDetail() {
-    const box  = document.getElementById('job-detail');
-    if (!jobId) { box.innerHTML = '<p>No job ID provided.</p>'; return; }
+    async function loadDetail() {
+        await getCurrentUser();
+        const box = document.getElementById('job-detail');
+        if (!jobId) { 
+            box.innerHTML = '<p style="padding:40px; text-align:center; color: var(--text-dim); font-weight:600;">No job selection found.</p>'; 
+            return; 
+        }
 
-    const res  = await apiGet(`${API}/jobs.php?id=${jobId}`);
-    const job  = (res && res.success) ? res.data ?? res : null;
-    if (!job)  { box.innerHTML = '<p>Job not found.</p>'; return; }
+        const response = await apiGet(`/jobs.php?id=${jobId}`);
+        if (!response || !response.success || !response.data) { 
+            box.innerHTML = '<p style="padding:40px; text-align:center; color: var(--text-dim); font-weight:600;">Vacancy not found.</p>'; 
+            return; 
+        }
 
-    const user = await getCurrentUser();
-    const isClosed = job.status === 'closed';
+        const job = response.data;
+        const user = window.state.user;
+        const isClosed = job.status === 'closed';
 
-    box.innerHTML = `
-      <h2 style="color:#0a66c2;">${escHtml(job.title)}</h2>
-      <p style="margin:8px 0;font-size:16px;color:#555;">
-        <strong>${escHtml(job.employer_name || job.company)}</strong>
-      </p>
-      <div style="display:flex;gap:20px;flex-wrap:wrap;margin:16px 0;">
-        <span>📍 ${escHtml(job.location||'N/A')}</span>
-        <span>💰 ${escHtml(job.salary||'Negotiable')}</span>
-        <span>📂 ${escHtml(job.category||'General')}</span>
-        <span class="badge ${isClosed?'badge-error':'badge-success'}">${isClosed?'CLOSED':'ACTIVE'}</span>
-      </div>
-      <hr style="margin:16px 0;">
-      <h4 style="margin-bottom:10px;">Job Description</h4>
-      <p style="line-height:1.8;color:#444;">${escHtml(job.description||'').replace(/\n/g,'<br>')}</p>
-      <p style="margin-top:16px;font-size:12px;color:#aaa;">
-        Posted: ${new Date(job.created_at).toLocaleDateString()}
-      </p>
-      <div id="action-area" style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;"></div>
-    `;
+        box.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <h2 style="font-size: 28px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 6px;">${escHtml(job.title)}</h2>
+                    <p style="font-size: 16px; color: var(--primary); font-weight: 700;">
+                        ${escHtml(job.employer_name || job.company)}
+                    </p>
+                </div>
+                <div id="save-btn-container"></div>
+            </div>
 
-    renderActions(user, job, isClosed);
-  }
+            <div class="info-pill-container">
+                <div class="info-pill"><i class="fas fa-map-marker-alt"></i> <span>${escHtml(job.location || 'Remote')}</span></div>
+                <div class="info-pill"><i class="fas fa-wallet"></i> <span>${escHtml(job.salary || 'Negotiable')}</span></div>
+                <div class="info-pill"><i class="fas fa-briefcase"></i> <span style="text-transform: capitalize;">${escHtml(job.type || 'Full Time')} • ${escHtml(job.workplace || 'On-site')}</span></div>
+                <div class="info-pill"><i class="fas fa-graduation-cap"></i> <span style="text-transform: capitalize;">${escHtml(job.experience_level || 'Entry')} Level</span></div>
+                <span class="badge ${isClosed ? 'badge-error' : 'badge-success'}" style="margin-left: auto;">${isClosed ? 'CLOSED' : 'ACTIVE'}</span>
+            </div>
 
-  function renderActions(user, job, isClosed) {
-    const area = document.getElementById('action-area');
-    if (!user) {
-      area.innerHTML = `<a href="${BASE}/auth/login.html"><button>Login to Apply</button></a>`;
-    } else if (user.role === 'seeker' && !isClosed) {
-      area.innerHTML = `
-        <button onclick="location.href='${BASE}/seeker/apply.php?id=${job.id}'">
-          ✅ Apply Now
-        </button>
-        <button class="secondary" onclick="saveThisJob(${job.id})">🔖 Save Job</button>`;
-    } else if (isClosed) {
-      area.innerHTML = `<span style="color:#e53935;font-weight:600;">This job is no longer accepting applications.</span>`;
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <div style="padding: 16px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);">
+                    <small style="color: var(--text-muted); font-weight: 800; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 6px;">Industry Sector</small>
+                    <strong style="color: var(--text-main); font-weight: 700;">${escHtml(job.industry || job.category || 'General')}</strong>
+                </div>
+                <div style="padding: 16px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius);">
+                    <small style="color: var(--text-muted); font-weight: 800; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 6px;">Deadline Date</small>
+                    <strong style="color: ${new Date(job.deadline) < new Date() ? '#ef4444' : 'var(--text-main)'}; font-weight: 700;">
+                        ${job.deadline ? new Date(job.deadline).toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'}) : 'No Deadline'}
+                    </strong>
+                </div>
+            </div>
+
+            <div style="margin: 36px 0;">
+                <h4 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">Job Description</h4>
+                <div class="desc-text">${escHtml(job.description || '')}</div>
+            </div>
+
+            <p style="margin-top: 36px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 20px; font-weight: 600;">
+                <i class="far fa-clock" style="margin-right: 6px;"></i> Posted on: ${new Date(job.created_at).toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'})}
+            </p>
+
+            <div id="action-area" style="margin-top: 30px; display: flex; gap: 16px; flex-wrap: wrap;"></div>
+        `;
+
+        renderActions(user, job, isClosed);
     }
-  }
 
-  async function saveThisJob(id) {
-    const res = await toggleSaveJob(id, false);
-    if (res.success) showAlert('alert-box', 'Job saved to your list!', 'success');
-    else showAlert('alert-box', res.error || 'Could not save job.', 'error');
-  }
+    function renderActions(user, job, isClosed) {
+        const area = document.getElementById('action-area');
+        const saveContainer = document.getElementById('save-btn-container');
+        
+        if (!user) {
+            area.innerHTML = `<button onclick="location.href='../auth/login.html'" class="btn btn-primary" style="padding: 12px 32px; font-size: 14px;">Login to Apply</button>`;
+        } else if (user.role === 'seeker' && !isClosed) {
+            area.innerHTML = `
+                <button onclick="location.href='${BASE}/seeker/application.html?id=${job.id}'" class="btn btn-primary" style="padding: 14px 40px; font-size: 15px;">
+                    Apply for Position <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                </button>`;
+            
+            saveContainer.innerHTML = `
+                <button class="btn btn-glass" onclick="saveThisJob(${job.id})" style="padding: 10px 18px; font-size: 13px;">
+                    <i class="far fa-bookmark" style="margin-right: 6px;"></i> Save Opportunity
+                </button>`;
+        } else if (isClosed) {
+            area.innerHTML = `<div style="background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 16px 24px; border-radius: var(--radius); width: 100%; font-weight: 600; font-size: 14px;">This vacancy is no longer accepting submissions.</div>`;
+        }
+    }
 
-  loadDetail();
+    async function saveThisJob(id) {
+        if (typeof toggleSaveJob !== 'function') {
+            showAlert('alert-box', 'Error: Save mechanism not loaded. Please refresh.', 'error');
+            return;
+        }
+        
+        const res = await toggleSaveJob(id, false);
+        if (res && (res.success || res.status === 409)) {
+            showAlert('alert-box', 'Vacancy saved successfully!', 'success');
+        } else {
+            showAlert('alert-box', (res && res.error) || 'Could not save vacancy.', 'error');
+        }
+    }
+
+    loadDetail();
 </script>
 </body>
 </html>
-
-

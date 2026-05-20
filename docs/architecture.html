@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINAL SUBMISSION: SmartJob Technical Blueprint</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; padding: 80px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 100px; }
+        .header h1 { font-size: 56px; font-weight: 900; letter-spacing: -3px; color: #fff; margin-bottom: 20px; background: linear-gradient(to right, #6366f1, #f47c48); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { font-size: 20px; color: #94a3b8; max-width: 700px; margin: 0 auto; line-height: 1.6; }
+        .card { background: #1e293b; border-radius: 32px; padding: 50px; margin-bottom: 80px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .card h2 { font-size: 28px; font-weight: 900; margin-bottom: 40px; color: #f47c48; display: flex; align-items: center; gap: 15px; }
+        .card h2::before { content: ''; width: 40px; height: 4px; background: #6366f1; border-radius: 2px; }
+        .mermaid { background: white; padding: 40px; border-radius: 20px; overflow: auto; }
+        .tech-tags { display: flex; gap: 10px; margin-top: 30px; }
+        .tag { font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; background: rgba(99, 102, 241, 0.1); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.2); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Project Final Submission</h1>
+        <p>Comprehensive Technical Architecture for the SmartJob AI Portal. Includes Seeker, Employer, and Admin workflows with full database mapping.</p>
+    </div>
+
+    <!-- 1. SYSTEM FLOWCHART -->
+    <div class="card">
+        <h2>1. Master System Flowchart</h2>
+        <div class="mermaid">
+        graph TD
+            ST([START]) --> LN[Landing Page]
+            LN --> AU{Authenticated?}
+            AU -- No --> RG[Registration + OTP Email]
+            AU -- Yes --> DB{User Role?}
+            
+            subgraph Seeker_Module
+            DB -- Seeker --> SR[AI Resume Hub]
+            SR --> SJ[AI-Weighted Job Match]
+            SJ --> SA[Application Submission]
+            SA --> SN[Real-time Status Alerts]
+            end
+            
+            subgraph Employer_Module
+            DB -- Employer --> EP[Post Job/Training]
+            EP --> EM[Manage Applicants]
+            EM --> EC[Live Chat with Seeker]
+            EC --> EI[Schedule Interview]
+            end
+            
+            subgraph Admin_Module
+            DB -- Admin --> AM[Approve Postings]
+            AM --> AV[Verify Employers]
+            AV --> AA[System Performance Reports]
+            end
+            
+            Seeker_Module --- Comm((Messaging & Notif Engine))
+            Employer_Module --- Comm
+            Comm --> ED([END])
+        </div>
+        <div class="tech-tags">
+            <span class="tag">PHP 8.2</span><span class="tag">MySQL</span><span class="tag">Gemini AI</span><span class="tag">WebSockets</span>
+        </div>
+    </div>
+
+    <!-- 2. CLASS DIAGRAM -->
+    <div class="card">
+        <h2>2. Technical Class Diagram (Database ERD)</h2>
+        <div class="mermaid">
+        classDiagram
+            class Users {
+                +int id (PK)
+                +string email (Unique)
+                +string password (Hash)
+                +enum role
+                +register()
+                +verifyOTP()
+            }
+            class Jobs {
+                +int id (PK)
+                +int employer_id (FK)
+                +string title
+                +decimal salary
+                +enum status
+                +calculateMatch()
+            }
+            class Applications {
+                +int id (PK)
+                +int seeker_id (FK)
+                +int job_id (FK)
+                +string status
+                +text ai_score
+            }
+            class Messages {
+                +int id (PK)
+                +int sender_id (FK)
+                +int receiver_id (FK)
+                +text content
+                +is_read
+            }
+            class Trainings {
+                +int id (PK)
+                +string title
+                +int capacity
+                +float price
+            }
+            
+            Users "1" -- "1" SeekerProfiles
+            Users "1" -- "1" EmployerProfiles
+            EmployerProfiles "1" -- "*" Jobs
+            EmployerProfiles "1" -- "*" Trainings
+            SeekerProfiles "1" -- "*" Applications
+            SeekerProfiles "1" -- "*" Enrollments
+            Jobs "1" -- "*" Applications
+            Users "1" -- "*" Messages : sends
+            Users "1" -- "*" Notifications : receives
+        </div>
+    </div>
+
+    <!-- 3. SEQUENCE DIAGRAM -->
+    <div class="card">
+        <h2>3. High-Detail Sequence Diagram (Application Flow)</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant S as Job Seeker
+            participant A as AI Engine (Gemini)
+            participant B as Backend Server
+            participant D as Database
+            participant E as Employer
+            
+            S->>B: Upload Resume PDF
+            B->>A: Parse Resume Content
+            A-->>B: Return Structured Skills JSON
+            B->>D: Update Seeker Profile
+            S->>B: Apply for Job ID: 101
+            B->>D: Verify Auth & Application Limits
+            B->>D: INSERT into applications
+            B->>D: INSERT into notifications
+            B->>E: Send Email: "New Top Match Applicant"
+            E->>B: Review Profile & Chat
+            B->>S: PUSH: "Employer is typing..."
+        </div>
+    </div>
+
+    <!-- 4. USE CASE DIAGRAM -->
+    <div class="card">
+        <h2>4. System Use Case Diagram</h2>
+        <div class="mermaid">
+        graph LR
+            subgraph Actors
+            Sk((Job Seeker))
+            Em((Employer))
+            Ad((System Admin))
+            end
+            
+            subgraph Use_Cases
+            UC1(Secure OTP Login)
+            UC2(Gemini AI Resume Optimization)
+            UC3(Apply with Auto-Match)
+            UC4(Manage Talent Pipeline)
+            UC5(Host Skill Workshops)
+            UC6(Real-time Private Chat)
+            UC7(Moderate Job Postings)
+            UC8(Generate Hiring Analytics)
+            end
+            
+            Sk --> UC1
+            Sk --> UC2
+            Sk --> UC3
+            Sk --> UC6
+            
+            Em --> UC1
+            Em --> UC4
+            Em --> UC5
+            Em --> UC6
+            
+            Ad --> UC1
+            Ad --> UC7
+            Ad --> UC8
+        </div>
+    </div>
+
+    <!-- 5. STATE DIAGRAM -->
+    <div class="card">
+        <h2>5. Application Lifecycle (State Machine)</h2>
+        <div class="mermaid">
+        stateDiagram-v2
+            [*] --> Submitted: Seeker Applies
+            Submitted --> UnderReview: Employer Opens Profile
+            UnderReview --> AI_Ranked: Match Score Calculated
+            AI_Ranked --> Shortlisted: High Match
+            Shortlisted --> Interviewing: Message Sent
+            Interviewing --> Accepted: Offer Extended
+            Interviewing --> Rejected: Profile Mismatch
+            Accepted --> [*]
+            Rejected --> [*]
+        </div>
+    </div>
+
+    <div style="text-align: center; color: #64748b; font-size: 14px; margin-top: 100px;">
+        <p>Documentation built for Final Submission &copy; 2026 SmartJob AI Portal</p>
+        <p>Architected by Roshan Yadav & Antigravity AI</p>
+    </div>
+</div>
+
+<script>
+    mermaid.initialize({ 
+        startOnLoad: true, 
+        theme: 'dark',
+        themeVariables: {
+            primaryColor: '#6366f1',
+            primaryTextColor: '#fff',
+            primaryBorderColor: '#6366f1',
+            lineColor: '#94a3b8',
+            secondaryColor: '#f47c48',
+            tertiaryColor: '#1e293b'
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Host new vacancies and attract top tech candidates.">
+    <title>Post Vacancy | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<div class="container dashboard-layout" style="max-width: 840px;">
+    <div class="dashboard-panel animate-in">
+        <div class="panel-header">
+            <h3><i class="fas fa-plus-circle" style="color: var(--primary); margin-right: 10px;"></i> Publish New Vacancy</h3>
+            <a href="dashboard.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+                <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> Dashboard
+            </a>
+        </div>
+
+        <div id="alert-box"></div>
+
+        <div class="input-group">
+            <label for="title">Job Title</label>
+            <input type="text" id="title" placeholder="e.g. Senior Fullstack Developer" required>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="company">Company Name</label>
+                <input type="text" id="company" placeholder="Enter company name" required>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="industry">Industry Category</label>
+                <select id="industry">
+                    <option value="IT">IT & Software</option>
+                    <option value="Marketing">Marketing & Sales</option>
+                    <option value="Design">UI/UX Design</option>
+                    <option value="Finance">Finance & Banking</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="type">Job Type</label>
+                <select id="type">
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="freelance">Freelance</option>
+                    <option value="internship">Internship</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="workplace">Workplace Setting</label>
+                <select id="workplace">
+                    <option value="Remote">Remote (100% WFH)</option>
+                    <option value="On-site">On-site (Office)</option>
+                    <option value="Hybrid">Hybrid (Flexible)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="salary">Expected Salary</label>
+                <select id="salary">
+                    <option value="">Negotiable / Not Specified</option>
+                    <option value="0-500">$0 - $500</option>
+                    <option value="500-1000">$500 - $1,000</option>
+                    <option value="1000-2000">$1,000 - $2,000</option>
+                    <option value="2000-5000">$2,000 - $5,000</option>
+                    <option value="5000+">$5,000+</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="experience_level">Experience Level Required</label>
+                <select id="experience_level">
+                    <option value="entry">Entry Level (No Exp)</option>
+                    <option value="junior">Junior (1-3 yrs)</option>
+                    <option value="mid">Mid-Level (3-5 yrs)</option>
+                    <option value="senior">Senior (5-10 yrs)</option>
+                    <option value="expert">Expert (10+ yrs)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="location">Primary Location</label>
+                <select id="location">
+                    <option value="Remote">Remote</option>
+                    <option value="Kathmandu">Kathmandu</option>
+                    <option value="Pokhara">Pokhara</option>
+                    <option value="Dhaka">Dhaka</option>
+                    <option value="Butwal">Butwal</option>
+                    <option value="Other">Other Global Location</option>
+                </select>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="deadline">Application Deadline</label>
+                <input type="date" id="deadline">
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-bottom: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                <label for="description" style="margin-bottom: 0;">Full Job Description</label>
+                <button onclick="handleAIGeneration()" id="ai-generate-btn" class="btn" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; padding: 6px 16px; font-size: 12px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s;">
+                    <i class="fas fa-sparkles" style="color: #f47c48;"></i> Auto-Generate with AI
+                </button>
+            </div>
+            <textarea id="description" rows="12" placeholder="Describe the role, candidate requirements, tech stack focus, and core benefits in detail..." required></textarea>
+        </div>
+
+        <button id="submit-btn" class="btn btn-primary" onclick="handlePost()" style="width: 100%; padding: 16px; font-size: 15px;">
+            Publish Opportunity Listing <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>
+        </button>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    let currentUser = null;
+
+    async function init() {
+        currentUser = await checkAuth('employer');
+        if (!currentUser) return;
+        
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        document.getElementById('deadline').value = d.toISOString().split('T')[0];
+    }
+
+    async function handleAIGeneration() {
+        const contextData = {
+            title: document.getElementById('title').value.trim(),
+            company: document.getElementById('company').value.trim(),
+            industry: document.getElementById('industry').value,
+            type: document.getElementById('type').value,
+            workplace: document.getElementById('workplace').value,
+            salary: document.getElementById('salary').value,
+            experience_level: document.getElementById('experience_level').value
+        };
+
+        if (!contextData.title || !contextData.company) {
+            return showAlert('alert-box', 'Please enter a Job Title and Company Name first so the AI has context!', 'error');
+        }
+
+        const btn = document.getElementById('ai-generate-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.disabled = true;
+
+        try {
+            const res = await apiPost('/ai-job-generator.php', contextData);
+            if (res.success && res.data) {
+                document.getElementById('description').value = res.data;
+                showAlert('alert-box', 'Job description generated successfully!', 'success');
+            } else {
+                showAlert('alert-box', res.error || 'Failed to generate description.', 'error');
+            }
+        } catch (e) {
+            showAlert('alert-box', 'API error during AI generation.', 'error');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    async function handlePost() {
+        const formData = {
+            title: document.getElementById('title').value.trim(),
+            company: document.getElementById('company').value.trim(),
+            industry: document.getElementById('industry').value,
+            type: document.getElementById('type').value,
+            workplace: document.getElementById('workplace').value,
+            salary: document.getElementById('salary').value,
+            experience_level: document.getElementById('experience_level').value,
+            deadline: document.getElementById('deadline').value,
+            location: document.getElementById('location').value,
+            description: document.getElementById('description').value.trim(),
+            employer_id: currentUser.id
+        };
+
+        if (!formData.title || !formData.company || !formData.description) {
+            return showAlert('alert-box', 'Job Title, Company, and Description are required!', 'error');
+        }
+
+        setLoading('submit-btn', true, 'Publishing Opportunity...');
+        const res = await apiPost('/jobs.php', formData);
+        setLoading('submit-btn', false);
+
+        if (res.success) {
+            showAlert('alert-box', 'Vacancy published successfully!', 'success');
+            setTimeout(() => location.href = 'dashboard.html', 1500);
+        } else {
+            showAlert('alert-box', res.error || 'Server error occurred.', 'error');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

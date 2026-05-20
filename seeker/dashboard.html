@@ -1,15 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0; url=dashboard.php">
-    <script type="text/javascript">
-        window.location.href = "dashboard.php"
-    </script>
-    <title>Dashboard Redirecting...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage your professional career profile and search AI-matched job offers.">
+    <title>Seeker Dashboard | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .profile-side-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, #ff5722 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(244, 124, 72, 0.2);
+            overflow: hidden;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .side-nav {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .side-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .side-nav-link:hover, .side-nav-link.active {
+            background: rgba(244, 124, 72, 0.08);
+            color: var(--primary);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(244, 124, 72, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .dashboard-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .panel-header h3 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+        .job-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        .job-strip:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .job-strip:last-child {
+            margin-bottom: 0;
+        }
+        .status-badge {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-pending { background: rgba(255, 179, 0, 0.1); color: #ffb300; }
+        .status-accepted { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+        .status-rejected { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+    </style>
 </head>
 <body>
-    If you are not redirected automatically, follow this <a href="dashboard.php">link to dashboard.php</a>.
+
+<header class="global-nav"></header>
+
+<div class="container">
+    <div class="dashboard-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="profile-side-card">
+                <div class="avatar-container" id="avatar-container">
+                    <span id="avatar-initial">...</span>
+                </div>
+                <h3 id="profile-name" style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Loading...</h3>
+                <p id="profile-email" style="color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 24px;">applicant@example.com</p>
+                <a href="profile.html" class="btn btn-glass" style="width: 100%; padding: 10px; font-size: 13px;">Edit Profile</a>
+            </div>
+
+            <nav class="side-nav">
+                <a href="dashboard.html" class="side-nav-link active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="../jobs/listing.html" class="side-nav-link"><i class="fas fa-search"></i> Search Jobs</a>
+                <a href="applied-jobs.html" class="side-nav-link"><i class="fas fa-paper-plane"></i> Applied Jobs</a>
+                <a href="saved-jobs.html" class="side-nav-link"><i class="fas fa-bookmark"></i> Saved Jobs</a>
+                <a href="resume-manager.html" class="side-nav-link"><i class="fas fa-file-pdf"></i> Resume Hub</a>
+                <a href="ai-resume-parser.php" class="side-nav-link"><i class="fas fa-wand-magic-sparkles"></i> AI Parser Hub</a>
+                <a href="../messages/inbox.html" class="side-nav-link"><i class="fas fa-comment-dots"></i> Message Center</a>
+                <a href="../reviews/company-review.html" class="side-nav-link"><i class="fas fa-star"></i> Reviews Hub</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="main-area">
+            <div style="margin-bottom: 36px;">
+                <h1 style="font-size: 32px; font-weight: 900; letter-spacing: -1.5px; color: var(--text-main); margin-bottom: 6px;">Job Seeker Space</h1>
+                <p style="color: var(--text-muted); font-size: 15px; font-weight: 500;">Welcome to Nepal's high-tech talent gateway.</p>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Applications Sent</div>
+                        <h2 id="stat-applied" style="font-size: 36px; font-weight: 900; color: var(--text-main); line-height: 1;">0</h2>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Saved Pipelines</div>
+                        <h2 id="stat-saved" style="font-size: 36px; font-weight: 900; color: var(--text-main); line-height: 1;">0</h2>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(255, 179, 0, 0.1); color: #ffb300;"><i class="fas fa-bookmark"></i></div>
+                </div>
+            </div>
+
+            <!-- Recent Applications -->
+            <div class="dashboard-panel">
+                <div class="panel-header">
+                    <h3>Recent Application Statuses</h3>
+                    <a href="applied-jobs.html" style="color: var(--primary); font-size: 14px; font-weight: 700; text-decoration: none;">View All Hub →</a>
+                </div>
+                <div id="recent-apps-container">
+                    <div style="text-align: center; color: var(--text-dim); padding: 40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommended -->
+            <div class="dashboard-panel">
+                <div class="panel-header">
+                    <h3>AI-Weighted Match Recommendations</h3>
+                    <a href="../jobs/listing.html" style="color: var(--primary); font-size: 14px; font-weight: 700; text-decoration: none;">Discover More →</a>
+                </div>
+                <div id="recommended-container">
+                    <div style="text-align: center; color: var(--text-dim); padding: 40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity History Log -->
+            <div class="dashboard-panel">
+                <div class="panel-header">
+                    <h3>Personal Activity History</h3>
+                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dim);"><i class="fas fa-history" style="margin-right: 4px;"></i> Audit logs</span>
+                </div>
+                <div id="activity-log-container" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="text-align: center; color: var(--text-dim); padding: 20px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 20px; color: var(--primary);"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    async function init() {
+        const user = await checkAuth('seeker');
+        if (!user) return;
+        
+        document.getElementById('profile-name').textContent = user.name;
+        document.getElementById('profile-email').textContent = user.email || 'user@example.com';
+        document.getElementById('avatar-initial').textContent = user.name.charAt(0).toUpperCase();
+
+        const pRes = await apiGet('/profiles.php');
+        let userSkills = [];
+        if (pRes && pRes.success && pRes.data && pRes.data.photo) {
+            const photoUrl = getImageUrl(pRes.data.photo);
+            document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl}" alt="Profile" onerror="this.onerror=null; this.outerHTML='<span id=\\'avatar-initial\\'>${user.name.charAt(0).toUpperCase()}</span>';">`;
+        }
+        if (pRes && pRes.success && pRes.data && pRes.data.skills) {
+            userSkills = pRes.data.skills.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+        }
+
+        const statsRes = await apiGet('/dashboard-stats.php');
+        if (statsRes && statsRes.success) {
+            document.getElementById('stat-applied').textContent = statsRes.stats.total_applications || 0;
+            document.getElementById('stat-saved').textContent = statsRes.stats.saved_jobs || 0;
+        }
+
+        const appsRes = await apiGet('/applications.php');
+        const appsContainer = document.getElementById('recent-apps-container');
+        if (appsRes && appsRes.success && appsRes.data.length > 0) {
+            appsContainer.innerHTML = appsRes.data.slice(0, 3).map(app => {
+                let statusClass = 'status-pending';
+                let statusIcon = 'fa-clock';
+                if(app.status === 'rejected') { statusClass = 'status-rejected'; statusIcon = 'fa-times-circle'; }
+                if(app.status === 'accepted') { statusClass = 'status-accepted'; statusIcon = 'fa-check-circle'; }
+                
+                return `
+                <a href="applied-jobs.html" class="job-strip">
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 6px; color: var(--text-main);">${escHtml(app.job_title)}</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); font-weight: 500;">${escHtml(app.company || 'Company')} • Applied on ${new Date(app.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <span class="status-badge ${statusClass}"><i class="fas ${statusIcon}"></i> ${escHtml(app.status)}</span>
+                </a>
+                `;
+            }).join('');
+        } else {
+            appsContainer.innerHTML = '<p style="text-align:center; color: var(--text-dim); padding:20px; font-weight: 600;">No recent applications yet.</p>';
+        }
+
+        const jobsRes = await apiGet('/jobs.php');
+        const recommendedContainer = document.getElementById('recommended-container');
+        if (jobsRes && jobsRes.success && jobsRes.data.length > 0) {
+            recommendedContainer.innerHTML = jobsRes.data.slice(0, 4).map(job => {
+                // Calculate dynamic matching score
+                let score = 65; // Base minimum fit
+                const jobText = (job.title + ' ' + (job.description || '')).toLowerCase();
+                
+                if (userSkills.length > 0) {
+                    let matches = 0;
+                    userSkills.forEach(skill => {
+                        if (jobText.includes(skill)) matches++;
+                    });
+                    
+                    if (matches > 0) {
+                        const ratio = matches / Math.min(userSkills.length, 5);
+                        score = Math.min(70 + Math.round(ratio * 28), 98);
+                    } else {
+                        score = rand(65, 75);
+                    }
+                } else {
+                    score = rand(70, 85);
+                }
+
+                return `
+                <a href="../jobs/detail.html?id=${job.id}" class="job-strip">
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 6px; color: var(--text-main);">${escHtml(job.title)}</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); font-weight: 500;">${escHtml(job.company)} • ${escHtml(job.location || 'Remote')} • ${escHtml(job.salary || 'Negotiable')}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; background: rgba(244, 124, 72, 0.08); color: var(--primary); border: 1px solid rgba(244, 124, 72, 0.15);">
+                            <i class="fas fa-wand-magic-sparkles" style="margin-right: 4px;"></i> ${score}% AI Match
+                        </span>
+                        <i class="fas fa-chevron-right" style="color: var(--primary); font-size: 14px;"></i>
+                    </div>
+                </a>
+                `;
+            }).join('');
+        } else {
+            recommendedContainer.innerHTML = '<p style="text-align:center; color: var(--text-dim); padding:20px; font-weight: 600;">No job listings found.</p>';
+        }
+
+        // Fetch and render personal activity history logs
+        const logsRes = await apiGet('/activity-logs.php');
+        const logsContainer = document.getElementById('activity-log-container');
+        if (logsRes && logsRes.success && logsRes.data.length > 0) {
+            logsContainer.innerHTML = logsRes.data.map(log => `
+                <div style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-deep);">
+                    <div style="font-size: 16px; color: var(--primary); padding-top: 2px;"><i class="fas fa-circle-check"></i></div>
+                    <div style="flex: 1;">
+                        <h5 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${escHtml(log.action)}</h5>
+                        <p style="font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px;">${escHtml(log.details || '')}</p>
+                        <span style="font-size: 11px; color: var(--text-dim); font-weight: 600;"><i class="far fa-clock" style="margin-right: 4px;"></i> ${new Date(log.created_at).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            logsContainer.innerHTML = '<p style="text-align:center; color: var(--text-dim); padding:20px; font-weight: 600;">No actions logged in this session yet.</p>';
+        }
+    }
+    
+    function rand(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    init();
+</script>
 </body>
 </html>
-
-

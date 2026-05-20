@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View complete curriculum details and enroll in this professional workshop.">
+    <title>Workshop Details | SmartJob Nepal</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .detail-layout {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .detail-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        @media (max-width: 768px) {
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .meta-box {
+            background: var(--bg-deep);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .meta-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(244, 124, 72, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .meta-info small {
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .meta-info strong {
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+        .description-section {
+            line-height: 1.8;
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            white-space: pre-line;
+        }
+        .enroll-bar {
+            background: rgba(244, 124, 72, 0.08);
+            color: var(--text-main);
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .highlights-list {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 40px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 576px) {
+            .highlights-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        .highlights-list li {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .highlights-list li i {
+            color: var(--status-success);
+        }
+        
+        /* Premium Digital Payment Modal Styles */
+        .payment-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .payment-modal.active {
+            display: flex;
+        }
+        .payment-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 440px;
+            padding: 36px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            position: relative;
+            animation: modalSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes modalSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .gateway-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 16px;
+            color: white;
+        }
+        .esewa-btn { background: #41a124; }
+        .esewa-btn:hover { background: #388a1e; }
+        .khalti-btn { background: #5c2d91; }
+        .khalti-btn:hover { background: #4c2478; }
+    </style>
+</head>
+<body>
+
+<header class="global-nav"></header>
+
+<!-- Payment Modal Container -->
+<div class="payment-modal" id="checkout-modal">
+    <div class="payment-card">
+        <button onclick="closeCheckout()" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; font-size: 20px; color: var(--text-dim); cursor: pointer;"><i class="fas fa-times"></i></button>
+        
+        <!-- View 1: Select Gateway -->
+        <div id="payment-gateways-view">
+            <h3 style="font-size: 22px; font-weight: 900; margin-bottom: 8px; color:var(--text-main); letter-spacing:-0.5px;">SmartCheckout Nepal</h3>
+            <p style="font-size: 13.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 28px;">Select a local digital wallet secure payment option:</p>
+            
+            <button class="gateway-btn esewa-btn" onclick="selectGateway('esewa')">
+                <i class="fas fa-leaf"></i> Pay securely with eSewa
+            </button>
+            <button class="gateway-btn khalti-btn" onclick="selectGateway('khalti')">
+                <i class="fas fa-wallet"></i> Pay securely with Khalti
+            </button>
+        </div>
+
+        <!-- View 2: Credentials Input -->
+        <div id="payment-form-view" style="display: none; text-align: left;">
+            <div id="checkout-gateway-logo" style="text-align: center; margin-bottom: 24px;"></div>
+            
+            <div class="input-group" style="margin-bottom: 18px;">
+                <label id="gateway-id-label" style="font-weight: 700;">Mobile Number</label>
+                <input type="text" id="checkout-wallet-id" placeholder="e.g. 98XXXXXXXX" style="width: 100%; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-deep); color: var(--text-main);">
+            </div>
+            <div class="input-group" style="margin-bottom: 28px;">
+                <label style="font-weight: 700;">Secure Transaction PIN</label>
+                <input type="password" id="checkout-pin" placeholder="••••" maxlength="6" style="width: 100%; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-deep); color: var(--text-main);">
+            </div>
+            
+            <button id="submit-payment-btn" onclick="submitMockPayment()" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px;">
+                Authorize Payment <i class="fas fa-lock" style="margin-left: 6px;"></i>
+            </button>
+        </div>
+
+        <!-- View 3: Success Visual -->
+        <div id="payment-success-view" style="display: none; padding: 20px 0;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16,185,129,0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px;">
+                <i class="fas fa-check-circle animate-in"></i>
+            </div>
+            <h3 style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">Registration Complete!</h3>
+            <p style="font-size: 14px; color: var(--text-muted); font-weight: 600; margin-bottom: 28px;">Your digital payment was successfully processed, and you have been registered for this workshop.</p>
+            
+            <button onclick="location.reload()" class="btn btn-primary" style="padding: 12px 32px; font-size: 14px;">
+                Access My Workshops
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="container detail-layout" style="max-width: 840px;">
+    <div style="margin-bottom: 24px;">
+        <a href="../trainings.html" class="btn btn-glass" style="font-size: 13px; padding: 10px 16px;">
+            <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back to Workshops
+        </a>
+    </div>
+
+    <div class="detail-card animate-in">
+        <div id="training-content">
+            <div style="text-align: center; padding: 60px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: var(--primary);"></i>
+                <p style="margin-top: 12px; font-weight: 600; color: var(--text-muted);">Fetching workshop curriculum...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="premium-footer" style="padding: 60px 0; border-top: 1px solid var(--border); margin-top: 80px;">
+    <div class="container" style="text-align: center; color: var(--text-dim); font-size: 14px; font-weight: 600;">
+        <p>&copy; 2026 SmartJob Nepal. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const trainingId = urlParams.get('id');
+    let currentTrainingId = null;
+
+    async function loadDetail() {
+        if (!trainingId) {
+            window.location.href = '../trainings.html';
+            return;
+        }
+
+        const res = await apiGet(`/trainings.php?id=${trainingId}`);
+        const container = document.getElementById('training-content');
+
+        if (res.success) {
+            const t = res.data;
+            container.innerHTML = `
+                <div style="margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); background: rgba(244, 124, 72, 0.08); padding: 6px 14px; border-radius: 6px; display: inline-block; margin-bottom: 12px;">
+                        Interactive Workshop
+                    </div>
+                    <h1 style="font-size: 36px; font-weight: 900; letter-spacing: -2.5px; color: var(--text-main); margin-bottom: 8px;">${escHtml(t.title)}</h1>
+                    <div style="color: var(--text-muted); font-weight: 600; font-size: 15px;">
+                        Published by <strong style="color: var(--text-main);">${escHtml(t.employer_name)}</strong>
+                    </div>
+                </div>
+
+                <div class="meta-grid">
+                    <div class="meta-box">
+                        <div class="meta-icon"><i class="far fa-clock"></i></div>
+                        <div class="meta-info">
+                            <small>Duration</small>
+                            <strong>${escHtml(t.duration)}</strong>
+                        </div>
+                    </div>
+                    <div class="meta-box">
+                        <div class="meta-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-tag"></i></div>
+                        <div class="meta-info">
+                            <small>Training Fee</small>
+                            <strong>${escHtml(t.price || 'Free')}</strong>
+                        </div>
+                    </div>
+                    <div class="meta-box">
+                        <div class="meta-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-award"></i></div>
+                        <div class="meta-info">
+                            <small>Certificate</small>
+                            <strong>Industry Verified</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="description-section">
+                    <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">Curriculum Highlights</h3>
+                    ${escHtml(t.description)}
+                </div>
+
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">What's Included</h3>
+                    <ul class="highlights-list">
+                        <li><i class="fas fa-circle-check"></i> Hands-on Practical Labs</li>
+                        <li><i class="fas fa-circle-check"></i> Industry Mentorship Session</li>
+                        <li><i class="fas fa-circle-check"></i> Career Pipeline Integration</li>
+                        <li><i class="fas fa-circle-check"></i> Lifetime Certificate Verification</li>
+                    </ul>
+                </div>
+
+                <div class="enroll-bar">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Ready to elevate your expertise?</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); font-weight: 500; margin: 0;">Register now to reserve your spot and receive live curriculum details.</p>
+                    </div>
+                    <button id="reg-btn" class="btn btn-primary" onclick="handleEnroll(${t.id})" style="padding: 14px 32px; font-size: 14px;">
+                        Enroll in Course <i class="fas fa-circle-check" style="margin-left: 8px;"></i>
+                    </button>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `<div style="text-align:center; color: #ef4444; font-weight:600; padding:40px;">${res.error || 'Training program not found.'}</div>`;
+        }
+    }
+
+    function handleEnroll(id) {
+        currentTrainingId = id;
+        document.getElementById('checkout-modal').classList.add('active');
+    }
+
+    function closeCheckout() {
+        document.getElementById('checkout-modal').classList.remove('active');
+        resetCheckoutViews();
+    }
+
+    function selectGateway(gateway) {
+        document.getElementById('payment-gateways-view').style.display = 'none';
+        document.getElementById('payment-form-view').style.display = 'block';
+        
+        const label = document.getElementById('gateway-id-label');
+        const logo = document.getElementById('checkout-gateway-logo');
+        const payBtn = document.getElementById('submit-payment-btn');
+        
+        if (gateway === 'esewa') {
+            label.textContent = 'eSewa ID (Mobile / Email)';
+            logo.innerHTML = '<span style="color:#41a124; font-weight:900; font-size:20px;"><i class="fas fa-wallet" style="margin-right:6px;"></i> eSewa Secure checkout</span>';
+            payBtn.className = 'btn';
+            payBtn.style.background = '#41a124';
+            payBtn.style.color = 'white';
+            payBtn.style.width = '100%';
+        } else {
+            label.textContent = 'Khalti Mobile Number';
+            logo.innerHTML = '<span style="color:#5c2d91; font-weight:900; font-size:20px;"><i class="fas fa-wallet" style="margin-right:6px;"></i> Khalti Secure checkout</span>';
+            payBtn.className = 'btn';
+            payBtn.style.background = '#5c2d91';
+            payBtn.style.color = 'white';
+            payBtn.style.width = '100%';
+        }
+    }
+
+    function resetCheckoutViews() {
+        document.getElementById('payment-gateways-view').style.display = 'block';
+        document.getElementById('payment-form-view').style.display = 'none';
+        document.getElementById('payment-success-view').style.display = 'none';
+        document.getElementById('checkout-wallet-id').value = '';
+        document.getElementById('checkout-pin').value = '';
+    }
+
+    async function submitMockPayment() {
+        const idVal = document.getElementById('checkout-wallet-id').value.trim();
+        const pinVal = document.getElementById('checkout-pin').value.trim();
+        
+        if (!idVal || !pinVal) {
+            alert('Please fill out all payment credentials.');
+            return;
+        }
+
+        const payBtn = document.getElementById('submit-payment-btn');
+        const origText = payBtn.innerHTML;
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Contacting Gateway...';
+        
+        setTimeout(async () => {
+            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Pin...';
+            setTimeout(async () => {
+                // Call actual database enrollment
+                const res = await apiPost('/trainings.php?action=enroll', { training_id: currentTrainingId });
+                payBtn.disabled = false;
+                payBtn.innerHTML = origText;
+                
+                if (res.success) {
+                    document.getElementById('payment-form-view').style.display = 'none';
+                    document.getElementById('payment-success-view').style.display = 'block';
+                } else if (res.status === 401) {
+                    alert("Please login as a seeker to register for workshops.");
+                    location.href = '../auth/login.html';
+                } else {
+                    alert(res.error || "Payment verification failed.");
+                    resetCheckoutViews();
+                }
+            }, 1000);
+        }, 1200);
+    }
+
+    loadDetail();
+</script>
+</body>
+</html>

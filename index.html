@@ -3,119 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSTACK | Find Your Dream Job</title>
-    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="description" content="Smart Job is Nepal's smartest job portal. Connecting great talent with amazing companies.">
+    <title>Smart Job | Premium Career Portal Nepal</title>
+    <link rel="stylesheet" href="assets/css/style.css?v=3.1">
+    <link rel="stylesheet" href="assets/css/home.css?v=3.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* CRITICAL HOME STYLE OVERRIDE */
+        .logo-cloud { padding: 60px 0; background: white; overflow: hidden; white-space: nowrap; border-bottom: 1px solid var(--border); }
+        .logo-track { display: flex !important; gap: 80px; align-items: center; animation: scroll 40s linear infinite; width: fit-content; }
+        .logo-item { font-size: 20px; font-weight: 900; color: var(--text-dim); opacity: 0.5; flex-shrink: 0; }
+        
+        .stats-strip { padding: 80px 0; background: white; border-bottom: 1px solid var(--border); }
+        .stats-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 40px; text-align: center; }
+        
+        .trending-tags { margin-top: 32px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .tag-sm { font-size: 12px; font-weight: 800; color: var(--text-dim); padding: 8px 20px; border-radius: 100px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; }
+        .tag-sm:hover { border-color: var(--primary); color: var(--primary); background: var(--bg-hover); }
+
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr !important; } }
+    </style>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 
-<header class="navbar">
-    <h2>JSTACK</h2>
-    <nav class="nav-links">
-        <a href="jobs/listing.html">Browse Jobs</a>
-        <a href="reviews/company-review.html">Company Reviews</a>
-        <a href="portals.html" style="font-weight: 700; color: #fff; background: rgba(0,0,0,0.22); border-radius: 6px; padding: 6px 12px;">Resource Portals</a>
-        <div id="nav-actions" style="display: flex; gap: 10px;">
-            </div>
-    </nav>
-</header>
+<header class="global-nav"></header>
 
-<section class="hero">
-    <h1>Find Your Dream Job</h1>
-    <p>Connecting ambitious talent with top-tier employers. Your next career move starts here.</p>
-    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
-        <button class="btn-primary" onclick="location.href='jobs/listing.html'">Explore Jobs</button>
-        <button class="btn-outline" style="border-color: white; color: white;" onclick="location.href='portals.html'">Employer Portals</button>
-    </div>
-</section>
-
-<section class="container" style="position: relative; z-index: 10; margin-top: -40px;">
-    <div class="search-bar">
-        <div class="search-input-group">
-            <i class="fas fa-search"></i>
-            <input type="text" id="search" placeholder="Job title, keywords, or company...">
-            <ul id="autocomplete-list" class="autocomplete-list" style="display:none; top: 100%;"></ul>
+<section class="hero-section">
+    <div class="container animate-in">
+        <span class="hero-badge">
+            <i class="fas fa-sparkles"></i> Nepal's Most Trusted Career Network
+        </span>
+        <h1 class="hero-title">Your Next Career<br>Move starts here.</h1>
+        <p class="hero-subtitle">Discover thousands of elite opportunities from verified companies in Nepal. Smart AI matching, instant professional growth.</p>
+        
+        <div class="mega-search">
+            <input type="text" id="mega-keyword" class="mega-input" placeholder="Job title, skills, or company">
+            <div class="search-divider"></div>
+            <input type="text" id="mega-location" class="mega-input" placeholder="City or Remote">
+            <button onclick="handleMegaSearch()" class="btn btn-primary" style="padding: 0 48px; border-radius: 100px; font-size: 16px;">Search Jobs</button>
         </div>
-        
-        <select id="search-category" class="search-select">
-            <option value="All">All Categories</option>
-            <option value="Technology">Technology</option>
-            <option value="Design">Design</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Business">Business</option>
-        </select>
-        
-        <button class="btn-primary" onclick="doSearch()"><i class="fas fa-magnifying-glass"></i> Search</button>
+
+        <div class="trending-tags">
+            <span class="tag-sm" onclick="setSearch('Software')">#Software</span>
+            <span class="tag-sm" onclick="setSearch('Design')">#Design</span>
+            <span class="tag-sm" onclick="setSearch('Remote')">#Remote</span>
+            <span class="tag-sm" onclick="setSearch('Marketing')">#Marketing</span>
+            <span class="tag-sm" onclick="setSearch('Banking')">#Banking</span>
+        </div>
     </div>
 </section>
 
-<section class="container section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="font-size: 24px; color: #111;">Latest Opportunities</h2>
-        <a href="jobs/listing.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">View All →</a>
+<div class="logo-cloud">
+    <div class="logo-track">
+        <span class="logo-item">NIC ASIA</span>
+        <span class="logo-item">F1 SOFT</span>
+        <span class="logo-item">LEAPFROG</span>
+        <span class="logo-item">COTMIV</span>
+        <span class="logo-item">PATHAO</span>
+        <span class="logo-item">DARAZ</span>
+        <span class="logo-item">NCELL</span>
+        <!-- Duplicate for Infinite Scroll -->
+        <span class="logo-item">NIC ASIA</span>
+        <span class="logo-item">F1 SOFT</span>
+        <span class="logo-item">LEAPFROG</span>
+        <span class="logo-item">COTMIV</span>
+        <span class="logo-item">PATHAO</span>
+        <span class="logo-item">DARAZ</span>
+        <span class="logo-item">NCELL</span>
+    </div>
+</div>
+
+<div class="stats-strip">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item animate-in">
+                <h4 id="count-jobs">2.4k</h4>
+                <p>Live Vacancies</p>
+            </div>
+            <div class="stat-item animate-in" style="animation-delay: 0.1s;">
+                <h4 id="count-comp">850+</h4>
+                <p>Verified Companies</p>
+            </div>
+            <div class="stat-item animate-in" style="animation-delay: 0.2s;">
+                <h4 id="count-seekers">15k</h4>
+                <p>Monthly Seekers</p>
+            </div>
+            <div class="stat-item animate-in" style="animation-delay: 0.3s;">
+                <h4>98%</h4>
+                <p>Success Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="home-section container">
+    <div class="section-header animate-in">
+        <h2 style="font-size: 48px; letter-spacing: -2px;">Intelligent <span style="color: var(--primary);">Career Match</span></h2>
+        <p class="hero-subtitle">We use advanced AI to bridge the gap between Nepal's top talent and fastest growing companies.</p>
     </div>
     
-    <div id="jobs-list" class="job-grid">
-        <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
-            <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: var(--primary);"></i>
-            <p style="margin-top: 10px; color: #888;">Finding the best jobs for you...</p>
+    <div class="bento-grid">
+        <div class="bento-item featured animate-in" onclick="location.href='seeker/ai-resume-parser.php'" style="grid-column: span 6; background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(8, 12, 20, 0.9)), url('assets/img/ai-match-hero.png'); background-size: cover; background-position: center; border: 1px solid rgba(244, 124, 72, 0.3); position: relative; overflow: hidden;">
+            <div style="position: relative; z-index: 2;">
+                <div style="width: 72px; height: 72px; background: rgba(244, 124, 72, 0.15); border: 1px solid rgba(244, 124, 72, 0.3); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px; backdrop-filter: blur(10px);">
+                    <i class="fas fa-bolt" style="font-size: 32px; color: var(--primary);"></i>
+                </div>
+                <h3 style="font-size: 34px; color: white;">Smart AI Matching</h3>
+                <p style="margin-top: 16px; font-size: 16px; line-height: 1.8; color: rgba(255, 255, 255, 0.85); font-weight: 500;">Our Gemini-powered engine scans your resume and instantly highlights the best roles for your specific professional DNA.</p>
+            </div>
+            <!-- Decorative Glow -->
+            <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: var(--primary); filter: blur(100px); opacity: 0.5; z-index: 1;"></div>
+        </div>
+        
+        <div class="bento-item animate-in" onclick="location.href='trainings/index.html'" style="grid-column: span 6; background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('assets/img/workshop.png'); background-size: cover;">
+            <div style="width: 64px; height: 64px; background: rgba(244, 124, 72, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px;">
+                <i class="fas fa-graduation-cap" style="font-size: 28px; color: var(--primary);"></i>
+            </div>
+            <h3 style="font-size: 28px;">Career Growth Hub</h3>
+            <p style="margin-top: 16px; font-size: 15px; color: var(--text-muted);">Access exclusive industry workshops and certifications to stay competitive in the global market.</p>
+        </div>
+        
+        <div class="bento-item animate-in" onclick="location.href='jobs/listing.html'" style="grid-column: span 4;">
+            <i class="fas fa-shield-check" style="font-size: 32px; color: var(--status-success); margin-bottom: 24px;"></i>
+            <h3>Verified Roles</h3>
+            <p style="margin-top: 12px; font-size: 15px; color: var(--text-muted);">No ghosts. No scams. Every listing is manually vetted by our quality team.</p>
+        </div>
+        
+        <div class="bento-item featured animate-in" onclick="location.href='modules/reviews/company-review.html'" style="grid-column: span 8; background: var(--primary-gradient);">
+            <i class="fas fa-star" style="font-size: 32px; color: white; margin-bottom: 24px;"></i>
+            <h3 style="font-size: 28px;">Transparent Insights</h3>
+            <p style="margin-top: 12px; font-size: 16px; color: rgba(255,255,255,0.9);">Read unfiltered reviews from current employees. Know the culture before you click apply.</p>
         </div>
     </div>
 </section>
 
-<footer>
+<section class="container" style="padding-bottom: 120px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px;" class="animate-in">
+        <div>
+            <h2 style="font-size: 42px; letter-spacing: -2px;">Elite Opportunities</h2>
+            <p style="color: var(--text-muted); font-size: 16px; font-weight: 600;">Fresh vacancies from top-tier employers.</p>
+        </div>
+        <a href="jobs/listing.html" class="btn btn-glass" style="font-size: 13px; padding: 14px 28px; border-radius: 100px;">Explore All Jobs <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></a>
+    </div>
+    
+    <div id="featured-jobs-container" class="bento-grid">
+        <!-- Dynamic Content -->
+    </div>
+</section>
+
+<footer class="premium-footer">
     <div class="container">
-        <p>© 2026 JSTACK — The Smart Job Portal. Built for developers and creators.</p>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Smart<span>Job</span></a>
+                <p>The smartest way to find a job in Nepal. Intelligence and transparency to connect great talent with amazing companies.</p>
+                <div class="footer-socials">
+                    <a href="https://www.facebook.com/roshan.adkhari.9" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.linkedin.com/in/roshan-yadav-95b57a348?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://www.instagram.com/roshanadkhari?igsh=MXJob2lsdjcwOGtkNA==" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul class="footer-links">
+                    <li><a href="jobs/listing.html">Find Jobs</a></li>
+                    <li><a href="modules/reviews/company-review.html">Reviews</a></li>
+                    <li><a href="trainings/index.html">Workshops</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>About</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Our Story</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="employer/index.html">For Employers</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 SmartJob Nepal. Empowering Careers.</p>
+            <p>Made with <i class="fas fa-heart" style="color: var(--primary);"></i> by <strong>Roshan Kumar Yadav</strong> in Kathmandu</p>
+        </div>
     </div>
 </footer>
 
-<script src="assets/js/main.js?v=1.2"></script>
-<script src="assets/js/jobs.js?v=1.1"></script>
-
+<script src="assets/js/main.js?v=3.1"></script>
 <script>
-    
-    function doSearch() {
-        const keyword = document.getElementById('search').value.trim();
-        const category = document.getElementById('search-category').value;
-        
-        let query = `keyword=${encodeURIComponent(keyword)}`;
-        if (category !== 'All') query += `&category=${encodeURIComponent(category)}`;
-        
-        window.location.href = `${BASE}/jobs/search.html?${query}`;
+    function setSearch(tag) {
+        document.getElementById('mega-keyword').value = tag;
+        handleMegaSearch();
     }
 
-    
-    async function loadLatestJobs() {
-        const container = document.getElementById('jobs-list');
-        
+    function handleMegaSearch() {
+        const kw = document.getElementById('mega-keyword').value.trim();
+        const loc = document.getElementById('mega-location').value.trim();
+        let url = `jobs/listing.html?keyword=${encodeURIComponent(kw)}`;
+        if (loc) url += `&location=${encodeURIComponent(loc)}`;
+        window.location.href = url;
+    }
+
+    async function loadFeaturedJobs() {
+        const container = document.getElementById('featured-jobs-container');
         try {
-
-            const res = await apiGet(`${API}/jobs.php`);
-            
-            if (res.success && res.data.length > 0) {
-
-                container.innerHTML = res.data.slice(0, 6).map(job => renderJobCard(job)).join('');
+            const res = await apiGet('/jobs.php');
+            if (res.success && res.data && res.data.length > 0) {
+                container.innerHTML = res.data.slice(0, 6).map(j => `
+                    <div class="bento-item animate-in" style="grid-column: span 4; background: white; padding: 32px;" onclick="location.href='jobs/detail.html?id=${j.id}'">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                            <div style="width: 56px; height: 56px; background: #fff9f4; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 950; color: var(--primary); border: 1px solid rgba(244, 124, 72, 0.1);">${j.company.charAt(0)}</div>
+                            <span class="status-tag tag-active" style="padding: 6px 12px; font-size: 10px;">${j.type}</span>
+                        </div>
+                        <h3 style="font-size: 20px; margin-bottom: 6px;">${escHtml(j.title)}</h3>
+                        <p style="color: var(--text-muted); font-size: 14px; font-weight: 700; margin-bottom: 24px;">${escHtml(j.company)} • ${escHtml(j.location)}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--border);">
+                            <span style="color: var(--status-success); font-weight: 900; font-size: 18px;">${j.salary || 'Competitive'}</span>
+                            <div class="btn btn-glass" style="width: 40px; height: 40px; padding: 0; border-radius: 12px;"><i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+                `).join('');
             } else {
-                container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 12px;">
-                        <p style="color: #666;">No active job listings found. Check back later!</p>
-                    </div>`;
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 80px;">No new jobs found.</div>`;
             }
-        } catch (err) {
-            container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--danger);">Error loading jobs. Please refresh.</p>`;
+        } catch (e) {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--status-danger); padding: 80px;">Error loading jobs.</div>`;
         }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        setupAutocomplete('search', 'autocomplete-list');
-        loadLatestJobs();
-
-        document.getElementById('search').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') doSearch();
-        });
+        loadFeaturedJobs();
     });
 </script>
-
 </body>
 </html>
-
